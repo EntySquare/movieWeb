@@ -14,7 +14,6 @@ let router = createRouter({
       path: '/', component: layout,
       children: [
         { path: '', component: () => import('@/views/home/index.vue') },
-        { path: '/test', component: () => import('@/views/test/index.vue') },
       ]
     },
   ],

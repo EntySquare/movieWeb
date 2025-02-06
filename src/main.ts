@@ -13,7 +13,6 @@ import { createPinia } from 'pinia'
 let pinia = createPinia()
 
 createApp(App).use(router)
-    .use(router)
     .use(pinia)
     .use(plugin)
     .mount('#app')
