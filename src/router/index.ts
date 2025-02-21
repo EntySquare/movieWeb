@@ -11,9 +11,22 @@ let router = createRouter({
   // 设置路由对象
   routes: [
     {
-      path: '/', component: layout,
+      path: '/', component: layout, redirect: '/home', // 根路径重定向到 /home
       children: [
-        { path: '', component: () => import('@/views/home/index.vue') },
+        { path: '/home', component: () => import('@/views/home/index.vue') },
+        { path: '/mint', component: () => import('@/views/Mint/index.vue') },
+        { path: '/shop', component: () => import('@/views/shopping/index.vue') },
+        { path: '/new', component: () => import('@/views/shopping/New.vue') },
+        { path: '/newDetail', component: () => import('@/views/shopping/newDetail.vue') },
+        { path: '/newBuy', component: () => import('@/views/shopping/newBuy.vue') },
+        { path: '/hotEvent', component: () => import('@/views/shopping/hotEvent.vue') },
+        { path: '/eventDetail', component: () => import('@/views/shopping/eventDetail.vue') },
+        { path: '/hotMovie', component: () => import('@/views/shopping/hotMovie.vue') },
+        { path: '/ai', component: () => import('@/views/ai/index.vue') },
+        { path: '/aidetail', component: () => import('@/views/ai/aidetail.vue') },
+        { path: '/my', component: () => import('@/views/my/index.vue') },
+        { path: '/my/order', component: () => import('@/views/my/Order.vue') },
+        { path: '/my/protocol', component: () => import('@/views/my/UserAgreement.vue') },
       ]
     },
   ],

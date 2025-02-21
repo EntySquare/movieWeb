@@ -10,9 +10,15 @@ import router from './router/index'
 import plugin from "./components/index";
 // 导入 pinia
 import { createPinia } from 'pinia'
+
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
+
+
 let pinia = createPinia()
 
 createApp(App).use(router)
+    .use(ElementPlus)
     .use(pinia)
     .use(plugin)
     .mount('#app')

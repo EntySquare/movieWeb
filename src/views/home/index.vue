@@ -1,23 +1,19 @@
-<script setup lang='ts' name="HomeView"></script>
+<script setup lang='ts' name="HomeView">
+import { useWindowSize } from "@/utils/useWindowSize";
+
+const { windowWidth } = useWindowSize();
+</script>
 <template>
   <div class="home_view">
-    <div class="container">
-      <h1>Home</h1>
-      <div style="height: 500px;width: 800px;">
-        <BBBOX>
-          <div style="height: 100%;display: flex;justify-content: center;align-items: center;">
-            通用组件 不需要导入直接使用 已经全局注册过了
-          </div>
-        </BBBOX>
-      </div>
-    </div>
+    <OpenScreen v-if="windowWidth > 824" />
+    <OpenScreenPhone v-else />
   </div>
 </template>
 <style scoped lang='less'>
 .home_view {
-  background: black;
-  min-height: calc(100vh - 80px - 100px);
-
+  // background: rgb(0, 0, 0);
+  height: 100%;
+  overflow: hidden;
   .container {
     padding: 60px 0 40px 25px;
     display: flex;
@@ -25,6 +21,11 @@
     justify-content: center;
     align-items: center;
     gap: 20px;
+  }
+}
+@media (max-width: 824px) {
+  .home_view {
+    overflow: auto;
   }
 }
 </style>
