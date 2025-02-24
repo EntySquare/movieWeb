@@ -1,5 +1,5 @@
 <script setup lang='ts' name="HomeView">
-import { showAllHotMovie } from "@/api/activity";
+import { showAllHotEvent, showAllHotMovie } from "@/api/activity";
 import router from "@/router";
 import { onMounted, ref } from "vue";
 const activeIndex = ref(null);
@@ -33,11 +33,19 @@ const movies = [
 const HotMoviesdata = ref();
 const getHotMoviesData = async () => {
   const res = await showAllHotMovie();
-  console.log("res", res.data.json);
+  console.log("getHotMoviesData", res.data.json);
   HotMoviesdata.value = res.data.json;
+};
+
+const hotHotEvent = ref();
+const gethotHotEventData = async () => {
+  const res = await showAllHotEvent();
+  console.log("gethotHotEventData", res.data.json);
+  hotHotEvent.value = res.data.json;
 };
 onMounted(() => {
   getHotMoviesData();
+  gethotHotEventData();
 });
 </script>
 <template>
@@ -97,7 +105,7 @@ onMounted(() => {
             </div>
             <div class="HotmovieList">
               <div
-                v-for="(movie, index) in HotMoviesdata"
+                v-for="(movie, index) in (HotMoviesdata || []).slice(0, 3)"
                 :key="index"
                 class="HotmovieItem"
                 @mouseenter="hoverItem(index)"
@@ -116,7 +124,17 @@ onMounted(() => {
                 >
                   {{ movie.title }}
                 </div>
-                <div class="circle"><img src="" alt="" /></div>
+                <div
+                  class="circle"
+                  :style="{
+                    backgroundImage: `url(${movie.imageUrl}) `,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }"
+                >
+                  <div class="circleImg" alt=""></div>
+                </div>
                 <div class="participate" v-if="activeIndex === index">
                   Participate Now
                 </div>
@@ -182,10 +200,18 @@ onMounted(() => {
             </div>
           </div>
           <div class="HotEventList">
-            <div class="HotEventItem" v-for="item in 18" :key="item">
-              <img class="HotEventImg" src="@/assets/images/event.png" />
+            <div class="HotEventItem" v-for="item in hotHotEvent" :key="item">
+              <div
+                class="HotEventImg"
+                :style="{
+                  backgroundImage: `url(${item.imageUrl}) `,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }"
+              ></div>
               <div class="EventRight">
-                <div class="EventTitle">Title of film-related activities</div>
+                <div class="EventTitle">{{ item.title }}</div>
                 <div class="positioning">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -201,7 +227,7 @@ onMounted(() => {
                       style="fill: white; fill-opacity: 0.6"
                     />
                   </svg>
-                  Zhongshan District, Taipei City
+                  {{ item.place }}
                 </div>
               </div>
             </div>
@@ -323,7 +349,7 @@ onMounted(() => {
     .HotmovieList {
       display: flex;
       gap: 45px;
-      align-items: center;
+      // align-items: center;
       .HotmovieItem {
         max-width: 225px;
         position: relative;
@@ -368,6 +394,13 @@ onMounted(() => {
       letter-spacing: 0.56px;
       text-transform: uppercase;
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      // display: -webkit-box;
+      // -webkit-box-orient: vertical;
+      // -webkit-line-clamp: 2; /* 限制最多两行 */
+      // overflow: hidden;
+      // text-overflow: ellipsis;
+      // white-space: normal; /* 允许换行 */
+      // word-break: break-word; /* 防止长单词溢出 */
     }
     .participate {
       width: 141px;
@@ -392,19 +425,40 @@ onMounted(() => {
       font-weight: 700;
       line-height: 22px; /* 157.143% */
       letter-spacing: 0.07px;
+      cursor: pointer;
     }
     /* 圆形背景 */
     .circle {
       z-index: 1;
-      width: 242px;
-      height: 242px;
-      background: url("@/assets/images/eventBg.png") no-repeat;
-      background-size: cover;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -60%) rotate(25deg);
+      transform: translate(-50%, -60%) rotate(0deg);
       transition: transform 500ms ease-in-out; /* 鼠标悬浮时的平滑过渡 */
+      .circleImg {
+        width: 69px;
+        height: 69px;
+        background: url("@/assets/images/Subtract.png") no-repeat;
+        background-size: contain;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    } /* 中间镂空 */
+    .circle::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 39px; /* 中间空洞大小 */
+      height: 39px;
+      background-color: #6c6c6c; /* 让它和背景一样 */
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
     }
 
     /* 文字的移动效果 */
@@ -426,7 +480,7 @@ onMounted(() => {
 
     /* 鼠标悬浮时，图片和圆形一起动画 */
     .HotmovieItem:hover .circle {
-      transform: translate(-50%, -60%) translateX(14px) rotate(75deg);
+      transform: translate(-50%, -60%) translateX(18px) rotate(75deg);
     }
 
     .HotmovieItem:hover .hotImg {
@@ -541,6 +595,7 @@ onMounted(() => {
       .HotEventImg {
         width: 88px;
         height: 88px;
+        flex-shrink: 0;
         border-radius: 4px;
       }
       .EventRight {

@@ -1,6 +1,6 @@
 <script setup lang="ts" name="HomeView">
-import router from "@/router";
-import { computed, ref } from "vue";
+import { showAllHotMovie } from "@/api/activity";
+import { computed, onMounted, ref } from "vue";
 
 const activeIndex = ref<number | null>(null);
 
@@ -39,14 +39,22 @@ const carouselItems = ref([
     text: "Creation of The Gods: Kingdom of Storms",
   },
 ]);
-
+const HotMoviesdata = ref<any>([]);
+const getHotMoviesData = async () => {
+  const res = await showAllHotMovie();
+  console.log("res", res.data.json);
+  HotMoviesdata.value = res.data.json;
+};
+onMounted(() => {
+  getHotMoviesData();
+});
 // 当前轮播起始索引
 const currentIndex = ref(0);
 const visibleCount = 5; // 一次展示 5 张
 
 // 计算可见的轮播项
 const visibleItems = computed(() =>
-  carouselItems.value.slice(
+  HotMoviesdata.value.slice(
     currentIndex.value,
     currentIndex.value + visibleCount
   )
@@ -57,7 +65,7 @@ const isFirst = computed(() => currentIndex.value === 0);
 
 // 是否是最后一张
 const isLast = computed(
-  () => currentIndex.value + visibleCount > carouselItems.value.length
+  () => currentIndex.value + visibleCount > HotMoviesdata.value.length
 );
 
 // 事件：鼠标悬停
@@ -107,6 +115,7 @@ const prev = () => {
         <div @click="prev" v-if="!isFirst" class="prev">
           <img src="@/assets/images/ArrowBg.png" alt="" />
         </div>
+
         <div class="carousel-wrapper">
           <div
             class="carousel-item"
@@ -119,14 +128,26 @@ const prev = () => {
               moveDown: activeIndex !== null && activeIndex !== index,
             }"
           >
-            <img class="hotImg" :src="item.image" alt="" />
+            <div class="hotImg">
+              <img class="imageUrl" :src="item.imageUrl" alt="" />
+            </div>
             <div class="hotText" :class="{ textMove: activeIndex !== null }">
-              {{ item.text }}
+              {{ item.title }}
             </div>
             <div class="participate" v-if="activeIndex === index">
               Participate Now
             </div>
-            <div class="circle"></div>
+            <div
+              class="circle"
+              :style="{
+                backgroundImage: `url(${item.imageUrl}) `,
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }"
+            >
+              <div class="circleImg" alt=""></div>
+            </div>
           </div>
         </div>
 
@@ -210,7 +231,7 @@ const prev = () => {
   // background: #fff;
   .carousel-wrapper {
     display: flex;
-    align-items: center;
+    // align-items: center;
     gap: 44px;
     width: 100%;
     overflow: hidden;
@@ -224,15 +245,29 @@ const prev = () => {
   }
 }
 .hotImg {
-  width: 225px;
-  flex-shrink: 0;
   position: relative;
   margin-bottom: 15px;
   flex-shrink: 0;
   z-index: 2;
+  background: url("@/assets/images/hotBG.png") no-repeat;
+  background-size: contain;
+  width: 225.733px;
+  height: 323.51px;
+  flex-shrink: 0;
+  border-radius: 12.071px;
   transition: transform 300ms ease-in-out; /* 添加平滑过渡 */
+  .imageUrl {
+    position: absolute;
+    top: 30.78px;
+    left: 2px;
+    width: 218.49px;
+    height: 286.089px;
+    flex-shrink: 0;
+    border-radius: 1.207px 4.829px 4.829px 1.207px;
+    box-shadow: 1.207px 1.207px 0px 0px #151515,
+      3.621px 0px 3.44px 0px rgba(255, 255, 255, 0.51) inset;
+  }
 }
-
 .hotText {
   position: relative;
   z-index: 4;
@@ -275,15 +310,26 @@ const prev = () => {
 /* 圆形背景 */
 .circle {
   z-index: 1;
-  width: 218px;
-  height: 218px;
-  background: url("@/assets/images/eventBg.png") no-repeat;
+  width: 200px;
+  height: 200px;
   background-size: cover;
+  border-radius: 50%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%) rotate(25deg);
   transition: transform 500ms ease-in-out; /* 鼠标悬浮时的平滑过渡 */
+
+  .circleImg {
+    width: 69px;
+    height: 69px;
+    background: url("@/assets/images/Subtract.png") no-repeat;
+    background-size: contain;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 /* 文字的移动效果 */
