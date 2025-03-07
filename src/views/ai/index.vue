@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { showAllHotMovie } from "@/api/activity";
 import router from "@/router";
 import { onMounted, ref } from "vue";
 import { RouteLocationRaw } from "vue-router";
@@ -81,12 +80,23 @@ const resetItems = () => {
               </svg>
             </span>
           </div>
-          <div
+          <!-- <div
             class="circle"
             :style="{
               background: `url('${movie.recordImg}') no-repeat center/cover`,
             }"
-          ></div>
+          ></div> -->
+          <div
+            class="circle"
+            :style="{
+              backgroundImage: `url(${movie.recordImg}) `,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }"
+          >
+            <div class="circleImg" alt=""></div>
+          </div>
           <div class="participate" @click="navigateTo(movie.link)">
             Participate Now
           </div>
@@ -196,6 +206,16 @@ const resetItems = () => {
     transform: translate(-50%, -60%) rotate(0deg);
 
     transition: transform 500ms ease-in-out; /* 鼠标悬浮时的平滑过渡 */
+    .circleImg {
+      width: 69px;
+      height: 69px;
+      background: url("@/assets/images/Subtract.png") no-repeat;
+      background-size: contain;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
 
   /* 悬停的元素保持在原位 */

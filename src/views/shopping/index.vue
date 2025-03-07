@@ -1,5 +1,6 @@
 <script setup lang='ts' name="HomeView">
 import { showAllHotEvent, showAllHotMovie } from "@/api/activity";
+import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
 import { onMounted, ref } from "vue";
 const activeIndex = ref(null);
@@ -33,19 +34,33 @@ const movies = [
 const HotMoviesdata = ref();
 const getHotMoviesData = async () => {
   const res = await showAllHotMovie();
-  console.log("getHotMoviesData", res.data.json);
-  HotMoviesdata.value = res.data.json;
+  if (res.data.code === 0) {
+    console.log("getHotMoviesData", res.data.json);
+    HotMoviesdata.value = res.data.json;
+  }
 };
 
 const hotHotEvent = ref();
 const gethotHotEventData = async () => {
   const res = await showAllHotEvent();
-  console.log("gethotHotEventData", res.data.json);
-  hotHotEvent.value = res.data.json;
+  if (res.data.code === 0) {
+    console.log("gethotHotEventData", res.data.json);
+    hotHotEvent.value = res.data.json;
+  }
+};
+
+const newProduct = ref();
+const getNewProductData = async () => {
+  const res = await displayDetailsGoods({ search: "" });
+  if (res.data.code === 0) {
+    console.log("getNewProductData", res.data.json);
+    newProduct.value = res.data.json.displayDetailsGoodsList;
+  }
 };
 onMounted(() => {
   getHotMoviesData();
   gethotHotEventData();
+  getNewProductData();
 });
 </script>
 <template>
@@ -144,7 +159,7 @@ onMounted(() => {
 
           <div class="New">
             <div class="NewTitle">
-              <div class="title">New</div>
+              <div class="title">New Product</div>
               <div class="more" @click="router.push('/new')">
                 More<svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -165,12 +180,22 @@ onMounted(() => {
               </div>
             </div>
             <div class="newList">
-              <div class="newsItem" v-for="item in 8" :key="item">
-                <img class="newsImg" src="@/assets/images/new.png" alt="" />
-                <div class="newsTitle">Movie Gift</div>
+              <div
+                class="newsItem"
+                @click="
+                  router.push({
+                    path: '/newDetail',
+                    query: { id: item.goodsId, search: 'Hot' },
+                  })
+                "
+                v-for="item in (newProduct || []).slice(0, 8)"
+                :key="item"
+              >
+                <img class="newsImg" :src="item.image" alt="" />
+                <div class="newsTitle">{{ item.name }}</div>
                 <div class="Preview">
-                  <div class="Price">$58</div>
-                  <div class="Sold">Sold 217</div>
+                  <div class="Price">${{ item.price }}</div>
+                  <div class="Sold">Sold {{ item.sold }}</div>
                 </div>
               </div>
             </div>
@@ -200,7 +225,17 @@ onMounted(() => {
             </div>
           </div>
           <div class="HotEventList">
-            <div class="HotEventItem" v-for="item in hotHotEvent" :key="item">
+            <div
+              class="HotEventItem"
+              v-for="item in (hotHotEvent || []).slice(0, 7)"
+              :key="item"
+              @click="
+                router.push({
+                  path: '/eventDetail',
+                  query: { name: item.title, movieId: item.movieId },
+                })
+              "
+            >
               <div
                 class="HotEventImg"
                 :style="{
@@ -214,6 +249,7 @@ onMounted(() => {
                 <div class="EventTitle">{{ item.title }}</div>
                 <div class="positioning">
                   <svg
+                    class="positioningSvg"
                     xmlns="http://www.w3.org/2000/svg"
                     width="12"
                     height="12"
@@ -494,6 +530,7 @@ onMounted(() => {
       row-gap: 16px;
       .newsItem {
         width: 180px;
+        cursor: pointer;
         .newsImg {
           display: flex;
           width: 174px;
@@ -586,6 +623,7 @@ onMounted(() => {
       padding-bottom: 24px;
       border-bottom: 1px solid #2a2a2a;
       padding-top: 24px;
+      cursor: pointer;
       &:first-child {
         padding-top: 0;
       }
@@ -617,7 +655,9 @@ onMounted(() => {
           align-items: center;
           gap: 4px;
           color: rgba(255, 255, 255, 0.6);
-
+          .positioningSvg {
+            flex-shrink: 0;
+          }
           font-family: Inter;
           font-size: 12px;
           font-style: normal;

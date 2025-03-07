@@ -1,9 +1,11 @@
 // src/global.d.ts
 export { };
+import Web3 from "web3";
 declare global {
     interface Window {
-        ethereum: any; // 全局变量名
-        web3: any;
+
         Buffer: any;
+        ethereum?: any;
+        web3?: Web3;
     }
 }

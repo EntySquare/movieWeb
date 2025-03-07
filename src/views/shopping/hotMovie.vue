@@ -42,8 +42,10 @@ const carouselItems = ref([
 const HotMoviesdata = ref<any>([]);
 const getHotMoviesData = async () => {
   const res = await showAllHotMovie();
-  console.log("res", res.data.json);
-  HotMoviesdata.value = res.data.json;
+  if (res.data.code === 0) {
+    console.log("res", res.data.json);
+    HotMoviesdata.value = res.data.json;
+  }
 };
 onMounted(() => {
   getHotMoviesData();
@@ -111,7 +113,7 @@ const prev = () => {
       </div>
 
       <!-- 轮播图 -->
-      <div class="carousel">
+      <div class="carousel" v-if="HotMoviesdata.length">
         <div @click="prev" v-if="!isFirst" class="prev">
           <img src="@/assets/images/ArrowBg.png" alt="" />
         </div>
@@ -155,6 +157,18 @@ const prev = () => {
           <img src="@/assets/images/ArrowBg1.png" alt="" />
         </div>
       </div>
+      <div
+        class="NoData"
+        style="
+          font-size: 30px;
+          text-align: center;
+          color: #e621ca;
+          margin-top: 60px;
+        "
+        v-else
+      >
+        No data for now
+      </div>
     </div>
   </div>
 </template>
@@ -177,13 +191,14 @@ const prev = () => {
 .prev {
   position: absolute;
   z-index: 8;
-  width: 104px;
-  height: 369px;
+  width: 134px;
+  height: 499px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
+  top: -70px;
 }
 .next {
   right: 0;
@@ -230,14 +245,15 @@ const prev = () => {
   position: relative;
   // background: #fff;
   .carousel-wrapper {
+    // clip-path: inset(0 20px 0 0);
     display: flex;
     // align-items: center;
     gap: 44px;
     width: 100%;
-    overflow: hidden;
+    // overflow: hidden;
   }
   .carousel-item {
-    width: 226px;
+    width: 225px;
     position: relative;
     transition: transform 300ms ease-in-out; /* 添加平滑过渡 */
     flex-shrink: 0;

@@ -1,25 +1,20 @@
 <script setup lang='ts' name="HomeView">
 import router from "@/router";
+import useWalletStore from "@/store/modules/home";
 import { ElNotification } from "element-plus";
 import { computed, onMounted, ref } from "vue";
-
-const data = ref("0x7hu12ed34j65vd69i8"); // 这里模拟后端数据
-const copySuccess = ref(false);
-
-// 格式化字符串的函数
-const formatData = (input: string): string => {
-  if (input.length <= 10) {
-    return input; // 如果字符串较短，不需要省略
-  }
-  const start = input.slice(0, 5); // 获取前5个字符
-  const end = input.slice(-5); // 获取后5个字符
-  return `${start}...${end}`; // 返回格式化后的字符串
-};
+import Web3 from "web3";
+import { connectWallet, formatData } from "@/utils/wallet";
+import { showAllMyActivity } from "@/api/my";
+import { addressLogin } from "@/api/login";
+import { useTokenStore } from "@/store/modules/my";
+import { OrderInfo } from "@/api/type";
+const walletStore = useWalletStore();
 
 // 复制数据到剪贴板
-const copyToClipboard = async () => {
+const copyToClipboard = async (data: string) => {
   try {
-    await navigator.clipboard.writeText(data.value);
+    await navigator.clipboard.writeText(data);
     ElNotification({
       showClose: false,
       customClass: "message-logout",
@@ -31,19 +26,27 @@ const copyToClipboard = async () => {
   }
 };
 
-// 计算属性，用于格式化数据
-const formattedData = computed(() => formatData(data.value));
+const ActivityList = ref<OrderInfo[]>([]);
+const getActivityList = async () => {
+  const res = await showAllMyActivity();
+  console.log("res", res.data);
+  if (res.data.code === 0) {
+    ActivityList.value = res.data.json;
+  }
+};
 
-onMounted(async () => {
-  // 这里可以模拟从后端获取数据
-  // data.value = await fetchData(); // 实际使用时替换为 API 调用
+const login = async () => {
+  await connectWallet();
+};
+onMounted(() => {
+  getActivityList();
 });
 </script>
 <template>
   <div class="home_view">
     <div class="container">
       <div class="my">
-        <div class="avater">
+        <div class="avater" v-if="walletStore.isWallet">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="56"
@@ -88,8 +91,15 @@ onMounted(async () => {
             </defs>
           </svg>
         </div>
-        <div class="nameCopy" @click="copyToClipboard">
-          <div class="name">{{ formattedData }}</div>
+        <div class="LAUNCHBtn" @click="login" v-if="!walletStore.isWallet">
+          Connect wallet
+        </div>
+        <div
+          v-else
+          class="nameCopy"
+          @click="copyToClipboard(walletStore.walletAddress)"
+        >
+          <div class="name">{{ formatData(walletStore.walletAddress) }}</div>
           <div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -129,14 +139,26 @@ onMounted(async () => {
               </svg>
             </div>
           </div>
-          <div class="YearMonthDay">Jan 12,2025 / Mon</div>
-          <div class="ActivitiesList">
-            <div class="ActivitiesItem" v-for="(item, index) in 2" :key="index">
-              <div class="itemImg">
-                <img src="@/assets/images/myImg.png" alt="" />
+          <!-- <div class="YearMonthDay">Jan 12,2025 / Mon</div> -->
+          <div class="ActivitiesList" v-if="ActivityList.length > 0">
+            <div
+              class="ActivitiesItem"
+              v-for="(item, index) in ActivityList"
+              :key="index"
+            >
+              <div
+                class="itemImg"
+                :style="{
+                  backgroundImage: `url(${item.imageUrl}) `,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }"
+              >
+                <!-- <img :src="item.imageUrl" alt="" /> -->
               </div>
               <div class="text">
-                <div class="title">Title of film-related activities</div>
+                <div class="title">{{ item.activityName }}</div>
                 <div class="time">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +185,7 @@ onMounted(async () => {
                       </clipPath>
                     </defs>
                   </svg>
-                  18:00 - 20:00
+                  {{ item.buyTime }}
                 </div>
                 <div class="Location">
                   <svg
@@ -180,10 +202,22 @@ onMounted(async () => {
                       style="fill: white; fill-opacity: 0.6"
                     />
                   </svg>
-                  Zhongshan District, Taipei City
+                  {{ item.place }}
                 </div>
               </div>
             </div>
+          </div>
+          <div
+            class="NoData"
+            style="
+              font-size: 20px;
+              text-align: center;
+              color: #e621ca;
+              margin-top: 60px;
+            "
+            v-else
+          >
+            No data for now
           </div>
         </div>
         <div class="order" @click="router.push('/my/order')">
@@ -210,9 +244,9 @@ onMounted(async () => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  min-height: 960px;
+  min-height: 100vh;
   .container {
-    padding: 48px 146px 136px 146px;
+    padding: 48px 16px 136px 16px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -224,6 +258,30 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 350px;
+  width: 100%;
+  .LAUNCHBtn {
+    display: flex;
+    align-items: center;
+    display: flex;
+    padding: 8px 14px 8px 16px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background: #fff;
+    gap: 6px;
+    cursor: pointer;
+    color: @xtxColor;
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-transform: uppercase;
+    margin-bottom: 47.5px;
+    margin-top: 8px;
+  }
   .nameCopy {
     display: flex;
     align-items: center;
@@ -242,6 +300,7 @@ onMounted(async () => {
     }
   }
   .Activities {
+    width: 100%;
     margin-bottom: 32px;
     .ActivitiesTitle {
       display: flex;

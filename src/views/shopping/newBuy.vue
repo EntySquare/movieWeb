@@ -1,7 +1,7 @@
 <template>
   <div class="home_view">
     <div class="container">
-      <div style="width: 100%">
+      <div style="width: 100%" v-loading="loading">
         <div class="back" @click="$router.back()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -21,19 +21,30 @@
         </div>
         <div class="buy">
           <div class="buyleft">
-            <el-form :model="form" label-width="auto" max-width="496px">
+            <el-form :model="form" label-width="auto" style="max-width: 496px">
               <el-form-item>
                 <div class="text">Contact</div>
               </el-form-item>
               <el-form-item>
-                <el-input v-model="form.Email" placeholder="Email" />
+                <el-input
+                  v-model.trim="form.email"
+                  placeholder="Email"
+                  clearable
+                />
               </el-form-item>
               <el-form-item>
                 <div class="text">delivery</div>
               </el-form-item>
               <el-form-item>
-                <el-select
-                  v-model="form.Country"
+                <el-input
+                  clearable
+                  v-model.trim="form.country"
+                  placeholder="Country/Region"
+                />
+                <!-- <el-select
+                  :show-arrow="true"
+                  clearable
+                  v-model.trim="form.country"
                   placeholder="Country/Region"
                   popper-class="ContrySelect"
                   :teleported="false"
@@ -44,23 +55,33 @@
                     :label="country.name"
                     :value="country.code"
                   ></el-option>
-                </el-select>
+                </el-select> -->
               </el-form-item>
               <el-form-item>
-                <el-input v-model="form.FristName" placeholder="Frist name" />
-                <el-input v-model="form.LastName" placeholder="Last name" />
+                <el-input
+                  clearable
+                  v-model.trim="form.firstName"
+                  placeholder="Frist name"
+                />
+                <el-input
+                  clearable
+                  v-model.trim="form.lastName"
+                  placeholder="Last name"
+                />
               </el-form-item>
               <el-form-item>
-                <!-- <el-input
-                  v-model="form.Apartment"
+                <el-input
+                  clearable
+                  v-model.trim="form.apartment"
                   placeholder="Apartment, suite, etc. (optional)"
-                /> -->
+                />
 
-                <el-select
-                  v-model="form.Country"
+                <!-- <el-select
+                  v-model.trim="form.apartment"
                   placeholder="Apartment, suite, etc. (optional)"
                   popper-class="ContrySelect"
                   :teleported="false"
+                  clearable
                 >
                   <el-option
                     v-for="(country, index) in countries"
@@ -68,17 +89,30 @@
                     :label="country.name"
                     :value="country.code"
                   ></el-option>
-                </el-select>
+                </el-select> -->
               </el-form-item>
               <el-form-item>
-                <!-- <el-input v-model="form.City" placeholder="City" />
-                <el-input v-model="form.Province" placeholder="Province" />
-                <el-input v-model="form.PostalCode" placeholder="Postal code" /> -->
-                <el-select
-                  v-model="form.Country"
+                <el-input
+                  clearable
+                  v-model.trim="form.city"
+                  placeholder="City"
+                />
+                <el-input
+                  clearable
+                  v-model.trim="form.province"
+                  placeholder="Province"
+                />
+                <el-input
+                  clearable
+                  v-model.trim="form.postcode"
+                  placeholder="Postal code"
+                />
+                <!-- <el-select
+                  v-model.trim="form.city"
                   placeholder="City"
                   popper-class="ContrySelect"
                   :teleported="false"
+                  clearable
                 >
                   <el-option
                     v-for="(country, index) in countries"
@@ -88,7 +122,7 @@
                   ></el-option>
                 </el-select>
                 <el-select
-                  v-model="form.Country"
+                  v-model.trim="form.province"
                   placeholder="Province"
                   popper-class="ContrySelect"
                   :teleported="false"
@@ -101,7 +135,7 @@
                   ></el-option>
                 </el-select>
                 <el-select
-                  v-model="form.Country"
+                  v-model.trim="form.postcode"
                   placeholder="Postal code"
                   popper-class="ContrySelect"
                   :teleported="false"
@@ -112,20 +146,24 @@
                     :label="country.name"
                     :value="country.code"
                   ></el-option>
-                </el-select>
+                </el-select> -->
               </el-form-item>
               <el-form-item>
-                <el-input v-model="form.Phone" placeholder="Phone" />
+                <el-input
+                  clearable
+                  v-model.trim="form.phone"
+                  placeholder="Phone"
+                />
               </el-form-item>
               <el-form-item>
-                <el-checkbox-group v-model="form.type">
+                <el-checkbox-group v-model="type">
                   <el-checkbox value="true" name="type">
                     Save this information for next time
                   </el-checkbox>
                 </el-checkbox-group>
               </el-form-item>
               <el-form-item>
-                <div class="elButton">
+                <div class="elButton" @click="submitForm">
                   <div>Submit</div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -148,22 +186,22 @@
             <div class="Commodity">
               <div
                 class="CommodityItem"
-                v-for="(item, index) in 1"
-                :key="index"
+                v-for="item in selectedProduct"
+                :key="item.goodsId"
               >
                 <div class="CommodityImg">
-                  <img src="@/assets/images/product.png" alt="" />
+                  <img :src="item.image" alt="" />
                 </div>
-                <div class="CommodityName">Movie Gift</div>
+                <div class="CommodityName">{{ item.title }}</div>
                 <div class="CommodityPrice">
-                  <div class="price">$58</div>
-                  <div class="num">*1</div>
+                  <div class="price">${{ item.price }}</div>
+                  <div class="num">*{{ item.number }}</div>
                 </div>
               </div>
             </div>
             <div class="total">
               <div class="title">Total</div>
-              <div class="price">$58</div>
+              <div class="price">${{ totalPrice }}</div>
             </div>
           </div>
         </div>
@@ -173,25 +211,329 @@
 </template>
 
 <script setup lang="ts">
+import router from "@/router";
+import useWalletStore from "@/store/modules/home";
+import { useProductStore } from "@/store/modules/product";
 import { ElNotification } from "element-plus";
-import { ref } from "vue";
-const form = ref({
-  Email: "",
-  type: [],
-  Country: "",
-  FristName: "",
-  LastName: "",
-  Apartment: "",
-  Phone: "",
-  City: "",
-  Province: "",
-  PostalCode: "",
+import { onMounted, ref, watch } from "vue";
+import Web3 from "web3";
+import usdtAbi from "@/abiU.json";
+import { purchaseGoods, scanPurchaseStatus } from "@/api/shop";
+import { useFormStore } from "@/store/modules/buy"; // 你的 Pinia store 路径
+import { computed } from "vue";
+import { useTokenStore } from "@/store/modules/my";
+import { CartItem, GoodsInfo } from "@/api/type";
+const productStore = useProductStore();
+
+// 获取选中的商品信息
+let selectedProduct = ref<CartItem[] | GoodsInfo[]>(
+  productStore.selectedProduct
+);
+
+selectedProduct = computed(() => {
+  return productStore.selectedProduct;
+}); // 变成 computed
+// 计算总价格
+const totalPrice = computed(() => {
+  if (Array.isArray(selectedProduct.value)) {
+    return (productStore.selectedProduct as (CartItem | GoodsInfo)[]).reduce(
+      (sum, item) => sum + Number(item.price) * item.number,
+      0
+    );
+  }
+  return 0; // 如果 selectedProduct 不是数组，返回默认值
 });
 
-const onSubmit = () => {
-  console.log("submit!");
-};
+const type = ref<string[]>([]);
+const form = ref({
+  email: "",
+  country: "",
+  firstName: "",
+  lastName: "",
+  apartment: "",
+  phone: "",
+  city: "",
+  province: "",
+  postcode: "",
+});
 
+const validateField = (field: string, message: string) => {
+  if (!field.trim()) {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: message,
+      duration: 1000,
+    });
+    return false;
+  }
+  return true;
+};
+const loading = ref(false);
+const walletStore = useWalletStore(); // 导入钱包状态
+const web3 = new Web3(window.ethereum);
+
+const formStore = useFormStore();
+// **回显数据**
+onMounted(() => {
+  // 检查是否有保存的数据，如果有，则勾选复选框
+  if (formStore.savedForm.email) {
+    form.value = { ...formStore.savedForm };
+    type.value = ["true"]; // 设置 checkbox 为勾选状态
+  }
+});
+
+// **监听 type[0]，保存或清除数据**
+watch(
+  () => type.value[0],
+  (newVal) => {
+    if (newVal === "true") {
+      formStore.saveForm(form.value); // 保存数据
+    } else {
+      formStore.clearForm(); // 清除保存的数据
+    }
+  }
+);
+const test = async () => {
+  ElNotification({
+    dangerouslyUseHTMLString: true,
+    showClose: false,
+    customClass: "message-logout",
+    title: selectedProduct.value[0].title + "购买成功",
+    message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
+          <div
+            style="
+              color: rgba(255, 255, 255, 0.6);
+              font-family: Inter;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: 14px;
+            "
+          >
+            Purchase Success!
+          </div>
+          <div
+           id="verify-link"
+            style="
+              display: flex;
+              align-items: center;
+              color: #e621ca;
+              font-family: Inter;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: 16px;
+                cursor: pointer;
+                "
+               
+          >
+            verification
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+            >
+              <path
+                d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
+                fill="#D339C4"
+                style="
+                  fill: #d339c4;
+                  fill: color(display-p3 0.8292 0.2246 0.7687);
+                  fill-opacity: 1;
+                "
+              />
+            </svg>
+          </div>
+        </div>`,
+    duration: 60000,
+  });
+  // **使用 setTimeout 等待 DOM 渲染后绑定事件**
+  setTimeout(() => {
+    const verifyLink = document.getElementById("verify-link");
+    if (verifyLink) {
+      verifyLink.addEventListener("click", () => {
+        router.push("/my"); // Vue Router 跳转
+      });
+    }
+  }, 100);
+};
+const submitForm = async () => {
+  if (
+    !validateField(form.value.email, "Email cannot be empty") ||
+    !validateField(form.value.country, "Country cannot be empty") ||
+    !validateField(form.value.firstName, "FristName cannot be empty") ||
+    !validateField(form.value.lastName, "LastName cannot be empty") ||
+    !validateField(form.value.city, "City cannot be empty") ||
+    !validateField(form.value.province, "Province cannot be empty") ||
+    !validateField(form.value.postcode, "PostalCode cannot be empty") ||
+    !validateField(form.value.phone, "Phone cannot be empty") ||
+    !validateField(form.value.apartment, "Apartment cannot be empty")
+  ) {
+    return;
+  }
+  // 控制按钮 loading 状态
+  loading.value = true;
+  formStore.saveForm(form.value);
+  // 检查钱包是否连接
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "请连接钱包后再购买",
+      duration: 1000,
+    });
+    loading.value = false;
+    return;
+  }
+  const accounts = await web3.eth.requestAccounts();
+  const senderAddress = accounts[0];
+  // USDT 合约地址和 ABI
+
+  const usdtContract = new web3.eth.Contract(usdtAbi, senderAddress);
+
+  // 转账金额，假设用户支付 0.01 USDT
+  const amount = web3.utils.toWei("0.01", "mwei"); // USDT 使用 mwei 为单位
+  const recipientAddress = "0x2a389e217bbe36396fc9bb76ec40021dfa8b3fc3"; // 电影票的接收地址
+  // 创建交易参数
+  const transactionParameters = {
+    from: senderAddress, // 发送方地址
+    to: recipientAddress, // 接收方地址电影
+    data: usdtContract.methods.transfer(recipientAddress, amount).encodeABI(), // 转账数据
+    gas: 200000, // 确保有足够的 gas
+  };
+  console.log("44444444444444444444");
+
+  console.log("1111111111");
+  const txHash = await web3.eth.sendTransaction(transactionParameters);
+  console.log("1111111111txHash", txHash);
+  const res = await purchaseGoods({
+    cartsId:
+      selectedProduct.value[0].cartId !== ""
+        ? selectedProduct.value[0].cartId
+        : "",
+    goodsId: selectedProduct.value[0].goodsId, // 如果你是直接购买 不走购物车，就给“”
+    number: "1",
+    amount: String(totalPrice.value),
+    address: form.value,
+    // hash: txHash.transactionHash,
+    hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
+
+    // from: senderAddress,
+    from: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
+    payType: 3, // 1 表示 PayPal
+    remarks: "", // remarks是备注，你传空就行
+  });
+  console.log("res", res);
+  console.log("222222222222222");
+  try {
+    //  请求
+    if (res.data.code === 0) {
+      const res1 = await scanPurchaseStatus({
+        payType: 3,
+        // address: senderAddress,
+        address: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
+        // hash: txHash.transactionHash,
+        hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
+      });
+      if (res1.data.code === 0) {
+        console.log("re s111", res1);
+        console.log("33333333333333");
+        ElNotification({
+          dangerouslyUseHTMLString: true,
+          customClass: "message-logout",
+          title: selectedProduct.value[0].title + "购买成功",
+          message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
+              <div
+                style="
+                  color: rgba(255, 255, 255, 0.6);
+                  font-family: Inter;
+                  font-size: 12px;
+                  font-style: normal;
+                  font-weight: 500;
+                  line-height: 14px;
+                "
+              >
+                Purchase Success!
+              </div>
+              <div
+               id="verify-link"
+                style="
+                  display: flex;
+                  align-items: center;
+                  color: #e621ca;
+                  font-family: Inter;
+                  font-size: 12px;
+                  font-style: normal;
+                  font-weight: 500;
+                  line-height: 16px;
+                    cursor: pointer;
+                    "
+                   
+              >
+                verification
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
+                  <path
+                    d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
+                    fill="#D339C4"
+                    style="
+                      fill: #d339c4;
+                      fill: color(display-p3 0.8292 0.2246 0.7687);
+                      fill-opacity: 1;
+                    "
+                  />
+                </svg>
+              </div>
+            </div>`,
+          duration: 60000,
+        });
+        // **使用 setTimeout 等待 DOM 渲染后绑定事件**
+      } else {
+        ElNotification({
+          dangerouslyUseHTMLString: true,
+          customClass: "message-logout",
+          title: res.data.json.message,
+          duration: 6000,
+        });
+        loading.value = false;
+      }
+    } else {
+      ElNotification({
+        dangerouslyUseHTMLString: true,
+        customClass: "message-logout",
+        title: res.data.json.message,
+        duration: 6000,
+      });
+      loading.value = false;
+    }
+  } catch {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: "Purchase Failed",
+      duration: 3000,
+    });
+  } finally {
+    loading.value = false;
+  }
+  setTimeout(() => {
+    const verifyLink = document.getElementById("verify-link");
+    if (verifyLink) {
+      verifyLink.addEventListener("click", () => {
+        router.push("/my"); // Vue Router 跳转
+      });
+    }
+  }, 100);
+};
 const countries = ref([
   { name: "China", code: "CN" },
   { name: "United States", code: "US" },
@@ -267,6 +609,7 @@ const countries = ref([
         flex-wrap: nowrap;
       }
       .elButton {
+        cursor: pointer;
         width: 100%;
         display: flex;
         padding: 16px 24px;
@@ -373,7 +716,7 @@ const countries = ref([
       letter-spacing: -0.36px;
     }
     :deep(.el-select__icon) {
-      width: 0;
+      // width: 0;
     }
 
     :deep(
@@ -428,6 +771,12 @@ const countries = ref([
           border-radius: 8px;
           background: #282828;
           margin-right: 16px;
+          flex-shrink: 0;
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+          }
         }
         .CommodityName {
           color: #fff;
@@ -492,6 +841,42 @@ const countries = ref([
     }
   }
 }
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
+}
 </style>
+
 <style>
+.message-logout {
+  top: 104px !important;
+  right: 24px !important;
+  background: #000;
+  color: #fff;
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.56px;
+  border-radius: 11px;
+  border: 1px solid rgba(107, 107, 107, 0.4);
+  background: rgb(26, 26, 26);
+  width: 328px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.el-notification__title {
+  color: #fff;
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.56px;
+}
 </style>

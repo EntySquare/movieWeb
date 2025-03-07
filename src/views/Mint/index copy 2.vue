@@ -1,6 +1,10 @@
 <script setup lang='ts' name="HomeView">
 import { ref } from "vue";
+import Web3 from "web3";
 
+import usdtAbi from "@/abiU.json";
+import useWalletStore from "@/store/modules/home";
+import { ElNotification } from "element-plus";
 const selectedIndex = ref(null); // 记录选中的索引
 const selectItem = (index: any) => {
   selectedIndex.value = index;
@@ -9,12 +13,12 @@ const items = ref([
   {
     Stage: "WL(5 Per Wallet)",
     ENDSIN: "Feb 05, 2025  20:00",
-    Price: "0.05 ETH",
+    Price: "0.05 USDT",
   },
   {
     Stage: "Public(1 Per Wallet)",
     ENDSIN: "Feb 01, 2025  00:00",
-    Price: "0.08 ETH",
+    Price: "0.08 USDT",
   },
 ]);
 
@@ -29,6 +33,53 @@ const decrease = () => {
 const increase = () => {
   if (number.value < 99) {
     number.value++; // 数字加 1，最大为 99
+  }
+};
+const loading = ref(false); // 控制按钮 loading 状态
+const walletStore = useWalletStore(); // 导入钱包状态
+const web3 = new Web3(window.ethereum);
+
+const sendUsdtTransaction = async () => {
+  // 控制按钮 loading 状态
+  loading.value = true;
+  // 检查钱包是否连接
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "请连接钱包后再购买电影票",
+      duration: 1000,
+    });
+    loading.value = false;
+    return;
+  }
+  const accounts = await web3.eth.requestAccounts();
+  const senderAddress = accounts[0];
+  // USDT 合约地址和 ABI
+
+  const usdtContract = new web3.eth.Contract(usdtAbi, senderAddress);
+
+  // 转账金额，假设用户支付 0.01 USDT
+  const amount = web3.utils.toWei("0.01", "mwei"); // USDT 使用 mwei 为单位
+
+  const recipientAddress = "0x2a389e217bbe36396fc9bb76ec40021dfa8b3fc3"; // 电影票的接收地址
+
+  // 创建交易参数
+  const transactionParameters = {
+    from: senderAddress, // 发送方地址
+    to: recipientAddress, // 接收方地址电影
+    data: usdtContract.methods.transfer(recipientAddress, amount).encodeABI(), // 转账数据
+    gas: 200000, // 确保有足够的 gas
+  };
+
+  try {
+    const txHash = await web3.eth.sendTransaction(transactionParameters);
+    console.log("Transaction Hash:交易哈希", txHash);
+    return txHash;
+  } catch (error) {
+    console.error("Transaction failed:", error);
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -128,25 +179,27 @@ const increase = () => {
               </svg>
             </div>
           </div>
-          <div class="mintNow">
-            Mint now
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="17"
-              viewBox="0 0 16 17"
-              fill="none"
-            >
-              <path
-                d="M14.0306 9.03061L9.53063 13.5306C9.38973 13.6715 9.19863 13.7507 8.99938 13.7507C8.80012 13.7507 8.60902 13.6715 8.46813 13.5306C8.32723 13.3897 8.24807 13.1986 8.24807 12.9994C8.24807 12.8001 8.32723 12.609 8.46813 12.4681L11.6875 9.24999H2.5C2.30109 9.24999 2.11032 9.17097 1.96967 9.03032C1.82902 8.88967 1.75 8.6989 1.75 8.49999C1.75 8.30108 1.82902 8.11031 1.96967 7.96966C2.11032 7.829 2.30109 7.74999 2.5 7.74999H11.6875L8.46937 4.52999C8.32848 4.38909 8.24932 4.19799 8.24932 3.99874C8.24932 3.79948 8.32848 3.60838 8.46937 3.46749C8.61027 3.32659 8.80137 3.24744 9.00062 3.24744C9.19988 3.24744 9.39098 3.32659 9.53187 3.46749L14.0319 7.96749C14.1018 8.03726 14.1573 8.12016 14.1951 8.21142C14.2329 8.30269 14.2523 8.40052 14.2522 8.49931C14.252 8.59809 14.2324 8.69588 14.1944 8.78706C14.1564 8.87824 14.1007 8.96101 14.0306 9.03061Z"
-                fill="#D339C4"
-                style="
-                  fill: #d339c4;
-                  fill: color(display-p3 0.8292 0.2246 0.7687);
-                  fill-opacity: 1;
-                "
-              />
-            </svg>
+          <div v-loading="loading" style="width: 100%">
+            <div class="mintNow" @click="sendUsdtTransaction()">
+              Mint now
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="17"
+                viewBox="0 0 16 17"
+                fill="none"
+              >
+                <path
+                  d="M14.0306 9.03061L9.53063 13.5306C9.38973 13.6715 9.19863 13.7507 8.99938 13.7507C8.80012 13.7507 8.60902 13.6715 8.46813 13.5306C8.32723 13.3897 8.24807 13.1986 8.24807 12.9994C8.24807 12.8001 8.32723 12.609 8.46813 12.4681L11.6875 9.24999H2.5C2.30109 9.24999 2.11032 9.17097 1.96967 9.03032C1.82902 8.88967 1.75 8.6989 1.75 8.49999C1.75 8.30108 1.82902 8.11031 1.96967 7.96966C2.11032 7.829 2.30109 7.74999 2.5 7.74999H11.6875L8.46937 4.52999C8.32848 4.38909 8.24932 4.19799 8.24932 3.99874C8.24932 3.79948 8.32848 3.60838 8.46937 3.46749C8.61027 3.32659 8.80137 3.24744 9.00062 3.24744C9.19988 3.24744 9.39098 3.32659 9.53187 3.46749L14.0319 7.96749C14.1018 8.03726 14.1573 8.12016 14.1951 8.21142C14.2329 8.30269 14.2523 8.40052 14.2522 8.49931C14.252 8.59809 14.2324 8.69588 14.1944 8.78706C14.1564 8.87824 14.1007 8.96101 14.0306 9.03061Z"
+                  fill="#D339C4"
+                  style="
+                    fill: #d339c4;
+                    fill: color(display-p3 0.8292 0.2246 0.7687);
+                    fill-opacity: 1;
+                  "
+                />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -435,5 +488,42 @@ const increase = () => {
       align-items: center;
     }
   }
+}
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
+}
+</style>
+<style>
+.message-logout {
+  top: 104px !important;
+  right: 24px !important;
+  background: #000;
+  color: #fff;
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.56px;
+  border-radius: 11px;
+  border: 1px solid rgba(107, 107, 107, 0.4);
+  background: rgb(26, 26, 26);
+  width: 328px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.el-notification__title {
+  color: #fff;
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.56px;
 }
 </style>

@@ -1,5 +1,8 @@
 <script setup lang='ts' name="HomeView">
+import { showAllMyTicket } from "@/api/my";
+import { OrderInfo } from "@/api/type";
 import { ElNotification } from "element-plus";
+import { onMounted, ref } from "vue";
 // 复制数据到剪贴板
 const copyToClipboard = async (data: string) => {
   try {
@@ -14,6 +17,17 @@ const copyToClipboard = async (data: string) => {
     console.error("复制失败:", err);
   }
 };
+const orderList = ref<OrderInfo[]>([]);
+const getorderList = async () => {
+  const res = await showAllMyTicket();
+  console.log("res", res.data);
+  if (res.data.code === 0) {
+    orderList.value = res.data.json;
+  }
+};
+onMounted(() => {
+  getorderList();
+});
 </script>
 <template>
   <div class="home_view">
@@ -38,15 +52,15 @@ const copyToClipboard = async (data: string) => {
         </div>
       </div>
       <div class="Order">Order History</div>
-      <div class="father">
-        <div class="DataFather" v-for="(item, index) in 2" :key="index">
-          <div class="date">Jan 12,2025 / Mon</div>
-          <div class="data">
+      <div class="father" v-if="orderList.length > 0">
+        <div class="DataFather">
+          <!-- <div class="date">Jan 12,2025 / Mon</div> -->
+          <div class="data" v-for="(item, index) in orderList" :key="index">
             <div class="dataItem">
-              <div class="title">Title of film-related activities</div>
-              <div class="price">$35</div>
+              <div class="title">{{ item.activityName }}1111</div>
+              <div class="price">${{ item.price }}1111</div>
             </div>
-            <div class="dataItem">
+            <!-- <div class="dataItem">
               <div class="title">Title of film-related activities</div>
               <div class="price">$35</div>
             </div>
@@ -77,9 +91,21 @@ const copyToClipboard = async (data: string) => {
                 </span>
               </div>
               <div class="price">$35</div>
-            </div>
+            </div> -->
           </div>
         </div>
+      </div>
+      <div
+        class="NoData"
+        style="
+          font-size: 20px;
+          text-align: center;
+          color: #e621ca;
+          margin-top: 60px;
+        "
+        v-else
+      >
+        No data for now
       </div>
     </div>
   </div>
@@ -88,8 +114,8 @@ const copyToClipboard = async (data: string) => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  min-height: 960px;
   .container {
+    min-height: 100vh;
     padding-top: 40px;
     width: 100%;
     display: flex;
@@ -147,6 +173,7 @@ const copyToClipboard = async (data: string) => {
     .dataItem {
       display: flex;
       justify-content: space-between;
+      gap: 87px;
       align-items: center;
       .title {
         display: flex;

@@ -1,11 +1,20 @@
-// 管理分类导航的数据
-import { defineStore } from 'pinia'
-let useHomeStore = defineStore('home', {
-  state: () => ({
-    test: '我是测试数据'
-  }),
-  actions: {},
-  getters: {}
-})
-export default useHomeStore
+import { defineStore } from "pinia";
 
+const useWalletStore = defineStore("wallet", {
+  state: () => ({
+    walletAddress: "", // 存钱包地址
+    isWallet: false, // 是否有钱包
+  }),
+  actions: {
+    setWalletAddress(address: string) {
+      this.walletAddress = address;
+      this.isWallet = true;
+    },
+    clearWalletAddress() {
+      this.walletAddress = "";
+      this.isWallet = false;
+    },
+  },
+});
+
+export default useWalletStore;

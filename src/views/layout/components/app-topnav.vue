@@ -1,12 +1,28 @@
 <script lang="ts" setup name="AppTopnav">
 import router from "@/router";
+import useWalletStore from "@/store/modules/home";
+import { useTokenStore } from "@/store/modules/my";
+import { addressLogin } from "@/api/login";
 import { useWindowSize } from "@/utils/useWindowSize";
-import { ref } from "vue";
+import { connectWallet, formatData, logoutWallet } from "@/utils/wallet";
+import { deleteGoodsCart, displayGoodsCart, modifyGoodsCart } from "@/api/shop";
+import { useProductStore } from "@/store/modules/product";
+import { ElNotification } from "element-plus";
+import { computed, onMounted, ref } from "vue";
+import useCartStore from "@/store/modules/cart";
 const { windowWidth } = useWindowSize();
+const walletStore = useWalletStore();
 const isMenuOpen = ref(true);
 
+const tokenStore = useTokenStore();
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
+};
+const login = async () => {
+  await connectWallet();
+  // const res = await addressLogin({ address: walletStore.walletAddress });
+  // console.log("res", res.data.json);
+  // tokenStore.setWalletData(res.data.json);
 };
 const TO = (link: any) => {
   router.push(link);
@@ -16,14 +32,117 @@ const isActive = (link: any) => {
   return router.currentRoute.value.path === link;
 };
 
-// 格式化字符串的函数
-const formatData = (input: string): string => {
-  if (input.length <= 10) {
-    return input; // 如果字符串较短，不需要省略
+const isActiveCart = ref(false);
+// 添加商品到购物车
+const addToCart = async () => {
+  getCartList();
+  isActiveCart.value = true;
+};
+const selectedCartId = ref(); // 记录选中的 cartId
+const BuyNowCartClick = () => {
+  if (!selectedCartId.value) {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: "请选择要购买的商品",
+      duration: 1000,
+    });
+    return;
   }
-  const start = input.slice(0, 5); // 获取前5个字符
-  const end = input.slice(-4); // 获取后4个字符
-  return `${start}...${end}`; // 返回格式化后的字符串
+  isActiveCart.value = false;
+  const productStore = useProductStore();
+  productStore.setProduct([cartList.value]);
+  router.push("/newBuy");
+};
+
+const getCartListStore = useCartStore();
+const goodsCartList = computed(() => getCartListStore.cartList ?? []);
+const getCartList = async () => {
+  const res = await displayGoodsCart();
+  console.log("res", res.data);
+  if (res.data.code === 0) {
+    // goodsCartList = res.data.json.goodsCartList;
+    getCartListStore.setcartList(res.data.json.goodsCartList);
+    console.log("goodsCartList", goodsCartList);
+    console.log("getCartListStore.cartList", getCartListStore.cartList);
+  }
+};
+const totalPrice = computed(() => {
+  const selectedItem = goodsCartList.value.find(
+    (item: { cartId: any }) => item.cartId === selectedCartId.value
+  );
+  return selectedItem
+    ? Number(selectedItem.price) * Number(selectedItem.number)
+    : 0;
+});
+
+// **从购物车移除**
+const removeFromCart = async (number: any) => {
+  const res = await deleteGoodsCart({
+    cartsId: number,
+  });
+
+  if (res.data.code === 0) {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: res.data.json,
+      duration: 1000,
+    });
+    getCartList();
+  } else {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: "删除失败",
+      duration: 1000,
+    });
+  }
+};
+const handleNumberChange = async (item: any) => {
+  console.log("item", item.number, item);
+  const res = await modifyGoodsCart({
+    cartsId: item.cartId,
+    number: item.number,
+  });
+  if (res.data.code === 0) {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: res.data.json.message,
+      duration: 1000,
+    });
+    getCartList();
+  } else {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: "修改失败",
+      duration: 1000,
+    });
+    getCartList();
+  }
+};
+const cartList = ref<any>([]);
+// 处理可取消选中
+const toggleSelection = (item: any) => {
+  // 如果当前选中的 ID 和点击的 ID 相同，则取消选中
+  if (selectedCartId.value === item.cartId) {
+    setTimeout(() => {
+      selectedCartId.value = ""; // 取消选中
+      console.log("选中的商品ID取消:", item);
+      cartList.value = "";
+    }, 0);
+  } else {
+    selectedCartId.value = item.cartId; // 选中
+    console.log("选中的商品ID勾选:", item);
+    cartList.value = item;
+  }
 };
 </script>
 <template>
@@ -111,18 +230,79 @@ const formatData = (input: string): string => {
           :class="{ active: isActive('/ai') }"
           >AI</router-link
         >
-        <router-link to="/my">
-          <div class="LAUNCHBtn" v-if="false">Connect wallet</div>
-          <div class="my" v-else>
-            <div class="name">{{ formatData("0x1231g2q4v6f1s3f2345") }}</div>
-            <div class="avatar"></div>
+        <div class="LAUNCHBtn" @click="login" v-if="!walletStore.isWallet">
+          Connect wallet
+        </div>
+        <div v-else style="display: flex; align-items: center; gap: 12px">
+          <router-link to="/my">
+            <div class="my">
+              <div class="name">
+                {{ formatData(walletStore.walletAddress) }}
+              </div>
+              <div class="avatar"></div>
+            </div>
+          </router-link>
+          <div class="shopSvg" @click="addToCart">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_1325_2089)">
+                <path
+                  d="M10.6671 6V4C10.6671 2.52724 9.47317 1.33333 8.00041 1.33333C6.52765 1.33333 5.33374 2.52724 5.33374 4V6M2.39508 6.90131L1.99508 11.168C1.88135 12.3811 1.82448 12.9877 2.02578 13.4562C2.20261 13.8678 2.51249 14.208 2.90575 14.4225C3.35343 14.6667 3.96265 14.6667 5.18111 14.6667H10.8197C12.0382 14.6667 12.6474 14.6667 13.0951 14.4225C13.4883 14.208 13.7982 13.8678 13.975 13.4562C14.1763 12.9877 14.1195 12.3811 14.0057 11.168L13.6057 6.90131C13.5097 5.8769 13.4617 5.36469 13.2313 4.97744C13.0284 4.63639 12.7286 4.36341 12.3701 4.19323C11.9631 4 11.4486 4 10.4197 4L5.58111 4C4.5522 4 4.03775 4 3.63069 4.19323C3.27219 4.3634 2.97241 4.63639 2.76952 4.97744C2.53914 5.36469 2.49112 5.8769 2.39508 6.90131Z"
+                  stroke="black"
+                  style="stroke: black; stroke-opacity: 1"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_1325_2089">
+                  <rect
+                    width="16"
+                    height="16"
+                    fill="white"
+                    style="fill: white; fill-opacity: 1"
+                  />
+                </clipPath>
+              </defs>
+            </svg>
           </div>
-        </router-link>
+          <div
+            v-if="windowWidth > 824"
+            @click="logoutWallet"
+            style="display: flex; align-items: center; cursor: pointer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M11.625 20.25C11.625 20.5484 11.5065 20.8345 11.2955 21.0455C11.0845 21.2565 10.7984 21.375 10.5 21.375H4.5C4.20163 21.375 3.91548 21.2565 3.7045 21.0455C3.49353 20.8345 3.375 20.5484 3.375 20.25V3.75C3.375 3.45163 3.49353 3.16548 3.7045 2.9545C3.91548 2.74353 4.20163 2.625 4.5 2.625H10.5C10.7984 2.625 11.0845 2.74353 11.2955 2.9545C11.5065 3.16548 11.625 3.45163 11.625 3.75C11.625 4.04837 11.5065 4.33452 11.2955 4.5455C11.0845 4.75647 10.7984 4.875 10.5 4.875H5.625V19.125H10.5C10.7984 19.125 11.0845 19.2435 11.2955 19.4545C11.5065 19.6655 11.625 19.9516 11.625 20.25ZM21.7959 11.2041L18.0459 7.45406C17.8346 7.24272 17.5479 7.12399 17.2491 7.12399C16.9502 7.12399 16.6635 7.24272 16.4522 7.45406C16.2408 7.66541 16.1221 7.95205 16.1221 8.25094C16.1221 8.54982 16.2408 8.83647 16.4522 9.04781L18.2812 10.875H10.5C10.2016 10.875 9.91548 10.9935 9.7045 11.2045C9.49353 11.4155 9.375 11.7016 9.375 12C9.375 12.2984 9.49353 12.5845 9.7045 12.7955C9.91548 13.0065 10.2016 13.125 10.5 13.125H18.2812L16.4513 14.9541C16.2399 15.1654 16.1212 15.4521 16.1212 15.7509C16.1212 16.0498 16.2399 16.3365 16.4513 16.5478C16.6626 16.7592 16.9492 16.8779 17.2481 16.8779C17.547 16.8779 17.8337 16.7592 18.045 16.5478L21.795 12.7978C21.8999 12.6934 21.9832 12.5692 22.0401 12.4325C22.097 12.2958 22.1263 12.1492 22.1264 12.0011C22.1264 11.8531 22.0973 11.7064 22.0406 11.5697C21.9839 11.4329 21.9008 11.3086 21.7959 11.2041Z"
+                fill="#FF008A"
+                style="
+                  fill: #ff008a;
+                  fill: color(display-p3 1 0 0.54);
+                  fill-opacity: 1;
+                "
+              />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
     <div class="overlay" v-if="!isMenuOpen">
+      <div @click="TO('/home')" class="text">home</div>
       <div @click="TO('/mint')" class="text">MINT</div>
       <div @click="TO('/shop')" class="text">SHOP</div>
+      <div @click="TO('/ai')" class="text">AI</div>
 
       <div class="iconLink">
         <div class="iconLinkItem">
@@ -139,6 +319,179 @@ const formatData = (input: string): string => {
         </div>
         <div class="iconLinkItem">
           <img src="@/assets/svgs/medium.svg" alt="" />
+        </div>
+      </div>
+      <div
+        @click="logoutWallet"
+        style="
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          width: 100%;
+          justify-content: center;
+        "
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M11.625 20.25C11.625 20.5484 11.5065 20.8345 11.2955 21.0455C11.0845 21.2565 10.7984 21.375 10.5 21.375H4.5C4.20163 21.375 3.91548 21.2565 3.7045 21.0455C3.49353 20.8345 3.375 20.5484 3.375 20.25V3.75C3.375 3.45163 3.49353 3.16548 3.7045 2.9545C3.91548 2.74353 4.20163 2.625 4.5 2.625H10.5C10.7984 2.625 11.0845 2.74353 11.2955 2.9545C11.5065 3.16548 11.625 3.45163 11.625 3.75C11.625 4.04837 11.5065 4.33452 11.2955 4.5455C11.0845 4.75647 10.7984 4.875 10.5 4.875H5.625V19.125H10.5C10.7984 19.125 11.0845 19.2435 11.2955 19.4545C11.5065 19.6655 11.625 19.9516 11.625 20.25ZM21.7959 11.2041L18.0459 7.45406C17.8346 7.24272 17.5479 7.12399 17.2491 7.12399C16.9502 7.12399 16.6635 7.24272 16.4522 7.45406C16.2408 7.66541 16.1221 7.95205 16.1221 8.25094C16.1221 8.54982 16.2408 8.83647 16.4522 9.04781L18.2812 10.875H10.5C10.2016 10.875 9.91548 10.9935 9.7045 11.2045C9.49353 11.4155 9.375 11.7016 9.375 12C9.375 12.2984 9.49353 12.5845 9.7045 12.7955C9.91548 13.0065 10.2016 13.125 10.5 13.125H18.2812L16.4513 14.9541C16.2399 15.1654 16.1212 15.4521 16.1212 15.7509C16.1212 16.0498 16.2399 16.3365 16.4513 16.5478C16.6626 16.7592 16.9492 16.8779 17.2481 16.8779C17.547 16.8779 17.8337 16.7592 18.045 16.5478L21.795 12.7978C21.8999 12.6934 21.9832 12.5692 22.0401 12.4325C22.097 12.2958 22.1263 12.1492 22.1264 12.0011C22.1264 11.8531 22.0973 11.7064 22.0406 11.5697C21.9839 11.4329 21.9008 11.3086 21.7959 11.2041Z"
+            fill="#FF008A"
+            style="
+              fill: #ff008a;
+              fill: color(display-p3 1 0 0.54);
+              fill-opacity: 1;
+            "
+          />
+        </svg>
+      </div>
+    </div>
+    <div class="cart" :class="{ activeCart: isActiveCart }">
+      <div style="width: 100%">
+        <div class="cartTitle">
+          <div>Shopping cart</div>
+          <div class="icon" @click="isActiveCart = false">
+            <svg
+              t="1740736413412"
+              viewBox="0 0 1024 1024"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              p-id="2651"
+              width="12"
+              height="12"
+            >
+              <path
+                d="M632.117978 513.833356l361.805812 361.735298a85.462608 85.462608 0 1 1-121.001515 120.789974L511.116463 634.552816 146.913186 998.756094a86.026718 86.026718 0 0 1-121.706652-121.706652L389.480325 512.775651 27.674513 150.969839A85.392095 85.392095 0 0 1 148.393973 30.250379L510.199785 392.056191l366.671258-366.671258a86.026718 86.026718 0 0 1 121.706652 121.706652z"
+                p-id="2652"
+                fill="#D339C4"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <!-- <div class="cartList" v-if="goodsCartList.length > 0">
+            <div
+              class="cartItem"
+              v-for="(item, index) in goodsCartList"
+              :key="index"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 16px;
+                "
+              >
+                <img class="cartItemImg" :src="item.image" alt="" />
+                <div class="text">
+                  <div class="cartItemName">{{ item.describe }}</div>
+                  <div class="cartItemPN">
+                    <div class="cartItemPrice">${{ item.price }}</div>
+                    <div class="cartItemNum">* {{ item.number }}</div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="Delete"
+                @click="removeFromCart(item.cartId)"
+                style="cursor: pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M20.25 4.5H16.875V3.375C16.875 2.67881 16.5984 2.01113 16.1062 1.51884C15.6139 1.02656 14.9462 0.75 14.25 0.75H9.75C9.05381 0.75 8.38613 1.02656 7.89384 1.51884C7.40156 2.01113 7.125 2.67881 7.125 3.375V4.5H3.75C3.45163 4.5 3.16548 4.61853 2.9545 4.8295C2.74353 5.04048 2.625 5.32663 2.625 5.625C2.625 5.92337 2.74353 6.20952 2.9545 6.4205C3.16548 6.63147 3.45163 6.75 3.75 6.75H4.125V19.5C4.125 19.9973 4.32254 20.4742 4.67417 20.8258C5.02581 21.1775 5.50272 21.375 6 21.375H18C18.4973 21.375 18.9742 21.1775 19.3258 20.8258C19.6775 20.4742 19.875 19.9973 19.875 19.5V6.75H20.25C20.5484 6.75 20.8345 6.63147 21.0455 6.4205C21.2565 6.20952 21.375 5.92337 21.375 5.625C21.375 5.32663 21.2565 5.04048 21.0455 4.8295C20.8345 4.61853 20.5484 4.5 20.25 4.5ZM9.375 3.375C9.375 3.27554 9.41451 3.18016 9.48483 3.10984C9.55516 3.03951 9.65054 3 9.75 3H14.25C14.3495 3 14.4448 3.03951 14.5152 3.10984C14.5855 3.18016 14.625 3.27554 14.625 3.375V4.5H9.375V3.375ZM17.625 19.125H6.375V6.75H17.625V19.125ZM10.875 9.75V15.75C10.875 16.0484 10.7565 16.3345 10.5455 16.5455C10.3345 16.7565 10.0484 16.875 9.75 16.875C9.45163 16.875 9.16548 16.7565 8.9545 16.5455C8.74353 16.3345 8.625 16.0484 8.625 15.75V9.75C8.625 9.45163 8.74353 9.16548 8.9545 8.9545C9.16548 8.74353 9.45163 8.625 9.75 8.625C10.0484 8.625 10.3345 8.74353 10.5455 8.9545C10.7565 9.16548 10.875 9.45163 10.875 9.75ZM15.375 9.75V15.75C15.375 16.0484 15.2565 16.3345 15.0455 16.5455C14.8345 16.7565 14.5484 16.875 14.25 16.875C13.9516 16.875 13.6655 16.7565 13.4545 16.5455C13.2435 16.3345 13.125 16.0484 13.125 15.75V9.75C13.125 9.45163 13.2435 9.16548 13.4545 8.9545C13.6655 8.74353 13.9516 8.625 14.25 8.625C14.5484 8.625 14.8345 8.74353 15.0455 8.9545C15.2565 9.16548 15.375 9.45163 15.375 9.75Z"
+                    fill="#707070"
+                    style="
+                      fill: #707070;
+                      fill: color(display-p3 0.4406 0.4406 0.4406);
+                      fill-opacity: 1;
+                    "
+                  />
+                </svg>
+              </div>
+            </div>
+          </div> -->
+        <!-- 购物车列表 -->
+        <el-radio-group v-model="selectedCartId" class="cartList">
+          <div
+            class="cartItem"
+            v-for="(item, index) in goodsCartList"
+            :key="index"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <!-- 自定义单选框 -->
+              <el-radio
+                :value="item.cartId"
+                @click="toggleSelection(item)"
+                class="custom-radio"
+              ></el-radio>
+              <img class="cartItemImg" :src="item.image" alt="" />
+              <div class="text">
+                <div class="cartItemName">{{ item.describe }}</div>
+                <div class="cartItemPN">
+                  <div class="cartItemPrice">${{ item.price }}</div>
+                  <!-- <div class="cartItemNum">* {{ item.number }}</div> -->
+                </div>
+              </div>
+              <el-input-number
+                v-model="item.number"
+                :min="1"
+                :max="99"
+                @change="handleNumberChange(item)"
+              />
+            </div>
+            <div
+              class="Delete"
+              @click="removeFromCart(item.cartId)"
+              style="cursor: pointer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M20.25 4.5H16.875V3.375C16.875 2.67881 16.5984 2.01113 16.1062 1.51884C15.6139 1.02656 14.9462 0.75 14.25 0.75H9.75C9.05381 0.75 8.38613 1.02656 7.89384 1.51884C7.40156 2.01113 7.125 2.67881 7.125 3.375V4.5H3.75C3.45163 4.5 3.16548 4.61853 2.9545 4.8295C2.74353 5.04048 2.625 5.32663 2.625 5.625C2.625 5.92337 2.74353 6.20952 2.9545 6.4205C3.16548 6.63147 3.45163 6.75 3.75 6.75H4.125V19.5C4.125 19.9973 4.32254 20.4742 4.67417 20.8258C5.02581 21.1775 5.50272 21.375 6 21.375H18C18.4973 21.375 18.9742 21.1775 19.3258 20.8258C19.6775 20.4742 19.875 19.9973 19.875 19.5V6.75H20.25C20.5484 6.75 20.8345 6.63147 21.0455 6.4205C21.2565 6.20952 21.375 5.92337 21.375 5.625C21.375 5.32663 21.2565 5.04048 21.0455 4.8295C20.8345 4.61853 20.5484 4.5 20.25 4.5ZM9.375 3.375C9.375 3.27554 9.41451 3.18016 9.48483 3.10984C9.55516 3.03951 9.65054 3 9.75 3H14.25C14.3495 3 14.4448 3.03951 14.5152 3.10984C14.5855 3.18016 14.625 3.27554 14.625 3.375V4.5H9.375V3.375ZM17.625 19.125H6.375V6.75H17.625V19.125ZM10.875 9.75V15.75C10.875 16.0484 10.7565 16.3345 10.5455 16.5455C10.3345 16.7565 10.0484 16.875 9.75 16.875C9.45163 16.875 9.16548 16.7565 8.9545 16.5455C8.74353 16.3345 8.625 16.0484 8.625 15.75V9.75C8.625 9.45163 8.74353 9.16548 8.9545 8.9545C9.16548 8.74353 9.45163 8.625 9.75 8.625C10.0484 8.625 10.3345 8.74353 10.5455 8.9545C10.7565 9.16548 10.875 9.45163 10.875 9.75ZM15.375 9.75V15.75C15.375 16.0484 15.2565 16.3345 15.0455 16.5455C14.8345 16.7565 14.5484 16.875 14.25 16.875C13.9516 16.875 13.6655 16.7565 13.4545 16.5455C13.2435 16.3345 13.125 16.0484 13.125 15.75V9.75C13.125 9.45163 13.2435 9.16548 13.4545 8.9545C13.6655 8.74353 13.9516 8.625 14.25 8.625C14.5484 8.625 14.8345 8.74353 15.0455 8.9545C15.2565 9.16548 15.375 9.45163 15.375 9.75Z"
+                  fill="#707070"
+                  style="
+                    fill: #707070;
+                    fill: color(display-p3 0.4406 0.4406 0.4406);
+                    fill-opacity: 1;
+                  "
+                />
+              </svg>
+            </div>
+          </div>
+        </el-radio-group>
+      </div>
+      <div class="SubtotalAll">
+        <div class="Subtotal">
+          <div class="SubtotalTitle">Subtotal</div>
+          <div class="SubtotalPrice">${{ totalPrice }}</div>
+        </div>
+        <div
+          class="SubtotalBtn"
+          @click="BuyNowCartClick()"
+          :class="{ disabled: !selectedCartId }"
+        >
+          Buy now
         </div>
       </div>
     </div>
@@ -167,6 +520,7 @@ const formatData = (input: string): string => {
 
   .logo {
     flex-shrink: 0;
+
     img {
       width: 87px;
       height: 32px;
@@ -219,18 +573,24 @@ const formatData = (input: string): string => {
       color: #d339c4;
     }
   }
+
   // .navLink.active {
   //   border-bottom: 2px solid #d339c4; /* 添加下划线 */
   // }
   .navLink.active::after {
     content: "";
     position: absolute;
-    bottom: -6px; /* 控制下划线距离文字的间距 */
-    width: 100%; /* 线条的宽度 */
-    height: 1px; /* 线条的高度 */
-    background-color: #d600ff; /* 线条颜色，改为你想要的 */
+    bottom: -6px;
+    /* 控制下划线距离文字的间距 */
+    width: 100%;
+    /* 线条的宽度 */
+    height: 1px;
+    /* 线条的高度 */
+    background-color: #d600ff;
+    /* 线条颜色，改为你想要的 */
   }
 }
+
 .LAUNCHBtn {
   display: flex;
   align-items: center;
@@ -241,7 +601,7 @@ const formatData = (input: string): string => {
   border-radius: 8px;
   background: #fff;
   gap: 6px;
-
+  cursor: pointer;
   color: @xtxColor;
   text-align: center;
   font-family: Montserrat;
@@ -251,10 +611,12 @@ const formatData = (input: string): string => {
   line-height: normal;
   text-transform: uppercase;
 }
+
 .my {
   display: flex;
   align-items: center;
   gap: 8px;
+
   .name {
     color: #fff;
     text-align: center;
@@ -263,8 +625,9 @@ const formatData = (input: string): string => {
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    text-transform: uppercase;
+    // text-transform: uppercase;
   }
+
   .avatar {
     width: 32px;
     height: 32px;
@@ -273,63 +636,98 @@ const formatData = (input: string): string => {
   }
 }
 
+.shopSvg {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
 @media (max-width: 970px) {
   .container {
     padding: 32px;
   }
 }
-@media (max-width: 880px) {
+
+@media (max-width: 922px) {
   .container {
     .topLeft {
       gap: 18px;
     }
+
     .topRight {
       gap: 20px;
     }
   }
 }
+
 @media (max-width: 824px) {
   .app-topnav {
     border-bottom: none;
   }
+
   .container {
     padding: 16px;
     padding-right: 32px;
-  }
-  .topLeft {
-    gap: 8px;
-    .NavSvg {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .topLeft {
+      gap: 8px;
+
+      .NavSvg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
     }
-  }
-  .topRight {
-    .LAUNCHBtn {
-      padding: 6px 12px 6px 14px;
-      font-size: 12px;
-      //   letter-spacing: -0.48px;
+    .topRight {
+      .LAUNCHBtn {
+        padding: 6px 12px 6px 14px;
+        font-size: 12px;
+        //   letter-spacing: -0.48px;
+      }
     }
   }
 }
+@media (max-width: 380px) {
+  .topLeft {
+    .logo {
+      flex-shrink: 0;
+
+      img {
+        width: 66px;
+        height: auto;
+      }
+    }
+  }
+}
+
 .topLeft,
 .topRight {
   z-index: 1000;
 }
+
 .overlay {
   position: fixed;
   top: 80px;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 1); /* Semi-transparent black */
+  background-color: rgba(0, 0, 0, 1);
+  /* Semi-transparent black */
   //   background: #d339c4;
   z-index: 999;
   display: flex;
   padding: 36px;
   flex-direction: column;
   gap: 40px;
+
   .text {
+    cursor: pointer;
     padding: 12px 0px;
     color: #fff;
     text-align: center;
@@ -340,11 +738,293 @@ const formatData = (input: string): string => {
     line-height: normal;
     text-transform: uppercase;
   }
+
   .iconLink {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
   }
+}
+
+.cart {
+  position: fixed;
+  top: 72px;
+  // right: 80px;
+  right: -320px;
+  transition: right 0.3s ease-in-out; /* 过渡动画 */
+  z-index: 10;
+  display: flex;
+  width: 321px;
+  height: 443px;
+  padding: 16px 12px;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-radius: 16px;
+  background: #1d1d1d;
+  .cartTitle {
+    color: #fff;
+    font-family: Rubik;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 0.64px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .icon {
+      margin-bottom: 16px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  .cartList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-height: 234px;
+    overflow-y: auto; /* 允许垂直滚动 */
+    scrollbar-width: none; /* Firefox 隐藏滚动条 */
+    -ms-overflow-style: none; /* IE/Edge 隐藏滚动条 */
+    padding-bottom: 12px;
+    .cartItem {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
+      .custom-radio {
+        margin: 0;
+        padding: 0;
+      }
+      .cartItemImg {
+        width: 60px;
+        height: 60px;
+        aspect-ratio: 1/1;
+        border-radius: 8px;
+        background: #282828;
+      }
+      .text {
+        margin-left: 12px;
+        margin-right: 12px;
+        .cartItemName {
+          margin-bottom: 8px;
+          color: #fff;
+          font-family: Rubik;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: normal;
+          letter-spacing: 0.64px;
+          text-transform: uppercase;
+        }
+        .cartItemPN {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          .cartItemPrice {
+            color: #e621ca;
+            font-family: Rubik;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 22px; /* 137.5% */
+          }
+          .cartItemNum {
+            color: #fff;
+            font-family: Rubik;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+            letter-spacing: 0.64px;
+            text-transform: uppercase;
+          }
+        }
+      }
+    }
+  }
+  .cartList::-webkit-scrollbar {
+    width: 0; /* 让滚动条占位但不可见 */
+    height: 0;
+  }
+
+  .SubtotalAll {
+    width: 100%;
+    border-top: 1px solid #2e2e2e;
+    padding-top: 12px;
+    .Subtotal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      .SubtotalTitle {
+        color: #fff;
+        font-family: Rubik;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 22px; /* 137.5% */
+      }
+      .SubtotalPrice {
+        color: #e621ca;
+        font-family: Rubik;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 22px; /* 137.5% */
+      }
+    }
+    .SubtotalBtn {
+      display: flex;
+      width: 100%;
+      height: 35px;
+      padding: 10px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 999px;
+      background: #e621ca;
+      color: #fff;
+      font-family: Rubik;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 16px; /* 114.286% */
+      letter-spacing: -0.28px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+  }
+}
+.activeCart {
+  right: 80px;
+  transition: right 0.3s ease-in-out; /* 过渡动画 */
+}
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
+}
+:deep(.el-radio__inner) {
+  background: #1d1d1d;
+  width: 18px;
+  height: 18px;
+  &:hover {
+    border: 1px solid #e621ca;
+  }
+}
+:deep(.el-radio__input.is-checked .el-radio__inner) {
+  background: #e621ca;
+  border: 1px solid #e621ca;
+}
+:deep(.el-radio__inner:after) {
+  background: none;
+  transform: translate(-50%, -50%) scale(0) rotate(45deg) !important; /* 旋转成勾的形状 */
+}
+:deep(.el-radio__input.is-checked .el-radio__inner::after) {
+  content: "";
+  top: 40%;
+  left: 50%;
+  background: none;
+  border-radius: 0;
+  width: 4px; /* 勾的宽度 */
+  height: 9px; /* 勾的高度 */
+  border: solid white;
+  border-width: 0 1px 1px 0; /* 右和下的边框形成勾 */
+
+  transform: translate(-50%, -50%) scale(1) rotate(45deg) !important; /* 旋转成勾的形状 */
+}
+.el-input-number {
+  width: 78px;
+}
+:deep(.el-input) {
+  background: #1d1d1d;
+  --el-input-inner-height: 20px;
+}
+:deep(.el-input__wrapper) {
+  background: #1d1d1d;
+  padding: 0 0px;
+  border: none !important;
+  box-shadow: none !important;
+}
+:deep(.el-input-number .el-input__wrapper) {
+  padding: 0;
+}
+:deep(.el-input-number__increase) {
+  background: #1d1d1d;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  top: -1px;
+}
+
+:deep(.el-input__inner) {
+  width: 20px;
+}
+:deep(.el-input-number__decrease) {
+  top: -1px;
+  background: #1d1d1d;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+:deep(.el-icon) {
+  color: #fff;
+  width: 12px;
+  height: 12px;
+  margin-top: -2px;
+  margin-left: 0px;
+}
+:deep(.el-input-number__decrease:hover) {
+  border: 1px solid #e621ca;
+  color: #e621ca;
+}
+:deep(.el-input-number__increase:hover) {
+  border: 1px solid #e621ca;
+  color: #e621ca;
+}
+</style>
+
+<style>
+.message-logout {
+  top: 104px !important;
+  right: 24px !important;
+  background: #000;
+  color: #fff;
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.56px;
+  border-radius: 11px;
+  border: 1px solid rgba(107, 107, 107, 0.4);
+  background: rgb(26, 26, 26);
+  width: 328px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.el-notification__title {
+  color: #fff;
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.56px;
 }
 </style>

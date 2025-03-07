@@ -1,6 +1,6 @@
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div style="width: 100%">
         <div class="back" @click="$router.back()">
           <svg
@@ -20,83 +20,22 @@
           Back
         </div>
       </div>
-      <div class="cart" :class="{ active: isActive }">
-        <div style="width: 100%">
-          <div class="cartTitle">Shopping cart</div>
-          <div class="cartList">
-            <div
-              class="cartItem"
-              v-for="(item, index) in cartList"
-              :key="index"
-            >
-              <div
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  gap: 16px;
-                "
-              >
-                <img class="cartItemImg" :src="item.img" alt="" />
-                <div class="text">
-                  <div class="cartItemName">{{ item.name }}</div>
-                  <div class="cartItemPN">
-                    <div class="cartItemPrice">${{ item.price }}</div>
-                    <div class="cartItemNum">*{{ item.num }}</div>
-                  </div>
-                </div>
-              </div>
-              <div class="Delete" @click="removeFromCart(index)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M20.25 4.5H16.875V3.375C16.875 2.67881 16.5984 2.01113 16.1062 1.51884C15.6139 1.02656 14.9462 0.75 14.25 0.75H9.75C9.05381 0.75 8.38613 1.02656 7.89384 1.51884C7.40156 2.01113 7.125 2.67881 7.125 3.375V4.5H3.75C3.45163 4.5 3.16548 4.61853 2.9545 4.8295C2.74353 5.04048 2.625 5.32663 2.625 5.625C2.625 5.92337 2.74353 6.20952 2.9545 6.4205C3.16548 6.63147 3.45163 6.75 3.75 6.75H4.125V19.5C4.125 19.9973 4.32254 20.4742 4.67417 20.8258C5.02581 21.1775 5.50272 21.375 6 21.375H18C18.4973 21.375 18.9742 21.1775 19.3258 20.8258C19.6775 20.4742 19.875 19.9973 19.875 19.5V6.75H20.25C20.5484 6.75 20.8345 6.63147 21.0455 6.4205C21.2565 6.20952 21.375 5.92337 21.375 5.625C21.375 5.32663 21.2565 5.04048 21.0455 4.8295C20.8345 4.61853 20.5484 4.5 20.25 4.5ZM9.375 3.375C9.375 3.27554 9.41451 3.18016 9.48483 3.10984C9.55516 3.03951 9.65054 3 9.75 3H14.25C14.3495 3 14.4448 3.03951 14.5152 3.10984C14.5855 3.18016 14.625 3.27554 14.625 3.375V4.5H9.375V3.375ZM17.625 19.125H6.375V6.75H17.625V19.125ZM10.875 9.75V15.75C10.875 16.0484 10.7565 16.3345 10.5455 16.5455C10.3345 16.7565 10.0484 16.875 9.75 16.875C9.45163 16.875 9.16548 16.7565 8.9545 16.5455C8.74353 16.3345 8.625 16.0484 8.625 15.75V9.75C8.625 9.45163 8.74353 9.16548 8.9545 8.9545C9.16548 8.74353 9.45163 8.625 9.75 8.625C10.0484 8.625 10.3345 8.74353 10.5455 8.9545C10.7565 9.16548 10.875 9.45163 10.875 9.75ZM15.375 9.75V15.75C15.375 16.0484 15.2565 16.3345 15.0455 16.5455C14.8345 16.7565 14.5484 16.875 14.25 16.875C13.9516 16.875 13.6655 16.7565 13.4545 16.5455C13.2435 16.3345 13.125 16.0484 13.125 15.75V9.75C13.125 9.45163 13.2435 9.16548 13.4545 8.9545C13.6655 8.74353 13.9516 8.625 14.25 8.625C14.5484 8.625 14.8345 8.74353 15.0455 8.9545C15.2565 9.16548 15.375 9.45163 15.375 9.75Z"
-                    fill="#707070"
-                    style="
-                      fill: #707070;
-                      fill: color(display-p3 0.4406 0.4406 0.4406);
-                      fill-opacity: 1;
-                    "
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="SubtotalAll">
-          <div class="Subtotal">
-            <div class="SubtotalTitle">Subtotal</div>
-            <div class="SubtotalPrice">$58</div>
-          </div>
-          <div class="SubtotalBtn" @click="BuyNowClick">Buy now</div>
-        </div>
-      </div>
-      <div class="detail">
+
+      <div class="detail" v-if="selectedProduct">
         <div class="detailLeft">
           <div class="BigImg">
-            <img src="@/assets/images/newBg.png" alt="" />
+            <img :src="selectedProduct.image" alt="" />
           </div>
-          <div class="title">Movie Gift</div>
-          <div class="participants">Sold 217</div>
+          <div class="title">{{ selectedProduct.name }}</div>
+          <div class="participants">Sold {{ selectedProduct.sold }}</div>
 
           <div class="price">
-            <div class="priceText">$58</div>
-            <div class="button" @click="Buy">Buy now</div>
+            <div class="priceText">${{ selectedProduct.price }}</div>
+            <div class="button" @click="BuyNowClick()">Buy now</div>
             <div
-              @click="
-                addToCart({
-                  img: '/src/assets/images/newCard.png',
-                  name: 'Movie Gift',
-                  price: 58,
-                  num: 2,
-                })
-              "
-              style="cursor: pointer"
+              @click="addToCart()"
+              class="Addbutton"
+              :class="{ 'disabled-button': add }"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -123,101 +62,109 @@
 </template>
 
 <script setup lang="ts">
+import {
+  addGoodsCart,
+  deleteGoodsCart,
+  displayDetailsGoods,
+  displayGoodsCart,
+  modifyGoodsCart,
+} from "@/api/shop";
 import router from "@/router";
+import useCartStore from "@/store/modules/cart";
+import { useProductStore } from "@/store/modules/product";
 import { ElNotification } from "element-plus";
-import { ref } from "vue";
-const Buy = () => {
-  ElNotification({
-    dangerouslyUseHTMLString: true,
-    showClose: false,
-    customClass: "message-logout",
-    title: "Title of film-related activities",
-    message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
-        <div
-          style="
-            color: rgba(255, 255, 255, 0.6);
-            font-family: Inter;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 500;
-            line-height: 14px;
-          "
-        >
-          Purchase Success!
-        </div>
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            color: #e621ca;
-            font-family: Inter;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 500;
-            line-height: 16px;
-              cursor: pointer;
-          "
-        >
-          verification
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-          >
-            <path
-              d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
-              fill="#D339C4"
-              style="
-                fill: #d339c4;
-                fill: color(display-p3 0.8292 0.2246 0.7687);
-                fill-opacity: 1;
-              "
-            />
-          </svg>
-        </div>
-      </div>`,
-    duration: 1000,
-  });
-};
-const cartList = ref([
-  {
-    img: "/src/assets/images/newCard.png",
-    name: "Movie Gift",
-    price: 58,
-    num: 1,
-  },
-]);
+import { computed, onMounted, ref } from "vue";
 
-const isActive = ref(false);
+import { LocationQueryValue, useRoute } from "vue-router";
+const route = useRoute();
+const search = route.query.search;
+const itemId = route.query.id; // 获取 id
+const num = ref(0);
+console.log("Item ID:", itemId);
 
-// 添加商品到购物车
-const addToCart = (item: {
-  img: string;
-  name: string;
-  price: number;
-  num: number;
-}) => {
-  const existingItem = cartList.value.find(
-    (cartItem) => cartItem.name === item.name
+const newProduct = ref(); // 存储所有商品数据
+const selectedProduct = ref(); // 存储匹配到的商品
+const getNewProductData = async (search: any) => {
+  const res = await displayDetailsGoods({ search });
+  console.log("getNewProductData", res.data.json);
+  newProduct.value = res.data.json.displayDetailsGoodsList;
+
+  // 过滤匹配的商品
+  selectedProduct.value = newProduct.value.find(
+    (item: any) => item.goodsId == itemId
   );
-  if (existingItem) {
-    existingItem.num += 1;
-  } else {
-    cartList.value.push({ ...item, num: 1 });
+};
+const goodsCartList = ref<any>([]); // 存储购物车数据
+onMounted(async () => {
+  if (search === "New") {
+    getNewProductData("");
   }
-  isActive.value = true;
+  if (search === "All goods") {
+    getNewProductData("");
+  }
+  if (search === "Hot") {
+    getNewProductData("hot");
+  }
+  getCartList();
+});
+const getCartList = async () => {
+  const res = await displayGoodsCart();
+  console.log("res", res.data.json.goodsCartList);
+  goodsCartList.value = res.data.json.goodsCartList;
 };
+const totalPrice = computed(() => {
+  const selectedItem = goodsCartList.value.find(
+    (item: { cartId: any }) => item.cartId === selectedCartId.value
+  );
+  return selectedItem ? selectedItem.price * selectedItem.number : 0;
+});
+const loading = ref(false);
+const add = ref(false);
 
-// 删除商品
-const removeFromCart = (index: number) => {
-  cartList.value.splice(index, 1);
-};
-
+const selectedCartId = ref(); // 记录选中的 cartId
 const BuyNowClick = () => {
+  const productStore = useProductStore();
+  productStore.setProduct([
+    {
+      ...selectedProduct.value,
+      number: 1,
+    },
+  ]);
+  console.log("productStore.selectedProduct", productStore.selectedProduct);
+
   router.push("/newBuy");
-  isActive.value = false;
+};
+const getCartListStore = useCartStore();
+const addToCart = async () => {
+  loading.value = true;
+  const res = await addGoodsCart({
+    number: 1,
+    goodsId: selectedProduct.value.goodsId,
+  });
+  if (res.data.code === 0) {
+    const res = await displayGoodsCart();
+    console.log("res.data", res.data);
+    if (res.data.code === 0) {
+      console.log('getCartListStore',getCartListStore);
+      
+      getCartListStore.setcartList(res.data.json.goodsCartList);
+    }
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "添加购物车成功",
+      duration: 1000,
+    });
+    loading.value = false;
+  } else {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "添加购物车失败",
+      duration: 1000,
+    });
+    loading.value = false;
+  }
 };
 </script>
 
@@ -258,6 +205,12 @@ const BuyNowClick = () => {
       width: 350px;
       height: 350px;
       margin-bottom: 32px;
+      background: #121212;
+      img {
+        border-radius: 4px;
+        width: 100%;
+        height: 100%;
+      }
     }
     .title {
       color: #fff;
@@ -323,6 +276,14 @@ const BuyNowClick = () => {
         line-height: 16px; /* 114.286% */
         letter-spacing: -0.28px;
         text-transform: uppercase;
+      }
+      .Addbutton {
+        cursor: pointer;
+      }
+      /* 禁用样式 */
+      .disabled-button {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
     }
   }
@@ -423,9 +384,9 @@ const BuyNowClick = () => {
   transition: right 0.3s ease-in-out; /* 过渡动画 */
   z-index: 10;
   display: flex;
-  width: 291px;
-  height: 383px;
-  padding: 16px;
+  width: 321px;
+  height: 443px;
+  padding: 16px 12px;
   flex-direction: column;
   justify-content: space-between;
   flex-shrink: 0;
@@ -441,6 +402,18 @@ const BuyNowClick = () => {
     letter-spacing: 0.64px;
     text-transform: uppercase;
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .icon {
+      margin-bottom: 16px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
   .cartList {
     display: flex;
@@ -457,19 +430,25 @@ const BuyNowClick = () => {
       align-items: center;
       width: 100%;
       justify-content: space-between;
+      .custom-radio {
+        margin: 0;
+        padding: 0;
+      }
       .cartItemImg {
-        width: 64px;
-        height: 64px;
+        width: 60px;
+        height: 60px;
         aspect-ratio: 1/1;
         border-radius: 8px;
         background: #282828;
       }
       .text {
+        margin-left: 12px;
+        margin-right: 12px;
         .cartItemName {
           margin-bottom: 8px;
           color: #fff;
           font-family: Rubik;
-          font-size: 16px;
+          font-size: 14px;
           font-style: normal;
           font-weight: 700;
           line-height: normal;
@@ -483,7 +462,7 @@ const BuyNowClick = () => {
           .cartItemPrice {
             color: #e621ca;
             font-family: Rubik;
-            font-size: 16px;
+            font-size: 14px;
             font-style: normal;
             font-weight: 600;
             line-height: 22px; /* 137.5% */
@@ -506,6 +485,7 @@ const BuyNowClick = () => {
     width: 0; /* 让滚动条占位但不可见 */
     height: 0;
   }
+
   .SubtotalAll {
     width: 100%;
     border-top: 1px solid #2e2e2e;
@@ -556,6 +536,79 @@ const BuyNowClick = () => {
 .active {
   right: 80px;
   transition: right 0.3s ease-in-out; /* 过渡动画 */
+}
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
+}
+:deep(.el-radio__inner) {
+  background: #1d1d1d;
+  width: 18px;
+  height: 18px;
+  &:hover {
+    border: 1px solid #e621ca;
+  }
+}
+:deep(.el-radio__input.is-checked .el-radio__inner) {
+  background: #e621ca;
+  border: 1px solid #e621ca;
+}
+:deep(.el-radio__inner:after) {
+  top: 47.5%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.el-input-number {
+  width: 78px;
+}
+:deep(.el-input) {
+  background: #1d1d1d;
+  --el-input-inner-height: 20px;
+}
+:deep(.el-input__wrapper) {
+  background: #1d1d1d;
+  padding: 0 20px;
+  border: none !important;
+  box-shadow: none !important;
+}
+:deep(.el-input-number__increase) {
+  background: #1d1d1d;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  top: -1px;
+}
+
+:deep(.el-input__inner) {
+  width: 20px;
+}
+:deep(.el-input-number__decrease) {
+  top: -1px;
+  background: #1d1d1d;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+:deep(.el-icon) {
+  color: #fff;
+  width: 12px;
+  height: 12px;
+  margin-top: -2px;
+  margin-left: 0px;
+}
+:deep(.el-input-number__decrease:hover) {
+  border: 1px solid #e621ca;
+  color: #e621ca;
+}
+:deep(.el-input-number__increase:hover) {
+  border: 1px solid #e621ca;
+  color: #e621ca;
 }
 </style>
 

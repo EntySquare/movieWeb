@@ -23,7 +23,7 @@
           <div
             v-for="(item, index) in categories"
             :key="index"
-            @click="selectedCategory = item"
+            @click="ClickCategory(item)"
             class="sidebarItem"
             :class="{ active: selectedCategory === item }"
           >
@@ -31,46 +31,45 @@
           </div>
         </div>
         <div class="SidebarContent">
-          <div v-if="selectedCategory === 'All goods'">All goods 内容</div>
-          <div class="new" v-if="selectedCategory === 'New'">
+          <!-- <div v-if="selectedCategory === 'All goods'">All goods 内容</div> -->
+          <div class="new">
             <div class="NewTitle">
-              <div class="title">New</div>
-              <div class="more">
-                More<svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="6"
-                  height="10"
-                  viewBox="0 0 6 10"
-                  fill="none"
-                >
-                  <path
-                    d="M1 9L5 5L1 1"
-                    stroke="white"
-                    stroke-opacity="0.8"
-                    style="stroke: white; stroke-opacity: 0.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
+              <div class="title">{{ selectedCategory }}</div>
             </div>
-            <div class="newList">
+            <div class="newList" v-if="newProduct">
               <div
                 class="newsItem"
-                v-for="item in 12"
+                v-for="item in newProduct"
                 :key="item"
-                @click="router.push('/newDetail')"
+                @click="
+                  router.push({
+                    path: '/newDetail',
+                    query: { id: item.goodsId, search: selectedCategory },
+                  })
+                "
               >
-                <img class="newsImg" src="@/assets/images/new.png" alt="" />
-                <div class="newsTitle">Movie Gift</div>
+                <img class="newsImg" :src="item.image" alt="" />
+                <div class="newsTitle">{{ item.name }}</div>
                 <div class="Preview">
-                  <div class="Price">$58</div>
-                  <div class="Sold">Sold 217</div>
+                  <div class="Price">${{ item.price }}</div>
+                  <div class="Sold">Sold {{ item.sold }}</div>
                 </div>
               </div>
             </div>
+            <div
+              class="NoData"
+              style="
+                font-size: 30px;
+                text-align: center;
+                color: #e621ca;
+                margin-top: 60px;
+              "
+              v-else
+            >
+              No data for now
+            </div>
           </div>
-          <div v-if="selectedCategory === 'Hot'">Hot 内容</div>
+          <!-- <div v-if="selectedCategory === 'Hot'">Hot 内容</div> -->
         </div>
       </div>
     </div>
@@ -78,14 +77,39 @@
 </template>
   
   <script setup lang="ts">
+import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 // 定义分类列表
 const categories = ref(["All goods", "New", "Hot"]);
 
 // 选中的分类，默认选中 "All goods"
-const selectedCategory = ref("New");
+const selectedCategory = ref("Hot");
+// all goods 点击的时候 search 是空，new点击的时候 search 是空，  hot 点击的时候 search 是 hot，
+const newProduct = ref();
+const getNewProductData = async (search: string) => {
+  const res = await displayDetailsGoods({ search });
+  console.log("getNewProductData", res.data.json);
+  if (res.data.code === 0) {
+    newProduct.value = res.data.json.displayDetailsGoodsList;
+  }
+};
+const ClickCategory = (item: string) => {
+  selectedCategory.value = item;
+  if (item === "New") {
+    getNewProductData("");
+  }
+  if (item === "All goods") {
+    getNewProductData("");
+  }
+  if (item === "Hot") {
+    getNewProductData("hot");
+  }
+};
+onMounted(() => {
+  getNewProductData("hot");
+});
 </script>
   
   <style scoped lang="less">

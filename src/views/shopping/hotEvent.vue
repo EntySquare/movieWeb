@@ -22,16 +22,29 @@
       <div class="bg">
         <span>Creation of The Gods:</span> <span>Kingdom of Storms</span>
       </div>
-      <div class="HotEventList">
+      <div class="HotEventList" v-if="hotHotEvent">
         <div
           class="HotEventItem"
-          v-for="item in 5"
+          v-for="item in hotHotEvent"
           :key="item"
-          @click="$router.push('/eventDetail')"
+          @click="
+            router.push({
+              path: '/eventDetail',
+              query: { name: item.title, movieId: item.movieId },
+            })
+          "
         >
-          <img class="HotEventImg" src="@/assets/images/event.png" />
+          <div
+            class="HotEventImg"
+            :style="{
+              backgroundImage: `url(${item.imageUrl}) `,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }"
+          ></div>
           <div class="EventRight">
-            <div class="EventTitle">Title of film-related activities</div>
+            <div class="EventTitle">{{ item.title }}</div>
             <div class="positioning">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -47,23 +60,42 @@
                   style="fill: white; fill-opacity: 0.6"
                 />
               </svg>
-              Zhongshan District, Taipei City
+              {{ item.place }}
             </div>
           </div>
         </div>
+      </div>
+      <div
+        class="NoData"
+        style="
+          font-size: 30px;
+          text-align: center;
+          color: #e621ca;
+          margin-top: 60px;
+        "
+        v-else
+      >
+        No data for now
       </div>
     </div>
   </div>
 </template>
     
     <script setup lang="ts">
-import { ref } from "vue";
-
-// 定义分类列表
-const categories = ref(["All goods", "New", "Hot"]);
-
-// 选中的分类，默认选中 "All goods"
-const selectedCategory = ref("All goods");
+import { showAllHotEvent } from "@/api/activity";
+import { onMounted, ref } from "vue";
+import router from "@/router";
+const hotHotEvent = ref();
+const gethotHotEventData = async () => {
+  const res = await showAllHotEvent();
+  if (res.data.code === 0) {
+    console.log("gethotHotEventData", res.data.json);
+    hotHotEvent.value = res.data.json;
+  }
+};
+onMounted(() => {
+  gethotHotEventData();
+});
 </script>
     
     <style scoped lang="less">
@@ -118,7 +150,12 @@ const selectedCategory = ref("All goods");
   gap: 88px;
   row-gap: 24px;
 }
-
+.NoData {
+  font-size: 30px;
+  text-align: center;
+  color: #e621ca;
+  margin-top: 60px;
+}
 .HotEventItem {
   display: flex;
   gap: 13px;
