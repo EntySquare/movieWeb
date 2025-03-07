@@ -120,8 +120,8 @@ onMounted(() => {
     width: 100%;
     display: flex;
     flex-direction: column;
-
-    width: 350px;
+    padding: 40px 16px 100px 16px;
+    max-width: 350px;
     gap: 24px;
   }
 }
@@ -173,7 +173,7 @@ onMounted(() => {
     .dataItem {
       display: flex;
       justify-content: space-between;
-      gap: 87px;
+      gap: 24px;
       align-items: center;
       .title {
         display: flex;

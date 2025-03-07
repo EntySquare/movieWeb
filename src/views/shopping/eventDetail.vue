@@ -338,17 +338,29 @@ const sendUsdtTransaction = async () => {
     return txHash;
   } catch (error: any) {
     console.error("Transaction failed:", error);
-    // 判断是否是用户取消交易
-    if (error.message.includes("User denied transaction signature")) {
-      // Metamask 取消交易的错误码一般是 4001
+    if (
+      error.code === 4001 ||
+      error.message.includes("User denied transaction signature")
+    ) {
+      // 用户取消交易
       ElNotification({
-        dangerouslyUseHTMLString: true,
-        showClose: false,
+        showClose: true,
         customClass: "message-logout",
-        title: "Transaction Cancelled",
-        duration: 3000,
+        title: "交易已取消",
+        message: "您已取消交易，未完成支付。",
+        duration: 5000,
+      });
+    } else {
+      // 其他错误
+      ElNotification({
+        customClass: "message-logout",
+        title: "交易失败",
+        message: error.message || "支付过程中发生错误",
+        duration: 5000,
       });
     }
+    console.error("error", error);
+    loading.value = false;
   } finally {
     loading.value = false;
   }

@@ -995,6 +995,19 @@ const toggleSelection = (item: any) => {
   border: 1px solid #e621ca;
   color: #e621ca;
 }
+
+@media (max-width: 824px) {
+  .activeCart {
+    right: 30px;
+    transition: right 0.3s ease-in-out; /* 过渡动画 */
+  }
+}
+@media (max-width: 384px) {
+  .activeCart {
+    right: 10px;
+    transition: right 0.3s ease-in-out; /* 过渡动画 */
+  }
+}
 </style>
 
 <style>

@@ -114,6 +114,8 @@ export const connectWallet = async () => {
             title: "连接失败,请检查网络或钱包插件是否正确安装",
             duration: 1000,
         });
+        console.log('error', error);
+
     }
 };
 
