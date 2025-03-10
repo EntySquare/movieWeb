@@ -313,6 +313,7 @@ const submitForm = async () => {
   loading.value = true;
   formStore.saveForm(form.value);
   // 检查钱包是否连接
+
   if (walletStore.walletAddress === "") {
     ElNotification({
       showClose: false,
@@ -323,35 +324,70 @@ const submitForm = async () => {
     loading.value = false;
     return;
   }
+  // 检查当前网络是否为 Arbitrum One 主网
+  const networkId = await web3.eth.net.getId();
+  // if (networkId !== 42161n) {
+  //   ElNotification({
+  //     showClose: true,
+  //     customClass: "message-logout",
+  //     title: "请切换到 Arbitrum One 网络",
+  //     message: "当前网络不是 Arbitrum 主网，请切换到 Arbitrum One。",
+  //     duration: 5000,
+  //   });
+  //   loading.value = false;
+  //   return;
+  // }
   const accounts = await web3.eth.requestAccounts();
   const senderAddress = accounts[0];
-  // USDT 合约地址和 ABI
 
-  const usdtContract = new web3.eth.Contract(usdtAbi, senderAddress);
+  // USDT 合约地址和 ABI
+  const usdtContract = new web3.eth.Contract(
+    usdtAbi,
+    "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+  );
 
   // 转账金额，假设用户支付 0.01 USDT
-  const amount = web3.utils.toWei("0.01", "mwei"); // USDT 使用 mwei 为单位
-  const recipientAddress = "0x2a389e217bbe36396fc9bb76ec40021dfa8b3fc3"; // 电影票的接收地址
-  // 创建交易参数
-  const transactionParameters = {
-    from: senderAddress, // 发送方地址
-    to: recipientAddress, // 接收方地址电影
-    data: usdtContract.methods.transfer(recipientAddress, amount).encodeABI(), // 转账数据
-    gas: 200000, // 确保有足够的 gas
-  };
-  console.log("44444444444444444444");
-
-  console.log("1111111111");
+  const amount = web3.utils.toWei(totalPrice.value, "mwei"); // USDT 使用 mwei 为单位
+  console.log("amountmwei", amount);
+  // const gasPrice = await web3.eth.getGasPrice();
+  // 电影票的接收地址
+  const recipientAddress = "0x5f5c3a0c19005d8f3607222d79a7492412501582";
+  // 🗝️ 5. 优化 Gas 估算逻辑
+  console.log("111111111111");
+  const [gasPrice, gasLimit] = await Promise.all([
+    web3.eth.getGasPrice(),
+    usdtContract.methods
+      .transfer(recipientAddress, amount)
+      .estimateGas({ from: senderAddress })
+      .then((limit) => Math.floor(Number(limit) * 1.2)), // 增加 20% 余量
+  ]);
   try {
-    const txHash = await web3.eth.sendTransaction(transactionParameters);
-    console.log("1111111111txHash", txHash);
+    console.log("2222222222222222222222");
+    // console.log(
+    //   "usdtContract.methods.",
+    //   usdtContract.methods.transfer(recipientAddress, amount.toString()).send({
+    //     from: senderAddress,
+    //     gasPrice: web3.utils.toWei('0.0001', 'gwei').toString(), // 0.1 gwei = 100,000,000 wei
+    // gas: web3.utils.toHex(gasLimit), // 转换为十六进制
+    //   })
+    // );
+
+    const tx = await usdtContract.methods
+      .transfer(recipientAddress, amount)
+      .send({
+        from: senderAddress,
+        gasPrice: web3.utils.toWei("0.0001", "gwei").toString(), // 0.1 gwei = 100,000,000 wei
+        gas: web3.utils.toHex(gasLimit), // 转换为十六进制
+      });
+    console.log("tx", tx);
+
     const res = await purchaseGoods({
       cartsId:
         selectedProduct.value[0].cartId !== ""
           ? selectedProduct.value[0].cartId
           : "",
       goodsId: selectedProduct.value[0].goodsId, // 如果你是直接购买 不走购物车，就给“”
-      number: "1",
+      number: String(selectedProduct.value[0].number),
       amount: String(totalPrice.value),
       address: form.value,
       // hash: txHash.transactionHash,
@@ -364,73 +400,83 @@ const submitForm = async () => {
     });
     console.log("res", res);
     console.log("222222222222222");
-    //  请求
-    if (res.data.code === 0) {
-      const res1 = await scanPurchaseStatus({
-        payType: 3,
-        // address: senderAddress,
-        address: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
-        // hash: txHash.transactionHash,
-        hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
-      });
-      if (res1.data.code === 0) {
-        console.log("re s111", res1);
-        console.log("33333333333333");
-        ElNotification({
-          dangerouslyUseHTMLString: true,
-          customClass: "message-logout",
-          title: selectedProduct.value[0].title + "购买成功",
-          message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
-              <div
-                style="
-                  color: rgba(255, 255, 255, 0.6);
-                  font-family: Inter;
-                  font-size: 12px;
-                  font-style: normal;
-                  font-weight: 500;
-                  line-height: 14px;
-                "
-              >
-                Purchase Success!
-              </div>
-              <div
-               id="verify-link"
-                style="
-                  display: flex;
-                  align-items: center;
-                  color: #e621ca;
-                  font-family: Inter;
-                  font-size: 12px;
-                  font-style: normal;
-                  font-weight: 500;
-                  line-height: 16px;
-                    cursor: pointer;
-                    "
-                   
-              >
-                verification
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 14 14"
-                  fill="none"
-                >
-                  <path
-                    d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
-                    fill="#D339C4"
-                    style="
-                      fill: #d339c4;
-                      fill: color(display-p3 0.8292 0.2246 0.7687);
-                      fill-opacity: 1;
-                    "
-                  />
-                </svg>
-              </div>
-            </div>`,
-          duration: 60000,
+    try {
+      //  请求
+      if (res.data.code === 0) {
+        const res1 = await scanPurchaseStatus({
+          payType: 3,
+          // address: senderAddress,
+          address: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
+          // hash: txHash.transactionHash,
+          hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
         });
-        // **使用 setTimeout 等待 DOM 渲染后绑定事件**
+        if (res1.data.code === 0) {
+          console.log("re s111", res1);
+          console.log("33333333333333");
+          ElNotification({
+            dangerouslyUseHTMLString: true,
+            customClass: "message-logout",
+            title: selectedProduct.value[0].title + "购买成功",
+            message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
+                <div
+                  style="
+                    color: rgba(255, 255, 255, 0.6);
+                    font-family: Inter;
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 14px;
+                  "
+                >
+                  Purchase Success!
+                </div>
+                <div
+                 id="verify-link"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    color: #e621ca;
+                    font-family: Inter;
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 16px;
+                      cursor: pointer;
+                      "
+                     
+                >
+                  verification
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                  >
+                    <path
+                      d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
+                      fill="#D339C4"
+                      style="
+                        fill: #d339c4;
+                        fill: color(display-p3 0.8292 0.2246 0.7687);
+                        fill-opacity: 1;
+                      "
+                    />
+                  </svg>
+                </div>
+              </div>`,
+            duration: 60000,
+          });
+          // **使用 setTimeout 等待 DOM 渲染后绑定事件**
+        } else {
+          ElNotification({
+            dangerouslyUseHTMLString: true,
+            customClass: "message-logout",
+            title: res.data.json.message,
+            duration: 6000,
+          });
+          loading.value = false;
+        }
       } else {
         ElNotification({
           dangerouslyUseHTMLString: true,
@@ -440,39 +486,35 @@ const submitForm = async () => {
         });
         loading.value = false;
       }
-    } else {
-      ElNotification({
-        dangerouslyUseHTMLString: true,
-        customClass: "message-logout",
-        title: res.data.json.message,
-        duration: 6000,
-      });
+    } catch (error: any) {
+      if (
+        error.code === 4001 ||
+        error.message.includes("User denied transaction signature")
+      ) {
+        // 用户取消交易
+        ElNotification({
+          showClose: true,
+          customClass: "message-logout",
+          title: "交易已取消",
+          message: "您已取消交易，未完成支付。",
+          duration: 5000,
+        });
+      } else {
+        // 其他错误
+        ElNotification({
+          customClass: "message-logout",
+          title: "交易失败",
+          message: error.message || "支付过程中发生错误",
+          duration: 5000,
+        });
+      }
+      console.error("error", error);
+      loading.value = false;
+    } finally {
       loading.value = false;
     }
-  } catch (error: any) {
-    if (
-      error.code === 4001 ||
-      error.message.includes("User denied transaction signature")
-    ) {
-      // 用户取消交易
-      ElNotification({
-        showClose: true,
-        customClass: "message-logout",
-        title: "交易已取消",
-        message: "您已取消交易，未完成支付。",
-        duration: 5000,
-      });
-    } else {
-      // 其他错误
-      ElNotification({
-        customClass: "message-logout",
-        title: "交易失败",
-        message: error.message || "支付过程中发生错误",
-        duration: 5000,
-      });
-    }
+  } catch (error) {
     console.error("error", error);
-    loading.value = false;
   } finally {
     loading.value = false;
   }
