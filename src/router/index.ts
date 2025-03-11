@@ -27,6 +27,7 @@ let router = createRouter({
         { path: '/my', component: () => import('@/views/my/index.vue') },
         { path: '/my/order', component: () => import('@/views/my/Order.vue') },
         { path: '/my/protocol', component: () => import('@/views/my/UserAgreement.vue') },
+        { path: '/my/Activities', component: () => import('@/views/my/Activities.vue') },
       ]
     },
   ],

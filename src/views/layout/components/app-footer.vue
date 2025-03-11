@@ -1,4 +1,6 @@
-<script lang="ts" setup name="AppFooter"></script>
+<script lang="ts" setup name="AppFooter">
+import router from "@/router";
+</script>
 <template>
   <footer class="app_footer">
     <div class="container">
@@ -6,7 +8,9 @@
       <div class="footerBottom">
         <div class="text">© 2025 Movie.network. All rights reserved.</div>
         <div class="fotterLink">
-          <div class="item">Privacy Policy</div>
+          <div class="item" @click="router.push('/my/protocol')">
+            Privacy Policy
+          </div>
           <div class="item">Terms of Use</div>
         </div>
         <div class="appLogo">
@@ -67,6 +71,7 @@
   .fotterLink {
     display: flex;
     gap: 20px;
+    margin-left: -60px;
     .item {
       color: @xtxColor;
       font-family: Rubik;
@@ -74,6 +79,7 @@
       font-style: normal;
       font-weight: 400;
       line-height: 150%; /* 18px */
+      cursor: pointer;
     }
   }
   .appLogo {

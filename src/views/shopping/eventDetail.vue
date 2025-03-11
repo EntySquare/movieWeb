@@ -192,7 +192,7 @@ onMounted(() => {
       new AMap.Marker({
         position: [longitude, latitude],
         map: map,
-        title: "目标位置",
+        title: "Target position",
       });
     })
     .catch((e) => {
@@ -220,7 +220,7 @@ const sendUsdtTransaction = async () => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title: "请连接钱包后再购买电影票",
+      title: "Please connect your wallet before buying movie tickets",
       duration: 1000,
     });
     loading.value = false;
@@ -346,16 +346,17 @@ const sendUsdtTransaction = async () => {
       ElNotification({
         showClose: true,
         customClass: "message-logout",
-        title: "交易已取消",
-        message: "您已取消交易，未完成支付。",
+        title: "The deal has been cancelled",
+        message:
+          "You have cancelled the transaction and have not completed the payment.",
         duration: 5000,
       });
     } else {
       // 其他错误
       ElNotification({
         customClass: "message-logout",
-        title: "交易失败",
-        message: error.message || "支付过程中发生错误",
+        title: "Failed transaction",
+        message: error.message || "An error occurred during payment",
         duration: 5000,
       });
     }

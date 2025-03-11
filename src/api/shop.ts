@@ -36,7 +36,7 @@ export const purchaseGoods = (data: any) => {
 }
 // /shop/scanPurchaseStatus  购买
 export const scanPurchaseStatus = (data: any) => {
-    return request({
+    return requestLong({
         url: '/shop/scanPurchaseStatus',
         method: 'post',
         data
@@ -76,6 +76,7 @@ export const displayGoodsCart = () => {
     return request({
         url: '/shop/displayGoodsCart',
         method: 'post',
-      
+
     })
 }
+

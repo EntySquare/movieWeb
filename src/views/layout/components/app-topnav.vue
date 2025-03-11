@@ -5,11 +5,20 @@ import { useTokenStore } from "@/store/modules/my";
 import { addressLogin } from "@/api/login";
 import { useWindowSize } from "@/utils/useWindowSize";
 import { connectWallet, formatData, logoutWallet } from "@/utils/wallet";
-import { deleteGoodsCart, displayGoodsCart, modifyGoodsCart } from "@/api/shop";
+import {
+  deleteGoodsCart,
+  displayGoodsCart,
+  modifyGoodsCart,
+  purchaseGoods,
+  scanPurchaseStatus,
+} from "@/api/shop";
 import { useProductStore } from "@/store/modules/product";
 import { ElNotification } from "element-plus";
 import { computed, onMounted, ref } from "vue";
 import useCartStore from "@/store/modules/cart";
+import Web3 from "web3";
+import usdtAbi from "@/abiU.json";
+
 const { windowWidth } = useWindowSize();
 const walletStore = useWalletStore();
 const isMenuOpen = ref(true);
@@ -45,7 +54,7 @@ const BuyNowCartClick = () => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: "请选择要购买的商品",
+      title: "Please select the item to purchase",
       duration: 1000,
     });
     return;
@@ -55,6 +64,411 @@ const BuyNowCartClick = () => {
   productStore.setProduct([cartList.value]);
   router.push("/newBuy");
 };
+const web3 = new Web3(window.ethereum);
+const loading = ref(false);
+const submitForm = async () => {
+  // 控制按钮 loading 状态
+  loading.value = true;
+  // 检查钱包是否连接
+  if (!selectedCartId.value) {
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      showClose: false,
+      customClass: "message-logout",
+      title: "Please select the item to purchase",
+      duration: 1000,
+    });
+    loading.value = false;
+    return;
+  }
+  // isActiveCart.value = false;
+  const productStore = useProductStore();
+  productStore.setProduct([cartList.value]);
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "Please connect your wallet before purchasing",
+      duration: 1000,
+    });
+
+    loading.value = false;
+    return;
+  }
+
+  // 检查当前网络是否为 Arbitrum One 主网
+  const networkId = await web3.eth.net.getId();
+  if (networkId !== 42161n) {
+    ElNotification({
+      showClose: true,
+      customClass: "message-logout",
+      title:
+        "The current network is not Arbitrum main network, please switch to Arbitrum One.",
+      duration: 5000,
+    });
+    loading.value = false;
+    return;
+  }
+  const accounts = await web3.eth.requestAccounts();
+  const senderAddress = accounts[0];
+
+  // USDT 合约地址和 ABI
+  // 主网
+  const usdtContract = new web3.eth.Contract(
+    usdtAbi,
+    "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+  );
+  //  测试网
+  // const usdtContract = new web3.eth.Contract(
+  //   usdtAbi,
+  //   "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0"
+  // );
+  console.log("usdtContract", usdtContract);
+
+  // 转账金额，假设用户支付 0.01 USDT
+  const amount = web3.utils.toWei(cartList.value.price.toString(), "mwei"); // USDT 使用 mwei 为单位
+  console.log("amountmwei", amount);
+  // 电影票的接收地址
+  const recipientAddress = useTokenStore().toAddress;
+  // const recipientAddress = "0x5f5c3a0c19005d8f3607222d79a7492412501582";
+  console.log("recipientAddress", recipientAddress);
+  console.log("recipientAddress 类型:", typeof recipientAddress); // 打印数据类型
+  // 5. 余额验证
+  console.log("开始获取 ETH 余额");
+  const ethBalance = await web3.eth.getBalance(senderAddress);
+  console.log("ETH 余额:", ethBalance);
+
+  console.log("开始获取 USDT 余额");
+  const usdtBalance = await usdtContract.methods
+    .balanceOf(senderAddress)
+    .call();
+  console.log("USDT 余额:", usdtBalance);
+
+  if (Number(usdtBalance) < Number(amount)) {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title:
+        "Your USDT balance is insufficient, please recharge before purchasing.",
+
+      duration: 5000,
+    });
+    loading.value = false;
+    return;
+  }
+  console.log("usdtBalance", usdtBalance);
+
+  // 6. 动态计算Gas
+  const baseGasPrice = await web3.eth.getGasPrice();
+  console.log("baseGasPrice", baseGasPrice);
+  const estimatedGas = await usdtContract.methods
+    .transfer(recipientAddress, amount)
+    .estimateGas({ from: senderAddress });
+  console.log("estimatedGas", estimatedGas);
+  // 7. 构建交易参数
+  const gasParams = {
+    gasPrice: Math.floor(Number(baseGasPrice) * 1.2), // 20%缓冲
+    gasLimit: Math.floor(Number(estimatedGas) * 1.5), // 50%余量
+  };
+  console.log("gasParams", gasParams);
+
+  try {
+    console.log("7777777");
+    const txHash = await usdtContract.methods
+      .transfer(recipientAddress, amount)
+      .send({
+        from: senderAddress,
+        // gasPrice: web3.utils.toWei("0.01", "gwei").toString(), // 0.1 gwei = 100,000,000 wei
+        gasPrice: gasParams.gasPrice.toString(), // 0.1 gwei = 100,000,000 wei
+        gas: web3.utils.toHex(gasParams.gasLimit), // 转换为十六进制
+      });
+    console.log("txHash", txHash.transactionHash);
+
+    try {
+      const res = await purchaseGoods({
+        cartsId: cartList.value?.cartId || "",
+        goodsId: cartList.value.goodsId, // 如果你是直接购买 不走购物车，就给“”
+        number: String(cartList.value.number),
+        amount: cartList.value.price.toString(),
+        // address: form.value,
+        hash: txHash.transactionHash,
+        // hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
+        from: senderAddress,
+        // from: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
+        payType: 3, // 1 表示 PayPal
+        remarks: "", // remarks是备注，你传空就行
+      });
+      console.log("res", res);
+      console.log("222222222222222");
+      //  请求
+      if (res.data.code === 0) {
+        const res1 = await scanPurchaseStatus({
+          payType: 3,
+          address: senderAddress,
+          // address: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
+          hash: txHash.transactionHash,
+          // hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
+        });
+        if (res1.data.code === 0) {
+          console.log("res111", res1);
+          console.log("33333333333333");
+          ElNotification({
+            dangerouslyUseHTMLString: true,
+            customClass: "message-logout",
+            title: cartList.value.title + "Successful purchase",
+            message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
+                <div
+                  style="
+                    color: rgba(255, 255, 255, 0.6);
+                    font-family: Inter;
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 14px;
+                  "
+                >
+                  Purchase Success!
+                </div>
+                <div
+                 id="verify-link"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    color: #e621ca;
+                    font-family: Inter;
+                    font-size: 12px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 16px;
+                      cursor: pointer;
+                      "
+
+                >
+                  verification
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                  >
+                    <path
+                      d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
+                      fill="#D339C4"
+                      style="
+                        fill: #d339c4;
+                        fill: color(display-p3 0.8292 0.2246 0.7687);
+                        fill-opacity: 1;
+                      "
+                    />
+                  </svg>
+                </div>
+              </div>`,
+            duration: 60000,
+          });
+          // **使用 setTimeout 等待 DOM 渲染后绑定事件**
+          setTimeout(() => {
+            const verifyLink = document.getElementById("verify-link");
+            if (verifyLink) {
+              verifyLink.addEventListener("click", () => {
+                router.push("/my"); // Vue Router 跳转
+              });
+            }
+          }, 100);
+          const productStore = useProductStore();
+          productStore.setHash(txHash.transactionHash);
+          router.push("/newBuy");
+          isActiveCart.value = false;
+          loading.value = false;
+        } else {
+          ElNotification({
+            dangerouslyUseHTMLString: true,
+            customClass: "message-logout",
+            title: res1.data.json.message,
+            duration: 6000,
+          });
+          loading.value = false;
+        }
+      } else {
+        ElNotification({
+          dangerouslyUseHTMLString: true,
+          customClass: "message-logout",
+          title: res.data.json,
+          duration: 6000,
+        });
+        loading.value = false;
+      }
+    } catch (error: any) {
+      if (
+        error.code === 4001 ||
+        error.message.includes("User denied transaction signature")
+      ) {
+        // 用户取消交易
+        ElNotification({
+          showClose: true,
+          customClass: "message-logout",
+          title:
+            "You have cancelled the transaction and have not completed the payment",
+          duration: 5000,
+        });
+      } else {
+        // 其他错误
+        ElNotification({
+          customClass: "message-logout",
+          title: "An error occurred during payment, please try again later",
+          duration: 5000,
+        });
+      }
+      console.error("error", error);
+      loading.value = false;
+    } finally {
+      loading.value = false;
+    }
+  } catch (error) {
+    console.error("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
+// const submitForm = async () => {
+//   loading.value = true;
+
+//   // 1. 选择支付的商品
+//   if (!selectedCartId.value) {
+//     ElNotification({
+//       customClass: "message-logout",
+//       title: "请选择要购买的商品",
+//       duration: 1000,
+//     });
+//     loading.value = false;
+//     return;
+//   }
+
+//   // 2. 连接钱包
+//   let provider;
+//   if (window.okxwallet) {
+//     provider = window.okxwallet; // OKX 钱包
+//   } else if (window.ethereum) {
+//     provider = window.ethereum; // MetaMask
+//   } else {
+//     ElNotification({
+//       customClass: "message-logout",
+//       title: "请安装 MetaMask 或 OKX 钱包",
+//       duration: 2000,
+//     });
+//     loading.value = false;
+//     return;
+//   }
+
+//   const web3 = new Web3(provider);
+
+//   try {
+//     // 3. 获取用户地址
+//     const accounts = await web3.eth.requestAccounts();
+//     const senderAddress = accounts[0];
+
+//     if (!senderAddress) {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: "未检测到钱包地址",
+//         duration: 2000,
+//       });
+//       loading.value = false;
+//       return;
+//     }
+
+//     // 4. 检查网络（Arbitrum）
+//     const networkId = await web3.eth.net.getId();
+//     console.log("networkId", networkId);
+
+//     if (networkId !== 42161n) {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: "请切换到 Arbitrum One 网络",
+//         duration: 5000,
+//       });
+//       loading.value = false;
+//       return;
+//     }
+
+//     // 5. 计算 USDT 交易参数
+//     const usdtContract = new web3.eth.Contract(
+//       usdtAbi,
+//       "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9" // 主网 USDT 地址
+//     );
+
+//     const amount = web3.utils.toWei(cartList.value.price.toString(), "mwei");
+//     const recipientAddress = "0x5f5c3a0c19005d8f3607222d79a7492412501582";
+
+//     // 6. 检查 USDT 余额
+//     const usdtBalance = await usdtContract.methods
+//       .balanceOf(senderAddress)
+//       .call();
+
+//     if (Number(usdtBalance) < Number(amount)) {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: "USDT 余额不足",
+//         duration: 5000,
+//       });
+//       loading.value = false;
+//       return;
+//     }
+
+//     // 7. 发送 USDT 交易
+//     const tx = await usdtContract.methods
+//       .transfer(recipientAddress, amount)
+//       .send({
+//         from: senderAddress,
+//       });
+
+//     console.log("交易哈希:", tx.transactionHash);
+
+//     // 8. 通知后台
+//     const res = await purchaseGoods({
+//       cartsId: cartList.value?.cartId || "",
+//       goodsId: cartList.value.goodsId,
+//       number: String(cartList.value.number),
+//       amount: cartList.value.price.toString(),
+//       hash: tx.transactionHash,
+//       from: senderAddress,
+//       payType: 3, // 3 表示 USDT 付款
+//       remarks: "",
+//     });
+
+//     if (res.data.code === 0) {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: "购买成功",
+//         duration: 6000,
+//       });
+//       router.push("/newBuy");
+//     } else {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: res.data.json,
+//         duration: 6000,
+//       });
+//     }
+//   } catch (error: any) {
+//     if (error.code === 4001) {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: "交易已取消",
+//         duration: 5000,
+//       });
+//     } else {
+//       ElNotification({
+//         customClass: "message-logout",
+//         title: "支付失败",
+//         duration: 5000,
+//       });
+//     }
+//     console.error("支付错误:", error);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 const getCartListStore = useCartStore();
 const goodsCartList = computed(() => getCartListStore.cartList ?? []);
@@ -97,7 +511,7 @@ const removeFromCart = async (number: any) => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: "删除失败",
+      title: "Deletion failure",
       duration: 1000,
     });
   }
@@ -122,11 +536,15 @@ const handleNumberChange = async (item: any) => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: "修改失败",
+      title: "Change failed",
       duration: 1000,
     });
     getCartList();
   }
+};
+const logout = () => {
+  logoutWallet();
+  isActiveCart.value = false;
 };
 const cartList = ref<any>([]);
 // 处理可取消选中
@@ -274,7 +692,7 @@ const toggleSelection = (item: any) => {
           </div>
           <div
             v-if="windowWidth > 824"
-            @click="logoutWallet"
+            @click="logout"
             style="display: flex; align-items: center; cursor: pointer"
           >
             <svg
@@ -322,7 +740,7 @@ const toggleSelection = (item: any) => {
         </div>
       </div>
       <div
-        @click="logoutWallet"
+        @click="logout"
         style="
           display: flex;
           align-items: center;
@@ -350,7 +768,7 @@ const toggleSelection = (item: any) => {
         </svg>
       </div>
     </div>
-    <div class="cart" :class="{ activeCart: isActiveCart }">
+    <div class="cart" :class="{ activeCart: isActiveCart }" v-loading="loading">
       <div style="width: 100%">
         <div class="cartTitle">
           <div>Shopping cart</div>
@@ -440,7 +858,16 @@ const toggleSelection = (item: any) => {
                 @click="toggleSelection(item)"
                 class="custom-radio"
               ></el-radio>
-              <img class="cartItemImg" :src="item.image" alt="" />
+              <!-- <img class="cartItemImg" :src="item.image" alt="" /> -->
+              <div
+                class="cartItemImg"
+                :style="{
+                  backgroundImage: `url(${item.image}) `,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                }"
+              ></div>
               <div class="text">
                 <div class="cartItemName">{{ item.describe }}</div>
                 <div class="cartItemPN">
@@ -488,7 +915,7 @@ const toggleSelection = (item: any) => {
         </div>
         <div
           class="SubtotalBtn"
-          @click="BuyNowCartClick()"
+          @click="submitForm()"
           :class="{ disabled: !selectedCartId }"
         >
           Buy now
@@ -751,12 +1178,12 @@ const toggleSelection = (item: any) => {
   position: fixed;
   top: 72px;
   // right: 80px;
-  right: -320px;
+  right: -520px;
   transition: right 0.3s ease-in-out; /* 过渡动画 */
   z-index: 10;
   display: flex;
-  width: 321px;
-  height: 443px;
+  width: 361px;
+  height: 453px;
   padding: 16px 12px;
   flex-direction: column;
   justify-content: space-between;
@@ -819,12 +1246,13 @@ const toggleSelection = (item: any) => {
           margin-bottom: 8px;
           color: #fff;
           font-family: Rubik;
-          font-size: 14px;
+          font-size: 13px;
           font-style: normal;
-          font-weight: 700;
+          font-weight: 500;
           line-height: normal;
-          letter-spacing: 0.64px;
+          letter-spacing: 0.34px;
           text-transform: uppercase;
+          max-width: 120px;
         }
         .cartItemPN {
           display: flex;

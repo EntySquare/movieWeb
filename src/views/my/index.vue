@@ -117,7 +117,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="Activities">
-          <div class="ActivitiesTitle">
+          <div class="ActivitiesTitle" @click="router.push('/my/Activities')">
             <div class="title">Activities attended</div>
             <div class="all">
               All<svg
@@ -143,7 +143,7 @@ onMounted(() => {
           <div class="ActivitiesList" v-if="ActivityList.length > 0">
             <div
               class="ActivitiesItem"
-              v-for="(item, index) in ActivityList"
+              v-for="(item, index) in ActivityList.slice(0, 4)"
               :key="index"
             >
               <div
@@ -244,7 +244,7 @@ onMounted(() => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   .container {
     padding: 48px 16px 136px 16px;
     width: 100%;
@@ -304,6 +304,7 @@ onMounted(() => {
     margin-bottom: 32px;
     .ActivitiesTitle {
       display: flex;
+      cursor: pointer;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 17.5px;

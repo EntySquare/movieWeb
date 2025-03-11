@@ -149,6 +149,8 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 88px;
   row-gap: 24px;
+  // align-items: center;
+  // justify-content: center;
 }
 .NoData {
   font-size: 30px;
@@ -160,7 +162,7 @@ onMounted(() => {
   display: flex;
   gap: 13px;
   cursor: pointer;
-
+  width: 330px;
   .HotEventImg {
     width: 88px;
     height: 88px;

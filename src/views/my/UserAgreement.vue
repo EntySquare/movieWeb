@@ -5,97 +5,160 @@
     <div class="container">
       <div class="MAI">MAI verse Privacy Policy</div>
       <div class="Privacy">
-        <div class="FS24700" style="margin-bottom: 24px">用户隐私协议</div>
-        <div class="FS24700">1. 引言</div>
-        感谢您选择<span class="FS16700">MAIverse</span>
-        平台（以下简称“平台”）。我们致力于通过区块链技术和代币经济模型（
+        <div class="FS24700" style="margin-bottom: 24px">
+          User privacy Agreement
+        </div>
+        <div class="FS24700">1. Introduction</div>
+        Thank you for choosing the<span class="FS16700">MAIverse</span>
+        Platform (the "Platform"). We are committed to building a decentralized
+        film ecosystem through blockchain technology and token economy model (
         <span class="FS16700">Tokenomics</span>
-        ）构建一个去中心化的电影生态系统。在使用我们的服务时，我们承诺保护您的隐私和数据安全。请仔细阅读本隐私协议，了解我们如何收集、使用和保护您的个人信息。
+        ). When using our services, we are committed to protecting your privacy
+        and data security. Please read this Privacy Agreement carefully to
+        understand how we collect, use and protect your personal information.
 
         <div class="FS24700" style="margin-top: 24px">
-          2. 我们收集的个人信息
-        </div>
-        <div>为了提供优质的服务，我们可能会收集以下类型的个人信息：</div>
-        <div>
-          <div class="FS16700">身份信息：</div>
-          包括您的姓名、电子邮件地址、电话号码等。
+          2. Personal Information we collect
         </div>
         <div>
-          <div class="FS16700">账户信息：</div>
-          包括您的账户注册信息、登录凭证、代币持有情况、<span>NFT</span>
-          交易记录等。
+          In order to provide quality services, we may collect the following
+          types of personal information:
         </div>
         <div>
-          <div class="FS16700">交易数据：</div>
-          当您进行代币交易或参与内容融资时，我们将收集交易的相关信息，如交易金额、交易时间、交易对象等。
+          <div class="FS16700">Identifying information:</div>
+          This includes your name, email address, phone number, etc.
         </div>
         <div>
-          <div class="FS16700">使用数据：</div>
-          我们收集关于您如何使用平台服务的数据，包括您的浏览记录、互动行为、设备信息等，以便提升平台的用户体验和功能。
+          <div class="FS16700">Account information:</div>
+          including your account registration information, login credentials,
+          token holdings, <span>NFT</span>
+          transaction records, etc.
+        </div>
+        <div>
+          <div class="FS16700">Transaction data:</div>
+          When you trade tokens or participate in content financing, we will
+          collect information about the transaction, such as the amount of the
+          transaction, the time of the transaction, the person to whom the
+          transaction was made.
+        </div>
+        <div>
+          <div class="FS16700">Usage Data:</div>
+          We collect data about how you use the Platform services, including
+          your browsing history, interaction behavior, device information, etc.
+          in order to improve the user experience and functionality of the
+          Platform.
         </div>
         <div class="FS24700" style="margin-top: 24px">
-          3. 我们如何使用您的信息
+          3. How do we use your information
         </div>
         <div style="margin-bottom: 24px">
-          我们会基于以下目的使用您的个人信息：
+          We use your personal information for the following purposes:
         </div>
         <div>
-          <div class="FS16700">提供和优化服务：</div>
-          使用您的信息来提供平台上的电影内容、代币交易、NFT发售等功能，并不断改进我们的服务。
+          <div class="FS16700">Provision and optimization of services:</div>
+          Use your information to provide features such as movie content, token
+          trading, NFT sales on the Platform and to continuously improve our
+          services.
         </div>
         <div>
-          <div class="FS16700">身份验证和安全：</div>
-          通过您的账户信息进行身份验证，确保账户安全。
+          <div class="FS16700">Authentication and security:</div>
+          Secure your account by authenticating your account information.
         </div>
         <div>
-          <div class="FS16700">市场营销和宣传：</div>
-          基于您的兴趣和偏好，通过电子邮件或其他渠道向您推送电影资讯、活动通知或促销信息。您可以随时选择退出这些通知。
+          <div class="FS16700">Marketing and Promotion:</div>
+          To send you movie information, event notifications or promotions via
+          email or other channels based on your interests and preferences. You
+          can opt out of these notifications at any time.
         </div>
         <div>
-          <div class="FS16700">遵守法律规定：</div>
-          在必要时，我们会使用您的信息来遵守相关的法律和法规要求，或应政府机构的请求。
-        </div>
-        <div class="FS24700" style="margin-top: 24px">4. 信息的共享与披露</div>
-        <div style="margin-bottom: 24px">
-          我们承诺不会将您的个人信息出售或出租给第三方。但在以下情况下，我们可能会披露您的信息：
-        </div>
-        <div>
-          第三方服务提供商：为了更好地提供服务，我们可能会与第三方合作伙伴共享您的信息。这些合作伙伴包括区块链网络、支付处理商、数据分析公司等。我们确保这些合作伙伴遵守数据保护义务。
-        </div>
-        <div>
-          法律要求：在法律、法规要求的情况下，我们可能需要披露您的个人信息，以响应法律程序、法院命令或政府要求。
+          <div class="FS16700">Compliance with legal requirements:</div>
+          When necessary, we will use your information to comply with relevant
+          legal and regulatory requirements, or at the request of government
+          agencies.
         </div>
         <div class="FS24700" style="margin-top: 24px">
-          5. 区块链技术与透明度
+          4. Information sharing and disclosure
         </div>
-        MAI
-        verse平台基于区块链技术，所有交易记录和代币流转都将被记录在区块链上，这些记录对所有用户公开透明。通过区块链，您可以随时查看与您的账户相关的交易历史，但请注意，区块链上的交易记录是不可更改的。
-        <div class="FS24700" style="margin-top: 24px">6. NFT与粉丝权益</div>
-        通过平台上的NFT和代币，粉丝将与电影内容深度绑定，享有特定的权益。您的代币持有信息、NFT购买记录等将作为您参与粉丝经济和享受平台服务的凭证。
-        <div class="FS24700" style="margin-top: 24px">7. 数据保护与安全</div>
-        我们采取合理的技术措施，确保您的个人信息不被未经授权的访问、泄露或篡改。我们会对敏感数据（如支付信息）进行加密处理，并在区块链上使用去中心化的方式记录交易。
-        <div class="FS24700" style="margin-top: 24px">8. 用户权利</div>
-        <div style="margin-bottom: 24px">作为用户，您享有以下权利：</div>
-        <div>访问权：您有权随时查看我们收集的关于您的个人信息。</div>
-        <div>
-          更新和更正：如果您的信息有误，您可以要求我们更新或更正您的个人信息。
+        <div style="margin-bottom: 24px">
+          We promise not to sell or rent your personal information to third
+          parties. However, we may disclose your information in the following
+          circumstances:
         </div>
         <div>
-          删除权：您可以要求我们删除您的个人信息，但请注意，在某些情况下，我们可能需要保留您的信息以符合法律要求或处理未完成的事务。
+          Third Party Service providers: To better provide our services, we may
+          share your information with third party partners. These partners
+          include blockchain networks, payment processors, data analytics
+          companies, and more. We ensure that these partners comply with their
+          data protection obligations.
+        </div>
+        <div>
+          Legal requirements: Where required by law or regulation, we may need
+          to disclose your personal information in response to legal
+          proceedings, court orders or government requests.
         </div>
         <div class="FS24700" style="margin-top: 24px">
-          9. 代币经济与长期增长潜力
+          5. Blockchain technology and transparency
         </div>
-        MAI
-        verse平台通过代币经济模型（Tokenomics）促进内容制作、分发和粉丝互动。我们设计了合理的代币流转机制，包括锁仓设计，以降低抛压并确保平台的长期增长潜力。部分代币将用于生态支持，推动电影行业的发展。
-        <div class="FS24700" style="margin-top: 24px">10. 隐私政策更新</div>
-        我们可能会不定期更新本隐私协议，任何修改都会通过平台通知您。请定期查阅本协议，以了解我们最新的隐私保护措施。
-        <div class="FS24700" style="margin-top: 24px">11. 联系我们</div>
+        The MAI verse platform is based on blockchain technology, and all
+        transaction records and token transfers will be recorded on the
+        blockchain, which is open and transparent to all users. With blockchain,
+        you can view the transaction history associated with your account at any
+        time, but please note that the transaction history on the blockchain is
+        immutable.
+        <div class="FS24700" style="margin-top: 24px">
+          6. NFT and fan rights
+        </div>
+        Through the NFT and token on the platform, fans will be deeply bound to
+        the movie content and enjoy specific rights and interests. Your token
+        holding information, NFT purchase record, etc., will be used as your
+        proof to participate in the fan economy and enjoy the platform services.
+        <div class="FS24700" style="margin-top: 24px">
+          7. Data protection and security
+        </div>
+        We take reasonable technical measures to ensure that your personal
+        information is not subject to unauthorized access, disclosure or
+        alteration. We encrypt sensitive data, such as payment information, and
+        record transactions in a decentralized manner on the blockchain.
+        <div class="FS24700" style="margin-top: 24px">8. User rights</div>
         <div style="margin-bottom: 24px">
-          如果您对本隐私协议有任何疑问或需要进一步的信息，欢迎通过以下方式联系我们：
+          As a user, you have the following rights:
         </div>
-        <div>电子邮件：support@movie.com</div>
-        <div>地址：深圳市南山区</div>
+        <div>
+          Access: You have the right to view the personal information we collect
+          about you at any time.
+        </div>
+        <div>
+          Updates and Corrections: If your information is incorrect, you can ask
+          us to update or correct your personal information.
+        </div>
+        <div>
+          Right to deletion: You may ask us to delete your personal information,
+          but please note that in some cases we may need to retain your
+          information to comply with legal requirements or to deal with
+          unfinished business.
+        </div>
+        <div class="FS24700" style="margin-top: 24px">
+          9. Token economy and long-term growth potential
+        </div>
+        The MAI verse platform facilitates content production, distribution, and
+        fan engagement through a Tokenomics model. We have designed a reasonable
+        token flow mechanism, including lock-in design, to reduce selling
+        pressure and ensure the long-term growth potential of the platform. Some
+        of the tokens will be used for ecological support to boost the
+        development of the film industry.
+        <div class="FS24700" style="margin-top: 24px">
+          10. Privacy Policy update
+        </div>
+        We may update this Privacy Agreement from time to time and will notify
+        you of any changes through the platform. Please review this Agreement
+        periodically to learn about our latest privacy practices.
+        <div class="FS24700" style="margin-top: 24px">11. Contact us</div>
+        <div style="margin-bottom: 24px">
+          If you have any questions about this Privacy Policy or require further
+          information, please contact us at:
+        </div>
+        <div>E-mail: support@movie.com</div>
+        <div>Address: Nanshan District, Shenzhen</div>
       </div>
     </div>
   </div>

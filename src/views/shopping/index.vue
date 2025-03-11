@@ -95,6 +95,58 @@ onMounted(() => {
       </div>
       <div class="shopbottom">
         <div class="bottomLeft">
+          <div class="New">
+            <div class="NewTitle">
+              <div class="title">New Product</div>
+              <div class="more" @click="router.push('/new')">
+                More<svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="6"
+                  height="10"
+                  viewBox="0 0 6 10"
+                  fill="none"
+                >
+                  <path
+                    d="M1 9L5 5L1 1"
+                    stroke="white"
+                    stroke-opacity="0.8"
+                    style="stroke: white; stroke-opacity: 0.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="newList">
+              <div
+                class="newsItem"
+                @click="
+                  router.push({
+                    path: '/newDetail',
+                    query: { id: item.goodsId, search: 'Hot' },
+                  })
+                "
+                v-for="item in (newProduct || []).slice(0, 4)"
+                :key="item"
+              >
+                <!-- <img class="newsImg" :src="item.image" alt="" /> -->
+                <div
+                  class="newsImg"
+                  :style="{
+                    backgroundImage: `url(${item.cover}) `,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'center',
+                  }"
+                ></div>
+                <div class="newsTitle">{{ item.name }}</div>
+                <div class="Preview">
+                  <div class="Price">${{ item.price }}</div>
+                  <div class="Sold">Sold {{ item.sold }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="Hotmovie">
             <div class="HotmovieTitle">
               <div class="title">Hot Movie</div>
@@ -152,50 +204,6 @@ onMounted(() => {
                 </div>
                 <div class="participate" v-if="activeIndex === index">
                   Participate Now
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="New">
-            <div class="NewTitle">
-              <div class="title">New Product</div>
-              <div class="more" @click="router.push('/new')">
-                More<svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="6"
-                  height="10"
-                  viewBox="0 0 6 10"
-                  fill="none"
-                >
-                  <path
-                    d="M1 9L5 5L1 1"
-                    stroke="white"
-                    stroke-opacity="0.8"
-                    style="stroke: white; stroke-opacity: 0.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div class="newList">
-              <div
-                class="newsItem"
-                @click="
-                  router.push({
-                    path: '/newDetail',
-                    query: { id: item.goodsId, search: 'Hot' },
-                  })
-                "
-                v-for="item in (newProduct || []).slice(0, 8)"
-                :key="item"
-              >
-                <img class="newsImg" :src="item.image" alt="" />
-                <div class="newsTitle">{{ item.name }}</div>
-                <div class="Preview">
-                  <div class="Price">${{ item.price }}</div>
-                  <div class="Sold">Sold {{ item.sold }}</div>
                 </div>
               </div>
             </div>
@@ -547,6 +555,15 @@ onMounted(() => {
         font-weight: 700;
         line-height: 16px; /* 114.286% */
         margin-bottom: 8px;
+        // height: 8px;
+        word-wrap: break-word; /* 允许单词内换行 */
+        word-break: break-all; /* 允许任何地方换行 */
+        white-space: normal; /* 默认换行 */
+        overflow: hidden; /* 超出隐藏 */
+        text-overflow: ellipsis; /* 显示省略号 */
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 限制最多 3 行 */
+        -webkit-box-orient: vertical;
       }
       .Preview {
         display: flex;

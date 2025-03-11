@@ -43,7 +43,7 @@ export const connectWallet = async () => {
             ElNotification({
                 showClose: false,
                 customClass: "message-logout",
-                title: "连接失败,请安装MetaMask钱包后刷新页面",
+                title: "Connection failed. Please refresh the page after installing MetaMask wallet",
                 duration: 1000,
             });
             return;
@@ -67,7 +67,7 @@ export const connectWallet = async () => {
             ElNotification({
                 showClose: false,
                 customClass: "message-logout",
-                title: "登录成功",
+                title: "Login success",
                 duration: 1000,
             });
         }
@@ -81,7 +81,7 @@ export const connectWallet = async () => {
                 ElNotification({
                     showClose: false,
                     customClass: "message-logout",
-                    title: "钱包已断开",
+                    title: "The wallet has been disconnected",
                     duration: 1000,
                 });
             } else {
@@ -89,7 +89,7 @@ export const connectWallet = async () => {
                 ElNotification({
                     showClose: false,
                     customClass: "message-logout",
-                    title: "钱包地址已更新",
+                    title: "Wallet address has been updated",
                     duration: 1000,
                 });
             }
@@ -101,7 +101,7 @@ export const connectWallet = async () => {
             ElNotification({
                 showClose: false,
                 customClass: "message-logout",
-                title: "钱包已断开",
+                title: "The wallet has been disconnected",
                 duration: 1000,
             });
             // 清空token数据
@@ -111,7 +111,7 @@ export const connectWallet = async () => {
         ElNotification({
             showClose: false,
             customClass: "message-logout",
-            title: "连接失败,请检查网络或钱包插件是否正确安装",
+            title: "The connection failed. Please check that the network or wallet plug-in is installed correctly",
             duration: 1000,
         });
         console.log('error', error);
@@ -130,7 +130,7 @@ export const logoutWallet = () => {
     ElNotification({
         showClose: false,
         customClass: "message-logout",
-        title: "已退出钱包",
+        title: "Exited the wallet ",
         duration: 1000,
     });
 
