@@ -235,7 +235,7 @@ onMounted(() => {
           <div class="HotEventList">
             <div
               class="HotEventItem"
-              v-for="item in (hotHotEvent || []).slice(0, 7)"
+              v-for="item in (hotHotEvent || []).slice(0, 5)"
               :key="item"
               @click="
                 router.push({
@@ -596,7 +596,7 @@ onMounted(() => {
       align-items: center;
       width: 100%;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 26px;
       .title {
         color: #fff;
         font-family: Rubik;
@@ -622,7 +622,7 @@ onMounted(() => {
       }
     }
     .HotEventList {
-      height: 934px;
+      // height: 934px;
       overflow: hidden;
       display: flex;
       flex-direction: column;

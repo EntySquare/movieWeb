@@ -4,7 +4,7 @@ import { CSSProperties, reactive, ref, watch } from "vue";
 const videos = ref([
   {
     imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video.mp4",
+    videoSrc: "/src/assets/video1.mp4",
   },
   {
     imageSrc: "/src/assets/images/Producing.png",
@@ -12,11 +12,11 @@ const videos = ref([
   },
   {
     imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video2.mp4",
+    videoSrc: "/src/assets/video1.mp4",
   },
   {
     imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video3.mp4",
+    videoSrc: "/src/assets/video1.mp4",
   },
 ]);
 
