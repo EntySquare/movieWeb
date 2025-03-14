@@ -32,29 +32,70 @@ const movies = [
 ];
 
 const HotMoviesdata = ref();
-const getHotMoviesData = async () => {
-  const res = await showAllHotMovie();
-  if (res.data.code === 0) {
-    console.log("getHotMoviesData", res.data.json);
-    HotMoviesdata.value = res.data.json;
-  }
-};
+// const getHotMoviesData = async () => {
+//   const res = await showAllHotMovie();
+//   if (res.data.code === 0) {
+//     console.log("getHotMoviesData", res.data.json);
+//     HotMoviesdata.value = res.data.json;
+//   }
+// };
 
 const hotHotEvent = ref();
-const gethotHotEventData = async () => {
-  const res = await showAllHotEvent();
-  if (res.data.code === 0) {
-    console.log("gethotHotEventData", res.data.json);
-    hotHotEvent.value = res.data.json;
+// const gethotHotEventData = async () => {
+//   const res = await showAllHotEvent();
+//   if (res.data.code === 0) {
+//     console.log("gethotHotEventData", res.data.json);
+//     hotHotEvent.value = res.data.json;
+//   }
+// };
+
+const newProduct = ref();
+// const getNewProductData = async () => {
+//   const res = await displayDetailsGoods({ search: "" });
+//   if (res.data.code === 0) {
+//     console.log("getNewProductData", res.data.json);
+//     newProduct.value = res.data.json.displayDetailsGoodsList;
+//   }
+// };
+import { ElSkeleton } from "element-plus";
+
+// 新增加载状态
+const loadingStates = ref({
+  hotMovies: true,
+  hotEvent: true,
+  newProduct: true,
+});
+
+const getHotMoviesData = async () => {
+  try {
+    const res = await showAllHotMovie();
+    if (res.data.code === 0) {
+      HotMoviesdata.value = res.data.json;
+    }
+  } finally {
+    loadingStates.value.hotMovies = false;
   }
 };
 
-const newProduct = ref();
+const gethotHotEventData = async () => {
+  try {
+    const res = await showAllHotEvent();
+    if (res.data.code === 0) {
+      hotHotEvent.value = res.data.json;
+    }
+  } finally {
+    loadingStates.value.hotEvent = false;
+  }
+};
+
 const getNewProductData = async () => {
-  const res = await displayDetailsGoods({ search: "" });
-  if (res.data.code === 0) {
-    console.log("getNewProductData", res.data.json);
-    newProduct.value = res.data.json.displayDetailsGoodsList;
+  try {
+    const res = await displayDetailsGoods({ search: "" });
+    if (res.data.code === 0) {
+      newProduct.value = res.data.json.displayDetailsGoodsList;
+    }
+  } finally {
+    loadingStates.value.newProduct = false;
   }
 };
 onMounted(() => {
@@ -95,11 +136,13 @@ onMounted(() => {
       </div>
       <div class="shopbottom">
         <div class="bottomLeft">
+          <!-- New Product Section -->
           <div class="New">
             <div class="NewTitle">
               <div class="title">New Product</div>
               <div class="more" @click="router.push('/new')">
-                More<svg
+                More
+                <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="6"
                   height="10"
@@ -110,7 +153,6 @@ onMounted(() => {
                     d="M1 9L5 5L1 1"
                     stroke="white"
                     stroke-opacity="0.8"
-                    style="stroke: white; stroke-opacity: 0.8"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
@@ -118,40 +160,53 @@ onMounted(() => {
               </div>
             </div>
             <div class="newList">
-              <div
-                class="newsItem"
-                @click="
-                  router.push({
-                    path: '/newDetail',
-                    query: { id: item.goodsId, search: 'Hot' },
-                  })
-                "
-                v-for="item in (newProduct || []).slice(0, 4)"
-                :key="item"
-              >
-                <!-- <img class="newsImg" :src="item.image" alt="" /> -->
+              <template v-if="newProduct && newProduct.length">
                 <div
-                  class="newsImg"
-                  :style="{
-                    backgroundImage: `url(${item.cover}) `,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                  }"
-                ></div>
-                <div class="newsTitle">{{ item.name }}</div>
-                <div class="Preview">
-                  <div class="Price">${{ item.price }}</div>
-                  <div class="Sold">Sold {{ item.sold }}</div>
+                  class="newsItem"
+                  v-for="item in newProduct.slice(0, 4)"
+                  :key="item.goodsId"
+                  @click="
+                    router.push({
+                      path: '/newDetail',
+                      query: { id: item.goodsId, search: 'Hot' },
+                    })
+                  "
+                >
+                  <div
+                    class="newsImg"
+                    :style="{
+                      backgroundImage: `url(${item.cover})`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: 'contain',
+                      backgroundPosition: 'center',
+                    }"
+                  ></div>
+                  <div class="newsTitle">{{ item.name }}</div>
+                  <div class="Preview">
+                    <div class="Price">${{ item.price }}</div>
+                    <div class="Sold">Sold {{ item.sold }}</div>
+                  </div>
                 </div>
-              </div>
+              </template>
+
+              <template v-else>
+                <div class="row">
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                </div>
+              </template>
             </div>
           </div>
+
+          <!-- Hot Movie Section -->
           <div class="Hotmovie">
             <div class="HotmovieTitle">
               <div class="title">Hot Movie</div>
               <div class="all" @click="router.push('/hotMovie')">
-                All<svg
+                All
+                <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="14"
                   height="15"
@@ -161,51 +216,55 @@ onMounted(() => {
                   <path
                     d="M10.0893 7.9643L5.71427 12.3393C5.59099 12.4626 5.42378 12.5318 5.24943 12.5318C5.07508 12.5318 4.90787 12.4626 4.78459 12.3393C4.6613 12.216 4.59204 12.0488 4.59204 11.8745C4.59204 11.7001 4.6613 11.5329 4.78459 11.4096L8.69529 7.50001L4.78568 3.5893C4.72464 3.52826 4.67621 3.45579 4.64318 3.37603C4.61014 3.29627 4.59313 3.21079 4.59313 3.12446C4.59313 3.03813 4.61014 2.95265 4.64318 2.87289C4.67621 2.79313 4.72464 2.72066 4.78568 2.65962C4.84672 2.59857 4.91919 2.55015 4.99895 2.51711C5.07871 2.48408 5.16419 2.46707 5.25052 2.46707C5.33685 2.46707 5.42234 2.48408 5.50209 2.51711C5.58185 2.55015 5.65432 2.59857 5.71537 2.65962L10.0904 7.03462C10.1515 7.09566 10.1999 7.16816 10.233 7.24797C10.266 7.32777 10.2829 7.41332 10.2828 7.49969C10.2827 7.58606 10.2656 7.67156 10.2324 7.75129C10.1992 7.83102 10.1505 7.90341 10.0893 7.9643Z"
                     fill="#959595"
-                    style="
-                      fill: #959595;
-                      fill: color(display-p3 0.5833 0.5833 0.5833);
-                      fill-opacity: 1;
-                    "
                   />
                 </svg>
               </div>
             </div>
             <div class="HotmovieList">
-              <div
-                v-for="(movie, index) in (HotMoviesdata || []).slice(0, 3)"
-                :key="index"
-                class="HotmovieItem"
-                @mouseenter="hoverItem(index)"
-                @mouseleave="resetItems"
-                :class="{
-                  active: activeIndex === index,
-                  moveDown: activeIndex !== null && activeIndex !== index,
-                }"
-              >
-                <div class="hotImg">
-                  <img class="imageUrl" :src="movie.imageUrl" alt="" />
-                </div>
+              <template v-if="HotMoviesdata && HotMoviesdata.length">
                 <div
-                  class="hotText"
-                  :class="{ textMove: activeIndex !== null }"
-                >
-                  {{ movie.title }}
-                </div>
-                <div
-                  class="circle"
-                  :style="{
-                    backgroundImage: `url(${movie.imageUrl}) `,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                  v-for="(movie, index) in HotMoviesdata.slice(0, 3)"
+                  :key="index"
+                  class="HotmovieItem"
+                  @mouseenter="hoverItem(index)"
+                  @mouseleave="resetItems"
+                  :class="{
+                    active: activeIndex === index,
+                    moveDown: activeIndex !== null && activeIndex !== index,
                   }"
                 >
-                  <div class="circleImg" alt=""></div>
+                  <div class="hotImg">
+                    <img class="imageUrl" :src="movie.imageUrl" alt="" />
+                  </div>
+                  <div
+                    class="hotText"
+                    :class="{ textMove: activeIndex !== null }"
+                  >
+                    {{ movie.title }}
+                  </div>
+                  <div
+                    class="circle"
+                    :style="{
+                      backgroundImage: `url(${movie.imageUrl})`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }"
+                  >
+                    <div class="circleImg" alt=""></div>
+                  </div>
+                  <div class="participate" v-if="activeIndex === index">
+                    Participate Now
+                  </div>
                 </div>
-                <div class="participate" v-if="activeIndex === index">
-                  Participate Now
+              </template>
+              <template v-else>
+                <div class="row">
+                  <el-skeleton :rows="9" animated> </el-skeleton>
+                  <el-skeleton :rows="9" animated> </el-skeleton>
+                  <el-skeleton :rows="9" animated> </el-skeleton>
                 </div>
-              </div>
+              </template>
             </div>
           </div>
         </div>
@@ -233,48 +292,60 @@ onMounted(() => {
             </div>
           </div>
           <div class="HotEventList">
-            <div
-              class="HotEventItem"
-              v-for="item in (hotHotEvent || []).slice(0, 5)"
-              :key="item"
-              @click="
-                router.push({
-                  path: '/eventDetail',
-                  query: { name: item.title, movieId: item.movieId },
-                })
-              "
-            >
+            <template v-if="HotMoviesdata && HotMoviesdata.length">
               <div
-                class="HotEventImg"
-                :style="{
-                  backgroundImage: `url(${item.imageUrl}) `,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }"
-              ></div>
-              <div class="EventRight">
-                <div class="EventTitle">{{ item.title }}</div>
-                <div class="positioning">
-                  <svg
-                    class="positioningSvg"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                  >
-                    <path
-                      d="M6 2.8125C5.59208 2.8125 5.19331 2.93346 4.85414 3.16009C4.51496 3.38672 4.2506 3.70884 4.0945 4.08572C3.93839 4.46259 3.89755 4.87729 3.97713 5.27737C4.05671 5.67746 4.25315 6.04496 4.54159 6.33341C4.83004 6.62185 5.19754 6.81829 5.59763 6.89787C5.99771 6.97745 6.41241 6.93661 6.78928 6.7805C7.16616 6.6244 7.48828 6.36004 7.71491 6.02086C7.94154 5.68169 8.0625 5.28292 8.0625 4.875C8.06188 4.32818 7.84438 3.80394 7.45772 3.41728C7.07106 3.03062 6.54682 2.81312 6 2.8125ZM6 5.8125C5.81458 5.8125 5.63332 5.75752 5.47915 5.6545C5.32498 5.55149 5.20482 5.40507 5.13386 5.23377C5.06291 5.06246 5.04434 4.87396 5.08051 4.6921C5.11669 4.51025 5.20598 4.3432 5.33709 4.21209C5.4682 4.08098 5.63525 3.99169 5.8171 3.95551C5.99896 3.91934 6.18746 3.93791 6.35877 4.00886C6.53007 4.07982 6.67649 4.19998 6.7795 4.35415C6.88252 4.50832 6.9375 4.68958 6.9375 4.875C6.9375 5.12364 6.83873 5.3621 6.66291 5.53791C6.4871 5.71373 6.24864 5.8125 6 5.8125ZM6 0.5625C4.85663 0.563741 3.76045 1.01849 2.95197 1.82697C2.14349 2.63545 1.68874 3.73163 1.6875 4.875C1.6875 8.50125 5.51438 11.2219 5.6775 11.3358C5.77203 11.4019 5.88462 11.4374 6 11.4374C6.11538 11.4374 6.22797 11.4019 6.3225 11.3358C7.04731 10.8016 7.71045 10.1885 8.29969 9.50766C9.61641 7.99547 10.3125 6.39234 10.3125 4.875C10.3113 3.73163 9.85651 2.63545 9.04803 1.82697C8.23955 1.01849 7.14337 0.563741 6 0.5625ZM7.46719 8.75203C7.02025 9.26542 6.52932 9.73878 6 10.1667C5.47068 9.73878 4.97975 9.26542 4.53281 8.75203C3.75 7.84547 2.8125 6.43641 2.8125 4.875C2.8125 4.02962 3.14832 3.21887 3.7461 2.6211C4.34387 2.02332 5.15462 1.6875 6 1.6875C6.84538 1.6875 7.65613 2.02332 8.2539 2.6211C8.85168 3.21887 9.1875 4.02962 9.1875 4.875C9.1875 6.43641 8.25 7.84547 7.46719 8.75203Z"
-                      fill="white"
-                      fill-opacity="0.6"
-                      style="fill: white; fill-opacity: 0.6"
-                    />
-                  </svg>
-                  {{ item.place }}
+                class="HotEventItem"
+                v-for="item in (hotHotEvent || []).slice(0, 5)"
+                :key="item"
+                @click="
+                  router.push({
+                    path: '/eventDetail',
+                    query: { name: item.title, movieId: item.movieId },
+                  })
+                "
+              >
+                <div
+                  class="HotEventImg"
+                  :style="{
+                    backgroundImage: `url(${item.imageUrl}) `,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }"
+                ></div>
+                <div class="EventRight">
+                  <div class="EventTitle">{{ item.title }}</div>
+                  <div class="positioning">
+                    <svg
+                      class="positioningSvg"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M6 2.8125C5.59208 2.8125 5.19331 2.93346 4.85414 3.16009C4.51496 3.38672 4.2506 3.70884 4.0945 4.08572C3.93839 4.46259 3.89755 4.87729 3.97713 5.27737C4.05671 5.67746 4.25315 6.04496 4.54159 6.33341C4.83004 6.62185 5.19754 6.81829 5.59763 6.89787C5.99771 6.97745 6.41241 6.93661 6.78928 6.7805C7.16616 6.6244 7.48828 6.36004 7.71491 6.02086C7.94154 5.68169 8.0625 5.28292 8.0625 4.875C8.06188 4.32818 7.84438 3.80394 7.45772 3.41728C7.07106 3.03062 6.54682 2.81312 6 2.8125ZM6 5.8125C5.81458 5.8125 5.63332 5.75752 5.47915 5.6545C5.32498 5.55149 5.20482 5.40507 5.13386 5.23377C5.06291 5.06246 5.04434 4.87396 5.08051 4.6921C5.11669 4.51025 5.20598 4.3432 5.33709 4.21209C5.4682 4.08098 5.63525 3.99169 5.8171 3.95551C5.99896 3.91934 6.18746 3.93791 6.35877 4.00886C6.53007 4.07982 6.67649 4.19998 6.7795 4.35415C6.88252 4.50832 6.9375 4.68958 6.9375 4.875C6.9375 5.12364 6.83873 5.3621 6.66291 5.53791C6.4871 5.71373 6.24864 5.8125 6 5.8125ZM6 0.5625C4.85663 0.563741 3.76045 1.01849 2.95197 1.82697C2.14349 2.63545 1.68874 3.73163 1.6875 4.875C1.6875 8.50125 5.51438 11.2219 5.6775 11.3358C5.77203 11.4019 5.88462 11.4374 6 11.4374C6.11538 11.4374 6.22797 11.4019 6.3225 11.3358C7.04731 10.8016 7.71045 10.1885 8.29969 9.50766C9.61641 7.99547 10.3125 6.39234 10.3125 4.875C10.3113 3.73163 9.85651 2.63545 9.04803 1.82697C8.23955 1.01849 7.14337 0.563741 6 0.5625ZM7.46719 8.75203C7.02025 9.26542 6.52932 9.73878 6 10.1667C5.47068 9.73878 4.97975 9.26542 4.53281 8.75203C3.75 7.84547 2.8125 6.43641 2.8125 4.875C2.8125 4.02962 3.14832 3.21887 3.7461 2.6211C4.34387 2.02332 5.15462 1.6875 6 1.6875C6.84538 1.6875 7.65613 2.02332 8.2539 2.6211C8.85168 3.21887 9.1875 4.02962 9.1875 4.875C9.1875 6.43641 8.25 7.84547 7.46719 8.75203Z"
+                        fill="white"
+                        fill-opacity="0.6"
+                        style="fill: white; fill-opacity: 0.6"
+                      />
+                    </svg>
+                    {{ item.place }}
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
+            <template v-else>
+              <div class="vertical">
+                <el-skeleton :rows="2" animated> </el-skeleton>
+                <el-skeleton :rows="2" animated> </el-skeleton>
+                <el-skeleton :rows="2" animated> </el-skeleton>
+                <el-skeleton :rows="2" animated> </el-skeleton>
+                <el-skeleton :rows="2" animated> </el-skeleton>
+                <el-skeleton :rows="2" animated> </el-skeleton>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -348,6 +419,26 @@ onMounted(() => {
     }
   }
 }
+.row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  .el-skeleton {
+    --el-skeleton-color: #383838;
+    --el-skeleton-to-color: #7c7c7f;
+  }
+}
+.vertical {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  .el-skeleton {
+    --el-skeleton-color: #383838;
+    --el-skeleton-to-color: #7c7c7f;
+  }
+}
 .shopbottom {
   display: flex;
   gap: 70px;
@@ -356,7 +447,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     gap: 53px;
-    max-width: 793px;
+    width: 793px;
 
     .HotmovieTitle,
     .NewTitle {
@@ -589,7 +680,7 @@ onMounted(() => {
     }
   }
   .HotEvent {
-    max-width: 336px;
+    width: 336px;
 
     .HotEventTitle {
       display: flex;

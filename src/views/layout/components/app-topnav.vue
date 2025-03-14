@@ -48,28 +48,27 @@ const addToCart = async () => {
   isActiveCart.value = true;
 };
 const selectedCartId = ref(); // 记录选中的 cartId
-const BuyNowCartClick = () => {
-  if (!selectedCartId.value) {
-    ElNotification({
-      dangerouslyUseHTMLString: true,
-      showClose: false,
-      customClass: "message-logout",
-      title: "Please select the item to purchase",
-      duration: 1000,
-    });
-    return;
-  }
-  isActiveCart.value = false;
-  const productStore = useProductStore();
-  productStore.setProduct([cartList.value]);
-  router.push("/newBuy");
-};
+// const BuyNowCartClick = () => {
+//   if (!selectedCartId.value) {
+//     ElNotification({
+//       dangerouslyUseHTMLString: true,
+//       showClose: false,
+//       customClass: "message-logout",
+//       title: "Please select the item to purchase",
+//       duration: 1000,
+//     });
+//     return;
+//   }
+//   isActiveCart.value = false;
+//   const productStore = useProductStore();
+//   productStore.setProduct([cartList.value]);
+//   router.push("/newBuy");
+// };
 const web3 = new Web3(window.ethereum);
 const loading = ref(false);
 const submitForm = async () => {
-  // 控制按钮 loading 状态
   loading.value = true;
-  // 检查钱包是否连接
+
   if (!selectedCartId.value) {
     ElNotification({
       dangerouslyUseHTMLString: true,
@@ -81,9 +80,10 @@ const submitForm = async () => {
     loading.value = false;
     return;
   }
-  // isActiveCart.value = false;
+
   const productStore = useProductStore();
   productStore.setProduct([cartList.value]);
+
   if (walletStore.walletAddress === "") {
     ElNotification({
       showClose: false,
@@ -96,53 +96,49 @@ const submitForm = async () => {
     return;
   }
 
-  // 检查当前网络是否为 Arbitrum One 主网
+  // 检查当前网络是否为 BSC 主网
   const networkId = await web3.eth.net.getId();
-  if (networkId !== 42161n) {
+  if (networkId !== 56n) {
     ElNotification({
       showClose: true,
       customClass: "message-logout",
       title:
-        "The current network is not Arbitrum main network, please switch to Arbitrum One.",
+        "The current network is not BSC mainnet, please switch to Binance Smart Chain.",
       duration: 5000,
     });
     loading.value = false;
     return;
   }
+
   const accounts = await web3.eth.requestAccounts();
   const senderAddress = accounts[0];
 
-  // USDT 合约地址和 ABI
-  // 主网
+  // BSC 主网 USDT 合约地址
   const usdtContract = new web3.eth.Contract(
     usdtAbi,
-    "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+    "0x55d398326f99059fF775485246999027B3197955"
   );
-  //  测试网
-  // const usdtContract = new web3.eth.Contract(
-  //   usdtAbi,
-  //   "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0"
-  // );
+
   console.log("usdtContract", usdtContract);
 
-  // 转账金额，假设用户支付 0.01 USDT
-  const amount = web3.utils.toWei(cartList.value.price.toString(), "mwei"); // USDT 使用 mwei 为单位
+  // 计算 USDT 转账金额（USDT 使用 6 位小数）
+  const amount = web3.utils.toWei(cartList.value.price.toString(), "ether");
+  // const amount = web3.utils.toWei("0.01", "ether");
   console.log("amountmwei", amount);
-  // 电影票的接收地址
+
+  // 电影票接收地址
   const recipientAddress = useTokenStore().toAddress;
-  // const recipientAddress = "0x5f5c3a0c19005d8f3607222d79a7492412501582";
   console.log("recipientAddress", recipientAddress);
-  console.log("recipientAddress 类型:", typeof recipientAddress); // 打印数据类型
-  // 5. 余额验证
-  console.log("开始获取 ETH 余额");
-  const ethBalance = await web3.eth.getBalance(senderAddress);
-  console.log("ETH 余额:", ethBalance);
+
+  // 余额验证
+  console.log("开始获取 BNB 余额");
+  const bnbBalance = await web3.eth.getBalance(senderAddress);
+  console.log("BNB 余额:", web3.utils.fromWei(bnbBalance, "ether"));
 
   console.log("开始获取 USDT 余额");
   const usdtBalance = await usdtContract.methods
     .balanceOf(senderAddress)
     .call();
-  console.log("USDT 余额:", usdtBalance);
 
   if (Number(usdtBalance) < Number(amount)) {
     ElNotification({
@@ -150,186 +146,121 @@ const submitForm = async () => {
       customClass: "message-logout",
       title:
         "Your USDT balance is insufficient, please recharge before purchasing.",
-
       duration: 5000,
     });
     loading.value = false;
     return;
   }
-  console.log("usdtBalance", usdtBalance);
 
-  // 6. 动态计算Gas
+  // 计算 Gas 费
   const baseGasPrice = await web3.eth.getGasPrice();
   console.log("baseGasPrice", baseGasPrice);
+
   const estimatedGas = await usdtContract.methods
     .transfer(recipientAddress, amount)
     .estimateGas({ from: senderAddress });
+
   console.log("estimatedGas", estimatedGas);
-  // 7. 构建交易参数
+
   const gasParams = {
     gasPrice: Math.floor(Number(baseGasPrice) * 1.2), // 20%缓冲
     gasLimit: Math.floor(Number(estimatedGas) * 1.5), // 50%余量
   };
+
   console.log("gasParams", gasParams);
 
-  try {
-    console.log("7777777");
-    const txHash = await usdtContract.methods
-      .transfer(recipientAddress, amount)
-      .send({
-        from: senderAddress,
-        // gasPrice: web3.utils.toWei("0.01", "gwei").toString(), // 0.1 gwei = 100,000,000 wei
-        gasPrice: gasParams.gasPrice.toString(), // 0.1 gwei = 100,000,000 wei
-        gas: web3.utils.toHex(gasParams.gasLimit), // 转换为十六进制
-      });
-    console.log("txHash", txHash.transactionHash);
+  console.log("开始发送 USDT 交易...");
+  const txHash = await usdtContract.methods
+    .transfer(recipientAddress, amount)
+    .send({
+      from: senderAddress,
+      gasPrice: gasParams.gasPrice.toString(),
+      gas: web3.utils.toHex(gasParams.gasLimit),
+    });
+  console.log("txHash", txHash.transactionHash);
 
-    try {
-      const res = await purchaseGoods({
-        cartsId: cartList.value?.cartId || "",
-        goodsId: cartList.value.goodsId, // 如果你是直接购买 不走购物车，就给“”
-        number: String(cartList.value.number),
-        amount: cartList.value.price.toString(),
-        // address: form.value,
-        hash: txHash.transactionHash,
-        // hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
-        from: senderAddress,
-        // from: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
-        payType: 3, // 1 表示 PayPal
-        remarks: "", // remarks是备注，你传空就行
-      });
-      console.log("res", res);
-      console.log("222222222222222");
-      //  请求
-      if (res.data.code === 0) {
-        const res1 = await scanPurchaseStatus({
-          payType: 3,
-          address: senderAddress,
-          // address: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
-          hash: txHash.transactionHash,
-          // hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
-        });
-        if (res1.data.code === 0) {
-          console.log("res111", res1);
-          console.log("33333333333333");
-          ElNotification({
-            dangerouslyUseHTMLString: true,
-            customClass: "message-logout",
-            title: cartList.value.title + "Successful purchase",
-            message: ` <div style="display: flex; align-items: center;justify-content: space-between;">
-                <div
-                  style="
-                    color: rgba(255, 255, 255, 0.6);
-                    font-family: Inter;
-                    font-size: 12px;
-                    font-style: normal;
-                    font-weight: 500;
-                    line-height: 14px;
-                  "
-                >
-                  Purchase Success!
-                </div>
-                <div
-                 id="verify-link"
-                  style="
-                    display: flex;
-                    align-items: center;
-                    color: #e621ca;
-                    font-family: Inter;
-                    font-size: 12px;
-                    font-style: normal;
-                    font-weight: 500;
-                    line-height: 16px;
-                      cursor: pointer;
-                      "
+  const res = await purchaseGoods({
+    cartsId: cartList.value?.cartId || "",
+    goodsId: cartList.value.goodsId,
+    number: String(cartList.value.number),
+    amount: cartList.value.price.toString(),
+    // amount: "0.01",
+    hash: txHash.transactionHash,
+    from: senderAddress,
+    payType: 3, // 1 = PayPal, 3 = USDT
+    remarks: "",
+  });
 
-                >
-                  verification
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                  >
-                    <path
-                      d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z"
-                      fill="#D339C4"
-                      style="
-                        fill: #d339c4;
-                        fill: color(display-p3 0.8292 0.2246 0.7687);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                </div>
-              </div>`,
-            duration: 60000,
-          });
-          // **使用 setTimeout 等待 DOM 渲染后绑定事件**
-          setTimeout(() => {
-            const verifyLink = document.getElementById("verify-link");
-            if (verifyLink) {
-              verifyLink.addEventListener("click", () => {
-                router.push("/my"); // Vue Router 跳转
-              });
-            }
-          }, 100);
-          const productStore = useProductStore();
-          productStore.setHash(txHash.transactionHash);
-          router.push("/newBuy");
-          isActiveCart.value = false;
-          loading.value = false;
-        } else {
-          ElNotification({
-            dangerouslyUseHTMLString: true,
-            customClass: "message-logout",
-            title: res1.data.json.message,
-            duration: 6000,
-          });
-          loading.value = false;
-        }
-      } else {
-        ElNotification({
-          dangerouslyUseHTMLString: true,
-          customClass: "message-logout",
-          title: res.data.json,
-          duration: 6000,
-        });
-        loading.value = false;
-      }
-    } catch (error: any) {
-      if (
-        error.code === 4001 ||
-        error.message.includes("User denied transaction signature")
-      ) {
-        // 用户取消交易
-        ElNotification({
-          showClose: true,
-          customClass: "message-logout",
-          title:
-            "You have cancelled the transaction and have not completed the payment",
-          duration: 5000,
-        });
-      } else {
-        // 其他错误
-        ElNotification({
-          customClass: "message-logout",
-          title: "An error occurred during payment, please try again later",
-          duration: 5000,
-        });
-      }
-      console.error("error", error);
+  if (res.data.code === 0) {
+    const res1 = await scanPurchaseStatus({
+      payType: 3,
+      address: senderAddress,
+      hash: txHash.transactionHash,
+    });
+
+    if (res1.data.code === 0) {
+      ElNotification({
+        dangerouslyUseHTMLString: true,
+        customClass: "message-logout",
+        title: cartList.value.title + " Successful purchase",
+        message: `<div style="display: flex; align-items: center;justify-content: space-between;">
+              <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+                Purchase Success!
+              </div>
+              <div id="verify-link" style="display: flex; align-items: center; color: #e621ca; cursor: pointer;">
+                verification
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z" fill="#D339C4"/>
+                </svg>
+              </div>
+            </div>`,
+        duration: 60000,
+      });
+      productStore.setHash(txHash.transactionHash);
+      router.push("/newBuy");
+      isActiveCart.value = false;
       loading.value = false;
-    } finally {
+    } else {
+      ElNotification({
+        customClass: "message-logout",
+        title: "Purchase failed",
+        duration: 60000,
+      });
       loading.value = false;
     }
-  } catch (error) {
-    console.error("error", error);
-  } finally {
+  } else {
+    ElNotification({
+      customClass: "message-logout",
+      title: "Purchase failed",
+      duration: 60000,
+    });
     loading.value = false;
   }
+  // usdtContract.methods
+  //   .transfer(recipientAddress, amount)
+  //   .send({
+  //     from: senderAddress,
+  //     gasPrice: gasParams.gasPrice.toString(),
+  //     gas: web3.utils.toHex(gasParams.gasLimit),
+  //   })
+  //   .on("transactionHash", async (hash) => {
+  //     console.log("实时交易哈希（事件监听）:", hash); // 立即打印
+  //     // 发送交易信息到后端
+  //     try {
+  //     } catch (error) {
+  //       console.error("后端请求错误", error);
+  //     } finally {
+  //       loading.value = false;
+  //     }
+  //   })
+  //   .on("receipt", (receipt) => {
+  //     console.log("交易确认（收据）:", receipt.transactionHash);
+  //   })
+  //   .on("error", (error) => {
+  //     console.error("交易错误:", error);
+  //   });
 };
+
 // const submitForm = async () => {
 //   loading.value = true;
 
@@ -562,6 +493,8 @@ const toggleSelection = (item: any) => {
     cartList.value = item;
   }
 };
+
+
 </script>
 <template>
   <nav class="app-topnav">
@@ -1075,7 +1008,7 @@ const toggleSelection = (item: any) => {
   border-radius: 50%;
 }
 
-@media (max-width: 970px) {
+@media (max-width: 980px) {
   .container {
     padding: 32px;
   }

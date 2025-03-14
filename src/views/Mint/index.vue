@@ -34,7 +34,7 @@ const increase = () => {
 </script>
 <template>
   <div class="home_view">
-    <div class="container">
+    <!-- <div class="container">
       <div class="OneImg">
         <img src="@/assets/images/mintbg.png" alt="" />
       </div>
@@ -150,14 +150,18 @@ const increase = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 <style scoped lang='less'>
 .home_view {
-  background: rgb(0, 0, 0);
+  //  background: rgb(0, 0, 0);
+  background: url("@/assets/images/determined.png") no-repeat;
+  background-size: cover;
+  background-position: center;
   width: 100%;
   height: 100%;
+  margin-bottom: 50px;
 
   .container {
     padding: 48px 146px 136px 146px;

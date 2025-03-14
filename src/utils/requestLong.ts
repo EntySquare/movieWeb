@@ -26,23 +26,67 @@ request.interceptors.request.use(
 
 // 设置响应拦截器
 request.interceptors.response.use(
+    // response => {
+    //     // if (response.data.code === -2) {
+    //     //     localStorage.removeItem('token')
+    //     //     console.log('Token has expired, redirecting to login...')
+    //     //     if (router) {
+    //     //         router.push('/login')
+    //     //     } else {
+    //     //         console.error('Router instance is not available.')
+    //     //     }
+    //     // }  
+    //     console.log('response.data.code', response);
+    //     ElNotification({
+    //         dangerouslyUseHTMLString: true,
+    //         showClose: false,
+    //         customClass: "message-logout",
+    //         title: "Please log in",
+    //         duration: 1000,
+    //     });
+    //     return response
+    // },
     response => {
+        console.log('response.data.code10000', response);
+
         // if (response.data.code === -2) {
-        //     localStorage.removeItem('token')
-        //     console.log('Token has expired, redirecting to login...')
-        //     if (router) {
-        //         router.push('/login')
-        //     } else {
-        //         console.error('Router instance is not available.')
-        //     }
-        // }  
-        ElNotification({
-            dangerouslyUseHTMLString: true,
-            showClose: false,
-            customClass: "message-logout",
-            title: "Please log in",
-            duration: 1000,
-        });
+        //     ElNotification({
+        //         dangerouslyUseHTMLString: true,
+        //         showClose: false,
+        //         customClass: "message-logout",
+        //         title: "Please log in",
+        //         duration: 1000,
+        //     });
+        //     // localStorage.removeItem('token')
+        //     // console.log('Token has expired, redirecting to login...')
+        //     // if (router) {
+        //     //     router.push('/login')
+        //     // } else {
+        //     //     console.error('Router instance is not available.')
+        //     // }
+        // }
+        // 深度克隆响应数据避免污染
+        const clonedResponse = JSON.parse(JSON.stringify(response));
+
+        console.log('[响应拦截器]10000 请求路径:', response.config.url);
+        console.log('[响应拦截器]10000 完整结构:', clonedResponse);
+
+        // 精确访问 code 值（根据实际结构调整）
+        const businessCode = response.data?.code ?? response.data?.data?.code;
+
+        if (businessCode === -2) {
+            console.warn('认证失败，当前本地Token:', localStorage.getItem('token'));
+
+            ElNotification({
+                customClass: "message-logout",
+                title: '会话过期',
+                message: '请重新登录',
+
+                duration: 3000
+            });
+
+            useTokenStore().clearWalletData()
+        }
         return response
     },
     err => {
