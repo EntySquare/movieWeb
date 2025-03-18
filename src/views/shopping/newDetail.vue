@@ -245,46 +245,46 @@ const submitForm = async () => {
   };
 
   console.log("gasParams", gasParams);
+  try {
+    console.log("开始发送 USDT 交易...");
+    const txHash = await usdtContract.methods
+      .transfer(recipientAddress, amount)
+      .send({
+        from: senderAddress,
+        gasPrice: gasParams.gasPrice.toString(),
+        gas: web3.utils.toHex(gasParams.gasLimit),
+      });
 
-  console.log("开始发送 USDT 交易...");
-  const txHash = await usdtContract.methods
-    .transfer(recipientAddress, amount)
-    .send({
-      from: senderAddress,
-      gasPrice: gasParams.gasPrice.toString(),
-      gas: web3.utils.toHex(gasParams.gasLimit),
-    });
-
-  console.log("交易哈希:", txHash.transactionHash);
-  const res = await purchaseGoods({
-    cartsId: selectedProduct.value?.cartId || "",
-    goodsId: selectedProduct.value.goodsId, // 如果你是直接购买 不走购物车，就给“”
-    number: "1",
-    amount: selectedProduct.value.price.toString(),
-    // amount: "0.01",
-    // address: form.value,
-    hash: txHash.transactionHash,
-    // hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
-    from: senderAddress,
-    // from: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
-    payType: 3, // 1 表示 PayPal
-    remarks: "", // remarks是备注，你传空就行
-  });
-  console.log("re谁", res);
-
-  if (res.data.code === 0) {
-    const res1 = await scanPurchaseStatus({
-      payType: 3,
-      address: senderAddress,
+    console.log("交易哈希:", txHash.transactionHash);
+    const res = await purchaseGoods({
+      cartsId: selectedProduct.value?.cartId || "",
+      goodsId: selectedProduct.value.goodsId, // 如果你是直接购买 不走购物车，就给“”
+      number: "1",
+      // amount: selectedProduct.value.price.toString(),
+      amount: "0.01",
+      // address: form.value,
       hash: txHash.transactionHash,
+      // hash: "0x556eae566286b6c00cbf5432279106ad5a3aafd5b1c261e98c4b712d716ce2bb",
+      from: senderAddress,
+      // from: "0x5f5c3a0c19005d8f3607222d79a7492412501582",
+      payType: 3, // 1 表示 PayPal
+      remarks: "", // remarks是备注，你传空就行
     });
+    console.log("re谁", res);
 
-    if (res1.data.code === 0) {
-      ElNotification({
-        dangerouslyUseHTMLString: true,
-        customClass: "message-logout",
-        title: selectedProduct.value.title + " Successful purchase",
-        message: `<div style="display: flex; align-items: center;justify-content: space-between;">
+    if (res.data.code === 0) {
+      const res1 = await scanPurchaseStatus({
+        payType: 3,
+        address: senderAddress,
+        hash: txHash.transactionHash,
+      });
+
+      if (res1.data.code === 0) {
+        ElNotification({
+          dangerouslyUseHTMLString: true,
+          customClass: "message-logout",
+          title: selectedProduct.value.title + " Successful purchase",
+          message: `<div style="display: flex; align-items: center;justify-content: space-between;">
             <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
               Purchase Success!
             </div>
@@ -295,19 +295,35 @@ const submitForm = async () => {
               </svg>
             </div>
           </div>`,
-        duration: 60000,
+          duration: 60000,
+        });
+        useProductStore().setHash(txHash.transactionHash);
+        router.push("/newBuy");
+        loading.value = false;
+      }
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: "Failed to purchase",
+        duration: 5000,
       });
-      useProductStore().setHash(txHash.transactionHash);
-      router.push("/newBuy");
-      loading.value = false;
     }
-  } else {
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      title: "Failed to purchase",
-      duration: 5000,
-    });
+  } catch (error: any) {
+    console.error("交易失败:", error);
+
+    if (error.message.includes("TransactionBlockTimeoutError")) {
+      ElNotification({
+        showClose: true,
+        customClass: "message-logout",
+        title: "Transaction Failed",
+        message:
+          "Transaction was not mined within the expected time. Please try again later.",
+        duration: 5000,
+      });
+    }
+  } finally {
+    loading.value = false;
   }
   //   usdtContract.methods
   //     .transfer(recipientAddress, amount)

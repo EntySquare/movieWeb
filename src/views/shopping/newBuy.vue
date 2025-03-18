@@ -323,35 +323,46 @@ const submitForm = async () => {
   // 控制按钮 loading 状态
   loading.value = true;
   formStore.saveForm(form.value);
-  const res = await purchaseAddAddress({
-    hash: hash.value,
-    address: form.value,
-  });
-  console.log("res", res);
-  if (res.data.code === 0) {
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      duration: 1000,
-      title: "The delivery address was uploaded successfully",
+  try {
+    const res = await purchaseAddAddress({
+      hash: hash.value,
+      address: form.value,
     });
-    router.push("/my/order");
-  } else if (res.data.code === -2) {
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      duration: 1000,
-      title: "Please login and upload the address again",
-    });
-  } else {
+    console.log("res", res);
+    if (res.data.code === 0) {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        duration: 1000,
+        title: "The delivery address was uploaded successfully",
+      });
+      router.push("/my/order");
+    } else if (res.data.code === -2) {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        duration: 1000,
+        title: "Please login and upload the address again",
+      });
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        duration: 1000,
+        title: "Shipping address upload failed",
+      });
+    }
+  } catch (err) {
+    console.log("err", err);
     ElNotification({
       showClose: false,
       customClass: "message-logout",
       duration: 1000,
       title: "Shipping address upload failed",
     });
+  } finally {
+    loading.value = false;
   }
-  loading.value = false;
 };
 // const submitForm = async () => {
 //   if (
