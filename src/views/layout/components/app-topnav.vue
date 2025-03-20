@@ -192,18 +192,11 @@ const submitForm = async () => {
   });
 
   if (res.data.code === 0) {
-    const res1 = await scanPurchaseStatus({
-      payType: 3,
-      address: senderAddress,
-      hash: txHash.transactionHash,
-    });
-
-    if (res1.data.code === 0) {
-      ElNotification({
-        dangerouslyUseHTMLString: true,
-        customClass: "message-logout",
-        title: cartList.value.title + " Successful purchase",
-        message: `<div style="display: flex; align-items: center;justify-content: space-between;">
+    ElNotification({
+      dangerouslyUseHTMLString: true,
+      customClass: "message-logout",
+      title: cartList.value.title + " Successful purchase",
+      message: `<div style="display: flex; align-items: center;justify-content: space-between;">
               <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
                 Purchase Success!
               </div>
@@ -214,20 +207,27 @@ const submitForm = async () => {
                 </svg>
               </div>
             </div>`,
-        duration: 60000,
-      });
-      productStore.setHash(txHash.transactionHash);
-      router.push("/newBuy");
-      isActiveCart.value = false;
-      loading.value = false;
-    } else {
-      ElNotification({
-        customClass: "message-logout",
-        title: "Purchase failed",
-        duration: 60000,
-      });
-      loading.value = false;
-    }
+      duration: 60000,
+    });
+    productStore.setHash(txHash.transactionHash);
+    router.push("/newBuy");
+    isActiveCart.value = false;
+    loading.value = false;
+    const res1 = await scanPurchaseStatus({
+      payType: 3,
+      address: senderAddress,
+      hash: txHash.transactionHash,
+    });
+
+    // if (res1.data.code === 0) {
+    // } else {
+    //   ElNotification({
+    //     customClass: "message-logout",
+    //     title: "Purchase failed",
+    //     duration: 60000,
+    //   });
+    //   loading.value = false;
+    // }
   } else {
     ElNotification({
       customClass: "message-logout",
@@ -493,8 +493,6 @@ const toggleSelection = (item: any) => {
     cartList.value = item;
   }
 };
-
-
 </script>
 <template>
   <nav class="app-topnav">
