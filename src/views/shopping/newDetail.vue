@@ -384,12 +384,11 @@ const addToCart = async () => {
 };
 </script>
 
-
 <style scoped lang="less">
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  height: 100%;
+  // height: 100%;
 
   .container {
     padding: 43px 120px 153px 120px;
@@ -857,5 +856,21 @@ const addToCart = async () => {
   font-weight: 700;
   line-height: normal;
   letter-spacing: 0.56px;
+}
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 20px !important;
+      .detail {
+        flex-wrap: wrap;
+        .detailLeft {
+          width: 100%;
+          .BigImg {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 }
 </style>

@@ -53,6 +53,23 @@ export const connectWallet = async () => {
         console.log("provider", provider.value);
 
         web3.value = new Web3(provider.value);
+        //获取网络ID
+        const chain = await provider.value.request({ method: "eth_chainId" });
+        console.log('chain',chain);
+        
+        if (chain !== walletStore.BSC_chain_id) {
+        // 切换BSC网络
+        try {
+            await provider.value.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: walletStore.BSC_chain_id }],
+            });
+        } catch (switchError) {
+            console.log("switchError", switchError);
+
+            return;
+        }
+        }
 
         const accounts = await provider.value.request({
             method: "eth_requestAccounts",

@@ -1,4 +1,3 @@
-
 <template>
   <div class="home_view">
     <div class="container">
@@ -80,8 +79,8 @@
     </div>
   </div>
 </template>
-    
-    <script setup lang="ts">
+
+<script setup lang="ts">
 import { showAllHotEvent } from "@/api/activity";
 import { onMounted, ref } from "vue";
 import router from "@/router";
@@ -97,12 +96,12 @@ onMounted(() => {
   gethotHotEventData();
 });
 </script>
-    
-    <style scoped lang="less">
+
+<style scoped lang="less">
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  height: 100%;
+  // height: 100%;
 
   .container {
     padding: 43px 120px 153px 120px;
@@ -164,7 +163,8 @@ onMounted(() => {
   cursor: pointer;
   width: 330px;
   .HotEventImg {
-    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
     height: 88px;
     border-radius: 4px;
   }
@@ -197,5 +197,21 @@ onMounted(() => {
     }
   }
 }
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 15px;
+      .bg {
+        width: 100%;
+        height: 100px;
+        // padding: 0;
+        background-size: cover;
+        background-position: center;
+        span {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
 </style>
-    

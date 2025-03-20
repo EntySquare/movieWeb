@@ -1,9 +1,10 @@
 <script setup lang="ts" name="HomeView">
 import { showAllHotMovie } from "@/api/activity";
 import { computed, onMounted, ref } from "vue";
+import { useWindowSize } from "@vueuse/core";
 
 const activeIndex = ref<number | null>(null);
-
+const { width, height } = useWindowSize();
 // 轮播数据
 const carouselItems = ref([
   {
@@ -96,7 +97,7 @@ const prev = () => {
     <div class="container">
       <div class="HotmovieTitle">
         <div class="title">Hot Movie</div>
-        <div class="all">
+        <!-- <div class="all">
           All
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +110,7 @@ const prev = () => {
               fill="#959595"
             />
           </svg>
-        </div>
+        </div> -->
       </div>
 
       <!-- 轮播图 -->
@@ -127,17 +128,22 @@ const prev = () => {
             @mouseleave="resetItems"
             :class="{
               active: activeIndex === index,
-              moveDown: activeIndex !== null && activeIndex !== index,
+              // moveDown: activeIndex !== null && activeIndex !== index,
+              moveLeft: activeIndex !== null && activeIndex > index,
+              moveRight: activeIndex !== null && activeIndex < index,
             }"
           >
             <div class="hotImg">
               <img class="imageUrl" :src="item.imageUrl" alt="" />
             </div>
-            <div class="hotText" :class="{ textMove: activeIndex !== null }">
+            <div class="hotText">
               {{ item.title }}
             </div>
-            <div class="participate" v-if="activeIndex === index">
-              Participate Now
+            <div
+              class="participate"
+              v-if="width < 824 || activeIndex === index"
+            >
+              COMMINGLE SOON
             </div>
             <div
               class="circle"
@@ -173,8 +179,7 @@ const prev = () => {
   </div>
 </template>
 
-
-<style scoped lang='less'>
+<style scoped lang="less">
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
@@ -191,14 +196,18 @@ const prev = () => {
 .prev {
   position: absolute;
   z-index: 8;
-  width: 134px;
-  height: 499px;
+  width: 100px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-  top: -70px;
+  top: 0px;
+  img {
+    width: 100%;
+    // height: 100%;
+  }
 }
 .next {
   right: 0;
@@ -299,9 +308,9 @@ const prev = () => {
   transition: transform 0.6s cubic-bezier(0.34, 1.26, 0.4, 1);
 }
 .participate {
-  width: 100px;
+  width: 150px;
   top: 44%;
-  left: 23%;
+  left: 37.5px;
   transform: translate(-50%, -50%);
   z-index: 6;
   position: absolute;
@@ -358,6 +367,13 @@ const prev = () => {
 .moveDown {
   transform: translateY(200vh);
 }
+.moveLeft {
+  transform: translateX(-35%);
+}
+
+.moveRight {
+  transform: translateX(35%);
+}
 
 /* 悬停的元素保持在原位 */
 .active {
@@ -372,5 +388,43 @@ const prev = () => {
 
 .carousel-item:hover .hotImg {
   transform: translateX(-64px) rotate(-12deg);
+}
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 15px;
+      .carousel-wrapper {
+        .carousel-item {
+          .circle {
+            display: none;
+            transform: none;
+            top: 0;
+            left: 0;
+          }
+          .participate {
+            transform: none;
+          }
+        }
+        .carousel-item:hover {
+          transform: none;
+        }
+
+        .carousel-item:hover .hotImg {
+          transform: none;
+        }
+        .carousel-item:hover .participate {
+          z-index: 6;
+          // transform: translate(-100%, -50%);
+        }
+        .moveLeft {
+          transform: none;
+        }
+
+        .moveRight {
+          transform: none !important;
+        }
+      }
+    }
+  }
 }
 </style>

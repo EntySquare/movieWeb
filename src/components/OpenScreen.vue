@@ -1,6 +1,6 @@
 <template>
   <div class="Homeview">
-    <div class="Empowering" @click="handleClick">
+    <div class="Empowering">
       <div class="blackBg" :class="bgClass">
         <div class="title1">
           Entertainment ecosystem based on blockchain technology
@@ -27,7 +27,7 @@
         </div>
       </div>
     </div>
-    <div class="second" v-if="false">
+    <div class="second">
       <div class="secondBg"></div>
       <div class="VisionFath">
         <div class="Vision">Vision and core objectives</div>
@@ -39,9 +39,9 @@
         </div>
       </div>
     </div>
-    <div class="Third" v-if="false">
-      <div class="ThirdBg"></div>
-      <div class="CoreFeatures">
+    <div class="Third">
+      <div class="ThirdBg" :class="bgClass"></div>
+      <div class="CoreFeatures" :class="bgClass">
         <div class="OGPASS">
           <img src="@/assets/images/OGPASS.png" alt="" />
         </div>
@@ -203,9 +203,9 @@
         </div>
       </div>
     </div>
-    <div class="Fourth" v-if="false">
-      <div class="FourthBg"></div>
-      <div class="MarketingPlan">
+    <div class="Fourth">
+      <div class="FourthBg" :class="bgClass"></div>
+      <div class="MarketingPlan" :class="bgClass">
         <div class="Roadmap">
           <img src="@/assets/images/Roadmap.png" alt="" />
         </div>
@@ -301,11 +301,24 @@
 import { useWindowSize } from "@/utils/useWindowSize";
 import { ref } from "vue";
 
+const step = ref(0);
 const bgClass = ref("first"); // 控制背景和黑色部分的平移动画
 const { windowWidth } = useWindowSize();
 // 处理点击事件
 const handleClick = () => {
-  bgClass.value = "FirstAnimate"; // 添加动画类
+  step.value += 1;
+  if (step.value === 0) {
+    bgClass.value = "FirstAnimate"; // 添加动画类
+  }
+  if (step.value === 1) {
+    bgClass.value = "FirstAnimate"; // 添加动画类
+  }
+  if (step.value === 2) {
+    bgClass.value = "SecondAnimate"; // 添加动画类
+  }
+  if (step.value === 3) {
+    bgClass.value = "ThirdAnimate"; // 添加动画类
+  }
 };
 
 const CoreFeaturesList = ref([
@@ -347,12 +360,11 @@ const MarketingPlanList = ref([
   /*background: #000000;*/
   background: #000;
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  // overflow: hidden;
   // position: relative;
 }
 
@@ -360,16 +372,14 @@ const MarketingPlanList = ref([
   .Empowering {
     /*background: #000000;*/
     background: #000;
-
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     position: relative;
-
     .bigBg {
       overflow: hidden;
       transition: transform 2s ease-out;
@@ -548,9 +558,8 @@ const MarketingPlanList = ref([
   }
   .second {
     background: #000;
-
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -616,7 +625,7 @@ const MarketingPlanList = ref([
   .Third {
     background: #000;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -698,7 +707,7 @@ const MarketingPlanList = ref([
   .Fourth {
     background: #000000;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;

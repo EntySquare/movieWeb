@@ -1,4 +1,4 @@
-<script setup lang='ts' name="HomeView">
+<script setup lang="ts" name="HomeView">
 import { useWindowSize } from "@/utils/useWindowSize";
 
 const { windowWidth } = useWindowSize();
@@ -9,11 +9,11 @@ const { windowWidth } = useWindowSize();
     <OpenScreenPhone v-else />
   </div>
 </template>
-<style scoped lang='less'>
+<style scoped lang="less">
 .home_view {
   // background: rgb(0, 0, 0);
-  height: 100%;
-  overflow: hidden;
+  // height: 100%;
+  // overflow: hidden;
   .container {
     padding: 60px 0 40px 25px;
     display: flex;
@@ -25,7 +25,7 @@ const { windowWidth } = useWindowSize();
 }
 @media (max-width: 824px) {
   .home_view {
-    overflow: auto;
+    // overflow: auto;
   }
 }
 </style>

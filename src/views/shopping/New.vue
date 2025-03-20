@@ -85,8 +85,8 @@
     </div>
   </div>
 </template>
-  
-  <script setup lang="ts">
+
+<script setup lang="ts">
 import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
 import { onMounted, ref } from "vue";
@@ -121,12 +121,12 @@ onMounted(() => {
   getNewProductData("hot");
 });
 </script>
-  
-  <style scoped lang="less">
+
+<style scoped lang="less">
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  height: 100%;
+  // height: 100%;
 
   .container {
     padding: 43px 120px 153px 120px;
@@ -163,6 +163,7 @@ onMounted(() => {
       font-weight: 700;
       line-height: 20px; /* 125% */
       cursor: pointer;
+      text-align: center;
       &:last-child {
         border-bottom: 1px solid #212121;
       }
@@ -225,7 +226,7 @@ onMounted(() => {
     .Preview {
       display: flex;
       align-items: center;
-      max-width: 166px;
+      // max-width: 166px;
       justify-content: space-between;
       .Price {
         color: #e621ca;
@@ -246,5 +247,42 @@ onMounted(() => {
     }
   }
 }
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 15px !important;
+      .Sidebar {
+        gap: 15px;
+        .SidebarSidebar {
+          width: 50px;
+          .sidebarItem {
+            font-size: 14px;
+          }
+        }
+        .SidebarContent {
+          box-sizing: border-box;
+          .new {
+            .NewTitle {
+              .title {
+                font-size: 14px;
+              }
+            }
+            .newList {
+              .newsItem {
+                width: 100%;
+                padding: 6px;
+                border-radius: 6px;
+                box-sizing: border-box;
+                background-color: rgba(18, 18, 18, 1);
+                .newsImg {
+                  width: 100%;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 </style>
-  

@@ -1,13 +1,16 @@
-<script setup lang='ts' name="HomeView">
+<script setup lang="ts" name="HomeView">
 import { showAllHotEvent, showAllHotMovie } from "@/api/activity";
 import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
 import { onMounted, ref } from "vue";
+import { useWindowSize } from "@vueuse/core";
 const activeIndex = ref(null);
 // 鼠标移入，记录当前悬停的元素索引
 const hoverItem = (index: any) => {
   activeIndex.value = index;
 };
+
+const { width, height } = useWindowSize();
 
 // 鼠标移出，恢复默认状态
 const resetItems = () => {
@@ -109,7 +112,7 @@ onMounted(() => {
     <div class="container">
       <div class="shopTop">
         <div class="movie">
-          <div class="movieText">Moive og pass card</div>
+          <div class="movieText">Movie og pass card</div>
           <div class="movieBtn">
             Mint now<svg
               xmlns="http://www.w3.org/2000/svg"
@@ -230,16 +233,15 @@ onMounted(() => {
                   @mouseleave="resetItems"
                   :class="{
                     active: activeIndex === index,
-                    moveDown: activeIndex !== null && activeIndex !== index,
+                    // moveDown: activeIndex !== null && activeIndex !== index,
+                    moveLeft: activeIndex !== null && activeIndex > index,
+                    moveRight: activeIndex !== null && activeIndex < index,
                   }"
                 >
                   <div class="hotImg">
                     <img class="imageUrl" :src="movie.imageUrl" alt="" />
                   </div>
-                  <div
-                    class="hotText"
-                    :class="{ textMove: activeIndex !== null }"
-                  >
+                  <div class="hotText">
                     {{ movie.title }}
                   </div>
                   <div
@@ -253,8 +255,8 @@ onMounted(() => {
                   >
                     <div class="circleImg" alt=""></div>
                   </div>
-                  <div class="participate" v-if="activeIndex === index">
-                    Participate Now
+                  <div class="participate" v-if="width < 824 || activeIndex === index">
+                    COMMINGLE SOON
                   </div>
                 </div>
               </template>
@@ -352,7 +354,7 @@ onMounted(() => {
     </div>
   </div>
 </template>
-<style scoped lang='less'>
+<style scoped lang="less">
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
@@ -370,6 +372,7 @@ onMounted(() => {
   padding-left: 29px;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box;
 
   border-radius: 12px;
   background: radial-gradient(
@@ -413,6 +416,7 @@ onMounted(() => {
   .movieImg {
     width: 310px;
     height: 104px;
+    line-height: 104px;
     flex-shrink: 0;
     img {
       border-radius: 12px;
@@ -441,6 +445,7 @@ onMounted(() => {
 }
 .shopbottom {
   display: flex;
+  flex-wrap: wrap;
   gap: 70px;
 
   .bottomLeft {
@@ -538,7 +543,7 @@ onMounted(() => {
       // word-break: break-word; /* 防止长单词溢出 */
     }
     .participate {
-      width: 141px;
+      width: 150px;
       top: 50%;
       left: 15%;
       transform: translate(-50%, -50%);
@@ -584,17 +589,17 @@ onMounted(() => {
         transform: translate(-50%, -50%);
       }
     } /* 中间镂空 */
-    .circle::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 39px; /* 中间空洞大小 */
-      height: 39px;
-      background-color: #6c6c6c; /* 让它和背景一样 */
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
+    // .circle::before {
+    //   content: "";
+    //   position: absolute;
+    //   top: 50%;
+    //   left: 50%;
+    //   width: 39px; /* 中间空洞大小 */
+    //   height: 39px;
+    //   background-color: #6c6c6c; /* 让它和背景一样 */
+    //   border-radius: 50%;
+    //   transform: translate(-50%, -50%);
+    // }
 
     /* 文字的移动效果 */
     .textMove {
@@ -611,6 +616,13 @@ onMounted(() => {
     .active {
       transform: translateY(0);
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .moveLeft {
+      transform: translateX(-35%);
+    }
+
+    .moveRight {
+      transform: translateX(35%);
     }
 
     /* 鼠标悬浮时，图片和圆形一起动画 */
@@ -771,6 +783,100 @@ onMounted(() => {
           font-style: normal;
           font-weight: 500;
           line-height: 14px; /* 116.667% */
+        }
+      }
+    }
+  }
+}
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 15px;
+      .shopTop {
+        padding-left: 20px;
+        .movie {
+          .movieText {
+            font-size: 14px;
+          }
+          .movieBtn {
+            font-size: 12px;
+          }
+        }
+        .movieImg {
+          flex: 1;
+        }
+      }
+      .shopbottom {
+        .bottomLeft {
+          width: 100%;
+          .newList {
+            .newsItem {
+              background-color: rgba(18, 18, 18, 1);
+              padding: 6px;
+              border-radius: 6px;
+              width: calc(50% - 6px);
+              .newsImg {
+                width: 100%;
+              }
+            }
+          }
+          .HotmovieList {
+            flex-direction: column;
+            align-items: center;
+            .HotmovieItem {
+              width: 280px;
+              max-width: 280px;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              position: relative;
+              .hotImg {
+                width: 280px;
+                height: 385px;
+                background-size: cover;
+                .imageUrl {
+                  width: calc(100% - 10px);
+                  top: 40px;
+                  left: 4px;
+                  height: 340px;
+                }
+              }
+              .circle {
+                width: 280px;
+                transform: none;
+                top: 0;
+                left: 0;
+                display: none;
+              }
+              .participate {
+                left: 75px;
+                // top: 35%;
+                transform: none;
+                z-index: 6;
+              }
+              .hotText {
+              }
+            }
+            .HotmovieItem:hover {
+              transform: none;
+            }
+
+            .HotmovieItem:hover .hotImg {
+              transform: none;
+            }
+            .HotmovieItem:hover .participate {
+              z-index: 6;
+              // transform: translate(-100%, -50%);
+            }
+            .moveLeft {
+              transform: none;
+            }
+
+            .moveRight {
+              transform: none !important;
+            }
+          }
         }
       }
     }

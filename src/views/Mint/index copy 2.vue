@@ -1,4 +1,4 @@
-<script setup lang='ts' name="HomeView">
+<script setup lang="ts" name="HomeView">
 import { ref } from "vue";
 import Web3 from "web3";
 
@@ -93,7 +93,7 @@ const sendUsdtTransaction = async () => {
         <div class="OGPass">
           <img src="@/assets/images/OGPass.png" alt="" />
         </div>
-        <div class="Moive">Moive og pass card</div>
+        <div class="Movie">Movie og pass card</div>
         <div class="box1">
           <div class="item1">Total supply <span>5,555</span></div>
           <div class="item2">
@@ -206,7 +206,7 @@ const sendUsdtTransaction = async () => {
     </div>
   </div>
 </template>
-<style scoped lang='less'>
+<style scoped lang="less">
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
@@ -231,7 +231,7 @@ const sendUsdtTransaction = async () => {
     width: 147px;
     height: 32px;
   }
-  .Moive {
+  .Movie {
     margin-top: -14px;
     color: #fff;
     font-family: Montserrat;

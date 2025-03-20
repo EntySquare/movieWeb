@@ -12,6 +12,7 @@
     "@amap/amap-jsapi-loader": "^1.0.1",
     "@element-plus/icons-vue": "^2.1.0",
     "@googlemaps/js-api-loader": "^1.16.8",
+    "@vueuse/core": "^13.0.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",
     "echart": "^0.1.3",

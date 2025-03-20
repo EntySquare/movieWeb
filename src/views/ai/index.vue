@@ -56,13 +56,12 @@ const resetItems = () => {
           @mouseleave="resetItems"
           :class="{
             active: activeIndex === index,
-            moveDown: activeIndex !== null && activeIndex !== index,
             moveLeft: activeIndex !== null && activeIndex > index,
             moveRight: activeIndex !== null && activeIndex < index,
           }"
         >
           <img class="hotImg" :src="movie.img" alt="" />
-          <div class="hotText" :class="{ textMove: activeIndex !== null }">
+          <div class="hotText">
             {{ movie.title }}
           </div>
           <div class="Fantasy">
@@ -97,9 +96,8 @@ const resetItems = () => {
           >
             <div class="circleImg" alt=""></div>
           </div>
-          <div class="participate" @click="navigateTo(movie.link)">
-            Participate Now
-          </div>
+          <!-- @click="navigateTo(movie.link)" -->
+          <div class="participate">COMMINGLE SOON</div>
         </div>
       </div>
     </div>
@@ -124,6 +122,7 @@ const resetItems = () => {
   width: 100%;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   .HotmovieItem {
     width: 362px;
     position: relative;
@@ -167,11 +166,11 @@ const resetItems = () => {
     line-height: normal;
   }
   .participate {
-    width: 161px;
+    width: 190px;
     cursor: pointer;
     top: 50%;
-    left: 50%;
-    transform: translate(-100%, -50%);
+    left: 55%;
+    transform: translate(-100%, -55%);
     z-index: 0;
     position: absolute;
     display: flex;
@@ -244,6 +243,59 @@ const resetItems = () => {
 
   .moveRight {
     transform: translateX(35%);
+  }
+}
+@media (max-width: 824px) {
+  .home_view {
+    height: max-content;
+    .container {
+      .HotmovieList {
+        flex-direction: column;
+        .HotmovieItem {
+          width: 340px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          .hotImg {
+            width: calc(100% - 50px);
+          }
+          .circle {
+            width: 340px;
+            transform: none;
+            top: 0;
+            left: 0;
+          }
+          .participate {
+            left: 80px;
+            top: 35%;
+            transform: none;
+            z-index: 6;
+          }
+          .hotText {
+          }
+        }
+        .HotmovieItem:hover {
+          transform: none;
+        }
+
+        .HotmovieItem:hover .hotImg {
+          transform: none;
+        }
+        .HotmovieItem:hover .participate {
+          z-index: 6;
+          // transform: translate(-100%, -50%);
+        }
+        .moveLeft {
+          transform: none;
+        }
+
+        .moveRight {
+          transform: none !important;
+        }
+      }
+    }
   }
 }
 </style>
