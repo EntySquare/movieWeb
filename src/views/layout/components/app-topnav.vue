@@ -573,6 +573,13 @@ const toggleSelection = (item: any) => {
           >SHOP</router-link
         >
         <router-link
+          to="/nft"
+          class="navLink"
+          v-if="windowWidth > 824"
+          :class="{ active: isActive('/nft') }"
+          >NFT</router-link
+        >
+        <router-link
           to="/ai"
           class="navLink"
           v-if="windowWidth > 824"
@@ -652,6 +659,7 @@ const toggleSelection = (item: any) => {
         <div @click="TO('/home')" class="text">home</div>
         <div @click="TO('/mint')" class="text">MINT</div>
         <div @click="TO('/shop')" class="text">SHOP</div>
+        <div @click="TO('/nft')" class="text">NFT</div>
         <div @click="TO('/ai')" class="text">AI</div>
 
         <div class="iconLink">

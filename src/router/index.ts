@@ -21,6 +21,10 @@ let router = createRouter({
           path: "/shop",
           component: () => import("@/views/shopping/index.vue"),
         },
+        {
+          path: "/nft",
+          component: () => import("@/views/nft/index.vue"),
+        },
         { path: "/new", component: () => import("@/views/shopping/New.vue") },
         {
           path: "/newDetail",
