@@ -43,6 +43,7 @@ let router = createRouter({
           component: () => import("@/views/shopping/hotMovie.vue"),
         },
         { path: "/ai", component: () => import("@/views/ai/index.vue") },
+        { path: "/ai/vote", component: () => import("@/views/ai/vote.vue") },
         {
           path: "/aidetail",
           component: () => import("@/views/ai/aidetail.vue"),

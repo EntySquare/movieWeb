@@ -21,7 +21,7 @@ import usdtAbi from "@/abiU.json";
 
 const { windowWidth } = useWindowSize();
 const walletStore = useWalletStore();
-const isMenuOpen = ref(true);
+const isMenuOpen = ref(false);
 
 const tokenStore = useTokenStore();
 const toggleMenu = () => {
@@ -35,7 +35,7 @@ const login = async () => {
 };
 const TO = (link: any) => {
   router.push(link);
-  isMenuOpen.value = true;
+  isMenuOpen.value = false;
 };
 const isActive = (link: any) => {
   return router.currentRoute.value.path === link;
@@ -521,7 +521,7 @@ const toggleSelection = (item: any) => {
         </div>
         <div class="NavSvg" v-if="windowWidth <= 824" @click="toggleMenu">
           <svg
-            v-if="isMenuOpen"
+            v-if="!isMenuOpen"
             xmlns="http://www.w3.org/2000/svg"
             width="25"
             height="24"
@@ -635,7 +635,7 @@ const toggleSelection = (item: any) => {
             >
               <path
                 d="M11.625 20.25C11.625 20.5484 11.5065 20.8345 11.2955 21.0455C11.0845 21.2565 10.7984 21.375 10.5 21.375H4.5C4.20163 21.375 3.91548 21.2565 3.7045 21.0455C3.49353 20.8345 3.375 20.5484 3.375 20.25V3.75C3.375 3.45163 3.49353 3.16548 3.7045 2.9545C3.91548 2.74353 4.20163 2.625 4.5 2.625H10.5C10.7984 2.625 11.0845 2.74353 11.2955 2.9545C11.5065 3.16548 11.625 3.45163 11.625 3.75C11.625 4.04837 11.5065 4.33452 11.2955 4.5455C11.0845 4.75647 10.7984 4.875 10.5 4.875H5.625V19.125H10.5C10.7984 19.125 11.0845 19.2435 11.2955 19.4545C11.5065 19.6655 11.625 19.9516 11.625 20.25ZM21.7959 11.2041L18.0459 7.45406C17.8346 7.24272 17.5479 7.12399 17.2491 7.12399C16.9502 7.12399 16.6635 7.24272 16.4522 7.45406C16.2408 7.66541 16.1221 7.95205 16.1221 8.25094C16.1221 8.54982 16.2408 8.83647 16.4522 9.04781L18.2812 10.875H10.5C10.2016 10.875 9.91548 10.9935 9.7045 11.2045C9.49353 11.4155 9.375 11.7016 9.375 12C9.375 12.2984 9.49353 12.5845 9.7045 12.7955C9.91548 13.0065 10.2016 13.125 10.5 13.125H18.2812L16.4513 14.9541C16.2399 15.1654 16.1212 15.4521 16.1212 15.7509C16.1212 16.0498 16.2399 16.3365 16.4513 16.5478C16.6626 16.7592 16.9492 16.8779 17.2481 16.8779C17.547 16.8779 17.8337 16.7592 18.045 16.5478L21.795 12.7978C21.8999 12.6934 21.9832 12.5692 22.0401 12.4325C22.097 12.2958 22.1263 12.1492 22.1264 12.0011C22.1264 11.8531 22.0973 11.7064 22.0406 11.5697C21.9839 11.4329 21.9008 11.3086 21.7959 11.2041Z"
-                fill="#FF008A"
+                fill="#C51573"
                 style="
                   fill: #ff008a;
                   fill: color(display-p3 1 0 0.54);
@@ -647,58 +647,62 @@ const toggleSelection = (item: any) => {
         </div>
       </div>
     </div>
-    <div class="overlay" v-if="!isMenuOpen">
-      <div @click="TO('/home')" class="text">home</div>
-      <div @click="TO('/mint')" class="text">MINT</div>
-      <div @click="TO('/shop')" class="text">SHOP</div>
-      <div @click="TO('/ai')" class="text">AI</div>
+    <el-drawer v-model="isMenuOpen" :with-header="false" size="100%">
+      <div class="overlay">
+        <div @click="TO('/home')" class="text">home</div>
+        <div @click="TO('/mint')" class="text">MINT</div>
+        <div @click="TO('/shop')" class="text">SHOP</div>
+        <div @click="TO('/ai')" class="text">AI</div>
 
-      <div class="iconLink">
-        <div class="iconLinkItem">
-          <img src="@/assets/svgs/twi.svg" alt="" />
+        <div class="iconLink">
+          <div class="iconLinkItem">
+            <img src="@/assets/svgs/twi.svg" alt="" />
+          </div>
+          <div class="iconLinkItem">
+            <img src="@/assets/svgs/telegram.svg" alt="" />
+          </div>
+          <div class="iconLinkItem">
+            <img src="@/assets/svgs/gitBook.svg" alt="" />
+          </div>
+          <div class="iconLinkItem">
+            <img src="@/assets/svgs/discord.svg" alt="" />
+          </div>
+          <div class="iconLinkItem">
+            <img src="@/assets/svgs/medium.svg" alt="" />
+          </div>
         </div>
-        <div class="iconLinkItem">
-          <img src="@/assets/svgs/telegram.svg" alt="" />
-        </div>
-        <div class="iconLinkItem">
-          <img src="@/assets/svgs/gitBook.svg" alt="" />
-        </div>
-        <div class="iconLinkItem">
-          <img src="@/assets/svgs/discord.svg" alt="" />
-        </div>
-        <div class="iconLinkItem">
-          <img src="@/assets/svgs/medium.svg" alt="" />
-        </div>
-      </div>
-      <div
-        @click="logout"
-        style="
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-          width: 100%;
-          justify-content: center;
-        "
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
+        <div
+          v-if="walletStore.isWallet"
+          @click="logout"
+          style="
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+          "
         >
-          <path
-            d="M11.625 20.25C11.625 20.5484 11.5065 20.8345 11.2955 21.0455C11.0845 21.2565 10.7984 21.375 10.5 21.375H4.5C4.20163 21.375 3.91548 21.2565 3.7045 21.0455C3.49353 20.8345 3.375 20.5484 3.375 20.25V3.75C3.375 3.45163 3.49353 3.16548 3.7045 2.9545C3.91548 2.74353 4.20163 2.625 4.5 2.625H10.5C10.7984 2.625 11.0845 2.74353 11.2955 2.9545C11.5065 3.16548 11.625 3.45163 11.625 3.75C11.625 4.04837 11.5065 4.33452 11.2955 4.5455C11.0845 4.75647 10.7984 4.875 10.5 4.875H5.625V19.125H10.5C10.7984 19.125 11.0845 19.2435 11.2955 19.4545C11.5065 19.6655 11.625 19.9516 11.625 20.25ZM21.7959 11.2041L18.0459 7.45406C17.8346 7.24272 17.5479 7.12399 17.2491 7.12399C16.9502 7.12399 16.6635 7.24272 16.4522 7.45406C16.2408 7.66541 16.1221 7.95205 16.1221 8.25094C16.1221 8.54982 16.2408 8.83647 16.4522 9.04781L18.2812 10.875H10.5C10.2016 10.875 9.91548 10.9935 9.7045 11.2045C9.49353 11.4155 9.375 11.7016 9.375 12C9.375 12.2984 9.49353 12.5845 9.7045 12.7955C9.91548 13.0065 10.2016 13.125 10.5 13.125H18.2812L16.4513 14.9541C16.2399 15.1654 16.1212 15.4521 16.1212 15.7509C16.1212 16.0498 16.2399 16.3365 16.4513 16.5478C16.6626 16.7592 16.9492 16.8779 17.2481 16.8779C17.547 16.8779 17.8337 16.7592 18.045 16.5478L21.795 12.7978C21.8999 12.6934 21.9832 12.5692 22.0401 12.4325C22.097 12.2958 22.1263 12.1492 22.1264 12.0011C22.1264 11.8531 22.0973 11.7064 22.0406 11.5697C21.9839 11.4329 21.9008 11.3086 21.7959 11.2041Z"
-            fill="#FF008A"
-            style="
-              fill: #ff008a;
-              fill: color(display-p3 1 0 0.54);
-              fill-opacity: 1;
-            "
-          />
-        </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M11.625 20.25C11.625 20.5484 11.5065 20.8345 11.2955 21.0455C11.0845 21.2565 10.7984 21.375 10.5 21.375H4.5C4.20163 21.375 3.91548 21.2565 3.7045 21.0455C3.49353 20.8345 3.375 20.5484 3.375 20.25V3.75C3.375 3.45163 3.49353 3.16548 3.7045 2.9545C3.91548 2.74353 4.20163 2.625 4.5 2.625H10.5C10.7984 2.625 11.0845 2.74353 11.2955 2.9545C11.5065 3.16548 11.625 3.45163 11.625 3.75C11.625 4.04837 11.5065 4.33452 11.2955 4.5455C11.0845 4.75647 10.7984 4.875 10.5 4.875H5.625V19.125H10.5C10.7984 19.125 11.0845 19.2435 11.2955 19.4545C11.5065 19.6655 11.625 19.9516 11.625 20.25ZM21.7959 11.2041L18.0459 7.45406C17.8346 7.24272 17.5479 7.12399 17.2491 7.12399C16.9502 7.12399 16.6635 7.24272 16.4522 7.45406C16.2408 7.66541 16.1221 7.95205 16.1221 8.25094C16.1221 8.54982 16.2408 8.83647 16.4522 9.04781L18.2812 10.875H10.5C10.2016 10.875 9.91548 10.9935 9.7045 11.2045C9.49353 11.4155 9.375 11.7016 9.375 12C9.375 12.2984 9.49353 12.5845 9.7045 12.7955C9.91548 13.0065 10.2016 13.125 10.5 13.125H18.2812L16.4513 14.9541C16.2399 15.1654 16.1212 15.4521 16.1212 15.7509C16.1212 16.0498 16.2399 16.3365 16.4513 16.5478C16.6626 16.7592 16.9492 16.8779 17.2481 16.8779C17.547 16.8779 17.8337 16.7592 18.045 16.5478L21.795 12.7978C21.8999 12.6934 21.9832 12.5692 22.0401 12.4325C22.097 12.2958 22.1263 12.1492 22.1264 12.0011C22.1264 11.8531 22.0973 11.7064 22.0406 11.5697C21.9839 11.4329 21.9008 11.3086 21.7959 11.2041Z"
+              fill="#FF008A"
+              style="
+                fill: #ff008a;
+                fill: color(display-p3 1 0 0.54);
+                fill-opacity: 1;
+              "
+            />
+          </svg>
+        </div>
       </div>
-    </div>
+    </el-drawer>
+
     <div class="cart" :class="{ activeCart: isActiveCart }" v-loading="loading">
       <div style="width: 100%">
         <div class="cartTitle">
@@ -869,6 +873,8 @@ const toggleSelection = (item: any) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  z-index: 1000000;
 }
 
 .topLeft {
@@ -1398,5 +1404,9 @@ const toggleSelection = (item: any) => {
   font-weight: 700;
   line-height: normal;
   letter-spacing: 0.56px;
+}
+
+.el-drawer {
+  --el-drawer-bg-color: #000 !important;
 }
 </style>

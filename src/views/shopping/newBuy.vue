@@ -912,6 +912,14 @@ const submitForm = async () => {
 :deep(.el-loading-spinner .path) {
   stroke: #e621ca;
 }
+
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 20px !important;
+    }
+  }
+}
 </style>
 
 <style>
@@ -943,11 +951,5 @@ const submitForm = async () => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-@media (max-width: 824px) {
-  .home_view {
-    .container {
-      padding: 20px !important;
-    }
-  }
-}
+
 </style>

@@ -826,6 +826,22 @@ const addToCart = async () => {
   border: 1px solid #e621ca;
   color: #e621ca;
 }
+@media (max-width: 824px) {
+  .home_view {
+    .container {
+      padding: 20px !important;
+      .detail {
+        flex-wrap: wrap;
+        .detailLeft {
+          width: 100%;
+          .BigImg {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
 </style>
 
 <style>
@@ -856,21 +872,5 @@ const addToCart = async () => {
   font-weight: 700;
   line-height: normal;
   letter-spacing: 0.56px;
-}
-@media (max-width: 824px) {
-  .home_view {
-    .container {
-      padding: 20px !important;
-      .detail {
-        flex-wrap: wrap;
-        .detailLeft {
-          width: 100%;
-          .BigImg {
-            width: 100%;
-          }
-        }
-      }
-    }
-  }
 }
 </style>

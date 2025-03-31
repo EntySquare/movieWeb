@@ -55,20 +55,20 @@ export const connectWallet = async () => {
         web3.value = new Web3(provider.value);
         //获取网络ID
         const chain = await provider.value.request({ method: "eth_chainId" });
-        console.log('chain',chain);
-        
-        if (chain !== walletStore.BSC_chain_id) {
-        // 切换BSC网络
-        try {
-            await provider.value.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: walletStore.BSC_chain_id }],
-            });
-        } catch (switchError) {
-            console.log("switchError", switchError);
+        console.log('chain', chain);
 
-            return;
-        }
+        if (chain !== walletStore.BSC_chain_id) {
+            // 切换BSC网络
+            try {
+                // await provider.value.request({
+                // method: "wallet_switchEthereumChain",
+                // params: [{ chainId: walletStore.BSC_chain_id }],
+                // });
+            } catch (switchError) {
+                console.log("switchError", switchError);
+
+                return;
+            }
         }
 
         const accounts = await provider.value.request({
@@ -77,16 +77,20 @@ export const connectWallet = async () => {
         const tokenStore = useTokenStore();
         if (accounts.length > 0) {
             const newAddress = accounts.length > 0 ? accounts[0] : "";
-            walletStore.setWalletAddress(newAddress); // 更新 Pinia
+
             const res = await addressLogin({ address: walletStore.walletAddress });
-            console.log("res", res.data.json);
-            tokenStore.setWalletData(res.data.json);
-            ElNotification({
-                showClose: false,
-                customClass: "message-logout",
-                title: "Login success",
-                duration: 1000,
-            });
+            if (res.data.code === 0) {
+
+                console.log("res1111", res.data.json);
+                tokenStore.setWalletData(res.data.json);
+                walletStore.setWalletAddress(newAddress); // 更新 Pinia
+                ElNotification({
+                    showClose: false,
+                    customClass: "message-logout",
+                    title: "Login success",
+                    duration: 1000,
+                });
+            }
         }
 
         // 监听账户变化

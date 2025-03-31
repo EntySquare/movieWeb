@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { displayWahlPool } from "@/api/ai";
 import router from "@/router";
 import { onMounted, ref } from "vue";
 import { RouteLocationRaw } from "vue-router";
@@ -33,6 +34,18 @@ const movies = [
 const navigateTo = (path: RouteLocationRaw) => {
   router.push(path);
 };
+const List = ref([]);
+const getList = async () => {
+  const res = await displayWahlPool();
+  console.log("res", res.data);
+  if (res.data.code === 0) {
+    List.value = res.data.json;
+  }
+};
+
+onMounted(() => {
+  getList();
+});
 // 鼠标移入，记录当前悬停的元素索引
 const hoverItem = (index: any) => {
   activeIndex.value = index;
@@ -60,7 +73,9 @@ const resetItems = () => {
             moveRight: activeIndex !== null && activeIndex < index,
           }"
         >
-          <img class="hotImg" :src="movie.img" alt="" />
+          <div class="hotImg">
+            <img class="imageUrl" :src="movie.img" alt="" />
+          </div>
           <div class="hotText">
             {{ movie.title }}
           </div>
@@ -88,7 +103,7 @@ const resetItems = () => {
           <div
             class="circle"
             :style="{
-              backgroundImage: `url(${movie.recordImg}) `,
+              backgroundImage: `url(${movie.img})`,
               backgroundRepeat: 'no-repeat',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
@@ -131,12 +146,30 @@ const resetItems = () => {
     transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* 添加弹性回弹 */
     cursor: pointer;
   }
+
   .hotImg {
     position: relative;
     margin-bottom: 46px;
     flex-shrink: 0;
     z-index: 2;
+    background: url("@/assets/images/hotBG.png") no-repeat;
+    background-size: contain;
+    width: 374px;
+    height: 536px;
+    flex-shrink: 0;
+    border-radius: 12.071px;
     transition: transform 300ms ease-in-out; /* 添加平滑过渡 */
+    .imageUrl {
+      position: absolute;
+      top: 30.78px;
+      left: 2px;
+      width: 218.49px;
+      height: 286.089px;
+      flex-shrink: 0;
+      border-radius: 1.207px 4.829px 4.829px 1.207px;
+      box-shadow: 1.207px 1.207px 0px 0px #151515,
+        3.621px 0px 3.44px 0px rgba(255, 255, 255, 0.51) inset;
+    }
   }
 
   .hotText {
@@ -194,18 +227,16 @@ const resetItems = () => {
     letter-spacing: 0.07px;
     transition: transform 0.1s ease-in-out; /* 鼠标悬浮时的平滑过渡 */
   }
-  /* 圆形背景 */
+
   .circle {
     z-index: 1;
-    width: 434px;
-    height: 434px;
-
-    background-size: cover;
+    width: 332px;
+    height: 332px;
+    border-radius: 50%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -60%) rotate(0deg);
-
     transition: transform 500ms ease-in-out; /* 鼠标悬浮时的平滑过渡 */
     .circleImg {
       width: 69px;
@@ -264,10 +295,13 @@ const resetItems = () => {
             width: calc(100% - 50px);
           }
           .circle {
-            width: 340px;
-            transform: none;
-            top: 0;
-            left: 0;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -60%) rotate(0deg);
           }
           .participate {
             left: 80px;
