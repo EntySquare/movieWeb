@@ -17,7 +17,7 @@
               style="fill: white; fill-opacity: 0.8"
             />
           </svg>
-          Back
+          {{ t("back") }}
         </div>
       </div>
 
@@ -34,7 +34,7 @@
           ></div>
           <div class="title">{{ selectedProduct.title }}</div>
           <div class="participants">
-            {{ selectedProduct.attended }} participants
+            {{ selectedProduct.attended }} {{ t("shop.shop15") }}
           </div>
           <div class="time">
             <svg
@@ -54,7 +54,9 @@
           </div>
           <div class="price">
             <div class="priceText">$ {{ selectedProduct.price }}</div>
-            <div class="button" @click="sendUsdtTransaction">Buy Ticket</div>
+            <div class="button" @click="sendUsdtTransaction">
+              {{ t("shop.shop17") }}
+            </div>
           </div>
         </div>
         <div class="detailRight">
@@ -72,7 +74,7 @@
                 style="fill: white; fill-opacity: 1"
               />
             </svg>
-            host
+            {{ t("shop.shop16") }}
           </div>
           <div class="USDTurl">
             <div
@@ -117,7 +119,7 @@
                   style="fill: white; fill-opacity: 1"
                 />
               </svg>
-              Locations
+              {{ t("shop.shop18") }}
             </div>
             <div class="posiBottom">{{ selectedProduct.place }}</div>
           </div>
@@ -138,14 +140,14 @@
                 style="fill: white; fill-opacity: 1"
               />
             </svg>
-            About
+            {{ t("shop.shop19") }}
           </div>
           <div class="Brief">
             {{ selectedProduct.description }}
           </div>
         </div>
       </div>
-      <div class="NoData" v-else>No data for now</div>
+      <div class="NoData" v-else>{{ t("noData") }}</div>
     </div>
   </div>
 </template>
@@ -156,7 +158,8 @@ import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import AMapLoader from "@amap/amap-jsapi-loader";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 const Buy = () => {};
 const route = useRoute();
 const name = route.query.name; // 获取 id
@@ -164,7 +167,6 @@ const movieId = route.query.movieId; // 获取 id
 const selectedProduct = ref();
 const gethotHotEventData = async () => {
   const res = await showHotEventMovieWeb({ name: name, movieId: movieId });
-  console.log("gethotHotEventData", res.data.json);
   if (res.data.code === 0) {
     selectedProduct.value = res.data.json[0];
   }
@@ -205,7 +207,7 @@ const mapContainer = ref<HTMLElement | null>(null);
 import Web3 from "web3";
 
 import usdtAbi from "@/abiU.json";
-import useWalletStore from "@/store/modules/home";
+import useWalletStore from "@/store/modules/wallet";
 import router from "@/router";
 import { useTokenStore } from "@/store/modules/my";
 
@@ -221,7 +223,7 @@ const sendUsdtTransaction = async () => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title: "Please connect your wallet before buying movie tickets",
+      title: t("ElNoti.el11"),
       duration: 1000,
     });
     loading.value = false;
@@ -249,18 +251,15 @@ const sendUsdtTransaction = async () => {
       showClose: false,
       customClass: "message-logout",
       title: "Wrong network",
-      message: "Please switch to Binance Smart Chain (BSC) and try again.",
+      message: t("ElNoti.el12"),
       duration: 3000,
     });
     loading.value = false;
     return;
   }
   // 余额验证
-  console.log("开始获取 BNB 余额");
   const bnbBalance = await web3.eth.getBalance(senderAddress);
-  console.log("BNB 余额:", web3.utils.fromWei(bnbBalance, "ether"));
 
-  console.log("开始获取 USDT 余额");
   const usdtBalance = await usdtContract.methods
     .balanceOf(senderAddress)
     .call();
@@ -269,8 +268,7 @@ const sendUsdtTransaction = async () => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title:
-        "Your USDT balance is insufficient, please recharge before purchasing.",
+      title: t("ElNoti.el4"),
       duration: 5000,
     });
     loading.value = false;
@@ -279,13 +277,11 @@ const sendUsdtTransaction = async () => {
 
   // 计算 Gas 费
   const baseGasPrice = await web3.eth.getGasPrice();
-  console.log("baseGasPrice", baseGasPrice);
 
   const estimatedGas = await usdtContract.methods
     .transfer(recipientAddress, amount)
     .estimateGas({ from: senderAddress });
 
-  console.log("estimatedGas", estimatedGas);
   const gasParams = {
     gasPrice: Math.floor(Number(baseGasPrice) * 1.2), // 20%缓冲
     gasLimit: Math.floor(Number(estimatedGas) * 1.5), // 50%余量
@@ -298,9 +294,6 @@ const sendUsdtTransaction = async () => {
       gasPrice: gasParams.gasPrice.toString(),
       gas: web3.utils.toHex(gasParams.gasLimit),
     });
-
-  console.log("Transaction Hash:", tx.transactionHash);
-
   // **调用后端接口，通知交易成功**
   const res = await purchaseActivity({
     address: senderAddress,
@@ -317,10 +310,10 @@ const sendUsdtTransaction = async () => {
       message: `
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px; font-weight: 500;">
-            Purchase Success!
+           ${t("ElNoti.el6")}
           </div>
           <div id="verify-link" style="display: flex; align-items: center; color: #e621ca; font-size: 12px; font-weight: 500; cursor: pointer;">
-            verification
+            ${t("ElNoti.el7")}
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z" fill="#D339C4"/>
             </svg>
@@ -352,8 +345,7 @@ const sendUsdtTransaction = async () => {
         showClose: true,
         customClass: "message-logout",
         title: "The deal has been cancelled",
-        message:
-          "You have cancelled the transaction and have not completed the payment.",
+        message: t("ElNoti.el13"),
         duration: 5000,
       });
     } else {
@@ -361,7 +353,7 @@ const sendUsdtTransaction = async () => {
       ElNotification({
         customClass: "message-logout",
         title: "Failed transaction",
-        message: error.message || "An error occurred during payment",
+        message: error.message || t("ElNoti.el14"),
         duration: 5000,
       });
     }
@@ -565,7 +557,12 @@ const sendUsdtTransaction = async () => {
     }
   }
 }
-
+.NoData {
+  font-size: 30px;
+  text-align: center;
+  color: #e621ca;
+  margin-top: 60px;
+}
 :deep(.el-loading-mask) {
   background: #000000c7;
 }
@@ -619,4 +616,4 @@ const sendUsdtTransaction = async () => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-</style>
+</style>@/store/modules/wallet@/store/modules/wallet

@@ -1,168 +1,196 @@
 <script setup lang='ts' name="HomeView">
+import { useI18n } from "vue-i18n";
+const { t, locale } = useI18n();
 </script>
 <template>
   <div class="home_view">
     <div class="container">
-      <div class="MAI">MAI verse Privacy Policy</div>
+      <div class="MAI">{{ t("UserAgreement.privacy_policy") }}</div>
       <div class="Privacy">
         <div class="FS24700" style="margin-bottom: 24px">
-          User privacy Agreement
+          {{ t("UserAgreement.user_privacy_agreement") }}
         </div>
-        <div class="FS24700">1. Introduction</div>
-        Thank you for choosing the<span class="FS16700">MAIverse</span>
-        Platform (the "Platform"). We are committed to building a decentralized
-        film ecosystem through blockchain technology and token economy model (
+        <div class="FS24700">
+          {{ t("UserAgreement.sections.introduction.title") }}
+        </div>
+
+        {{ t("UserAgreement.sections.introduction.choosing")
+        }}<span class="FS16700">MAIverse</span>
+        {{ t("UserAgreement.sections.introduction.content") }}
         <span class="FS16700">Tokenomics</span>
-        ). When using our services, we are committed to protecting your privacy
-        and data security. Please read this Privacy Agreement carefully to
-        understand how we collect, use and protect your personal information.
+        {{ t("UserAgreement.sections.introduction.Whenusing") }}
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.personal_information.title") }}
+        </div>
+        <div>
+          {{ t("UserAgreement.sections.personal_information.description") }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{
+              t("UserAgreement.sections.personal_information.types.Identifying")
+            }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.personal_information.types.identifying_information"
+            )
+          }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{ t("UserAgreement.sections.personal_information.types.account") }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.personal_information.types.account_information"
+            )
+          }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{
+              t("UserAgreement.sections.personal_information.types.transaction")
+            }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.personal_information.types.transaction_data"
+            )
+          }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{ t("UserAgreement.sections.personal_information.types.usage") }}
+          </div>
+          {{
+            t("UserAgreement.sections.personal_information.types.usage_data")
+          }}
+        </div>
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.use_of_information.title") }}
+        </div>
+        <div style="margin-bottom: 24px">
+          {{ t("UserAgreement.sections.use_of_information.description") }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{
+              t("UserAgreement.sections.use_of_information.purposes.provision")
+            }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.use_of_information.purposes.provision_and_optimization"
+            )
+          }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{
+              t(
+                "UserAgreement.sections.use_of_information.purposes.authentication"
+              )
+            }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.use_of_information.purposes.authentication_and_security"
+            )
+          }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{
+              t("UserAgreement.sections.use_of_information.purposes.marketing")
+            }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.use_of_information.purposes.marketing_and_promotion"
+            )
+          }}
+        </div>
+        <div>
+          <div class="FS16700">
+            {{ t("UserAgreement.sections.use_of_information.purposes.legal") }}
+          </div>
+          {{
+            t(
+              "UserAgreement.sections.use_of_information.purposes.legal_compliance"
+            )
+          }}
+        </div>
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.information_sharing.title") }}
+        </div>
+        <div style="margin-bottom: 24px">
+          {{ t("UserAgreement.sections.information_sharing.description") }}
+        </div>
+        <div>
+          {{
+            t(
+              "UserAgreement.sections.information_sharing.third_party_service_providers"
+            )
+          }}
+        </div>
+        <div>
+          {{
+            t("UserAgreement.sections.information_sharing.legal_requirements")
+          }}
+        </div>
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.blockchain_transparency.title") }}
+        </div>
+        {{ t("UserAgreement.sections.blockchain_transparency.content") }}
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.nft_rights.title") }}
+        </div>
+        {{ t("UserAgreement.sections.nft_rights.content") }}
 
         <div class="FS24700" style="margin-top: 24px">
-          2. Personal Information we collect
+          {{ t("UserAgreement.sections.data_protection.title") }}
         </div>
-        <div>
-          In order to provide quality services, we may collect the following
-          types of personal information:
-        </div>
-        <div>
-          <div class="FS16700">Identifying information:</div>
-          This includes your name, email address, phone number, etc.
-        </div>
-        <div>
-          <div class="FS16700">Account information:</div>
-          including your account registration information, login credentials,
-          token holdings, <span>NFT</span>
-          transaction records, etc.
-        </div>
-        <div>
-          <div class="FS16700">Transaction data:</div>
-          When you trade tokens or participate in content financing, we will
-          collect information about the transaction, such as the amount of the
-          transaction, the time of the transaction, the person to whom the
-          transaction was made.
-        </div>
-        <div>
-          <div class="FS16700">Usage Data:</div>
-          We collect data about how you use the Platform services, including
-          your browsing history, interaction behavior, device information, etc.
-          in order to improve the user experience and functionality of the
-          Platform.
-        </div>
+        {{ t("UserAgreement.sections.data_protection.content") }}
         <div class="FS24700" style="margin-top: 24px">
-          3. How do we use your information
+          {{ t("UserAgreement.sections.user_rights.title") }}
         </div>
         <div style="margin-bottom: 24px">
-          We use your personal information for the following purposes:
+          {{ t("UserAgreement.sections.user_rights.description") }}
         </div>
+        <div>{{ t("UserAgreement.sections.user_rights.rights.access") }}</div>
         <div>
-          <div class="FS16700">Provision and optimization of services:</div>
-          Use your information to provide features such as movie content, token
-          trading, NFT sales on the Platform and to continuously improve our
-          services.
+          {{
+            t("UserAgreement.sections.user_rights.rights.update_and_correction")
+          }}
         </div>
-        <div>
-          <div class="FS16700">Authentication and security:</div>
-          Secure your account by authenticating your account information.
-        </div>
-        <div>
-          <div class="FS16700">Marketing and Promotion:</div>
-          To send you movie information, event notifications or promotions via
-          email or other channels based on your interests and preferences. You
-          can opt out of these notifications at any time.
-        </div>
-        <div>
-          <div class="FS16700">Compliance with legal requirements:</div>
-          When necessary, we will use your information to comply with relevant
-          legal and regulatory requirements, or at the request of government
-          agencies.
-        </div>
+        <div>{{ t("UserAgreement.sections.user_rights.rights.deletion") }}</div>
         <div class="FS24700" style="margin-top: 24px">
-          4. Information sharing and disclosure
+          {{ t("UserAgreement.sections.token_economy.title") }}
+        </div>
+        {{ t("UserAgreement.sections.token_economy.content") }}
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.privacy_policy_update.title") }}
+        </div>
+        {{ t("UserAgreement.sections.privacy_policy_update.content") }}
+        <div class="FS24700" style="margin-top: 24px">
+          {{ t("UserAgreement.sections.contact.title") }}
         </div>
         <div style="margin-bottom: 24px">
-          We promise not to sell or rent your personal information to third
-          parties. However, we may disclose your information in the following
-          circumstances:
+          {{ t("UserAgreement.sections.contact.description") }}
         </div>
-        <div>
-          Third Party Service providers: To better provide our services, we may
-          share your information with third party partners. These partners
-          include blockchain networks, payment processors, data analytics
-          companies, and more. We ensure that these partners comply with their
-          data protection obligations.
-        </div>
-        <div>
-          Legal requirements: Where required by law or regulation, we may need
-          to disclose your personal information in response to legal
-          proceedings, court orders or government requests.
-        </div>
-        <div class="FS24700" style="margin-top: 24px">
-          5. Blockchain technology and transparency
-        </div>
-        The MAI verse platform is based on blockchain technology, and all
-        transaction records and token transfers will be recorded on the
-        blockchain, which is open and transparent to all users. With blockchain,
-        you can view the transaction history associated with your account at any
-        time, but please note that the transaction history on the blockchain is
-        immutable.
-        <div class="FS24700" style="margin-top: 24px">
-          6. NFT and fan rights
-        </div>
-        Through the NFT and token on the platform, fans will be deeply bound to
-        the movie content and enjoy specific rights and interests. Your token
-        holding information, NFT purchase record, etc., will be used as your
-        proof to participate in the fan economy and enjoy the platform services.
-        <div class="FS24700" style="margin-top: 24px">
-          7. Data protection and security
-        </div>
-        We take reasonable technical measures to ensure that your personal
-        information is not subject to unauthorized access, disclosure or
-        alteration. We encrypt sensitive data, such as payment information, and
-        record transactions in a decentralized manner on the blockchain.
-        <div class="FS24700" style="margin-top: 24px">8. User rights</div>
-        <div style="margin-bottom: 24px">
-          As a user, you have the following rights:
-        </div>
-        <div>
-          Access: You have the right to view the personal information we collect
-          about you at any time.
-        </div>
-        <div>
-          Updates and Corrections: If your information is incorrect, you can ask
-          us to update or correct your personal information.
-        </div>
-        <div>
-          Right to deletion: You may ask us to delete your personal information,
-          but please note that in some cases we may need to retain your
-          information to comply with legal requirements or to deal with
-          unfinished business.
-        </div>
-        <div class="FS24700" style="margin-top: 24px">
-          9. Token economy and long-term growth potential
-        </div>
-        The MAI verse platform facilitates content production, distribution, and
-        fan engagement through a Tokenomics model. We have designed a reasonable
-        token flow mechanism, including lock-in design, to reduce selling
-        pressure and ensure the long-term growth potential of the platform. Some
-        of the tokens will be used for ecological support to boost the
-        development of the film industry.
-        <div class="FS24700" style="margin-top: 24px">
-          10. Privacy Policy update
-        </div>
-        We may update this Privacy Agreement from time to time and will notify
-        you of any changes through the platform. Please review this Agreement
-        periodically to learn about our latest privacy practices.
-        <div class="FS24700" style="margin-top: 24px">11. Contact us</div>
-        <div style="margin-bottom: 24px">
-          If you have any questions about this Privacy Policy or require further
-          information, please contact us at:
-        </div>
-        <div>E-mail: support@movie.com</div>
-        <div>Address: Nanshan District, Shenzhen</div>
+        <div>{{ t("UserAgreement.sections.contact.email") }}</div>
+        <div>{{ t("UserAgreement.sections.contact.address") }}</div>
       </div>
     </div>
   </div>
 </template>
+
+
+
+
+
+
 <style scoped lang='less'>
 .home_view {
   background: rgb(0, 0, 0);

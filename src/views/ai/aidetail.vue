@@ -1,6 +1,7 @@
 <script setup lang='ts' name="HomeView">
 import { CSSProperties, reactive, ref, watch } from "vue";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 const videos = ref([
   {
     imageSrc: "/src/assets/images/Producing.png",
@@ -38,7 +39,6 @@ const togglePlay = () => {
 
 const nextSlide = () => {
   currentIndex.value = (currentIndex.value + 1) % videos.value.length;
-  console.log("22222222");
   resetVideo();
 };
 const goToSlide = (index: number) => {
@@ -48,7 +48,6 @@ const goToSlide = (index: number) => {
 const prevSlide = () => {
   currentIndex.value =
     (currentIndex.value - 1 + videos.value.length) % videos.value.length;
-  console.log("111111");
 
   resetVideo();
 };

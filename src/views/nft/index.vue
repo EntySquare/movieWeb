@@ -2,50 +2,34 @@
   <div class="home_view">
     <div class="container">
       <div class="Sidebar">
-        <div class="SidebarSidebar">
-          <div
-            v-for="(item, index) in categories"
-            :key="index"
-            @click="ClickCategory(item)"
-            class="sidebarItem"
-            :class="{ active: selectedCategory === item }"
-          >
-            {{ item }}
-          </div>
-        </div>
         <div class="SidebarContent">
-          <!-- <div v-if="selectedCategory === 'All goods'">All goods 内容</div> -->
-          <div class="new">
-            <div class="NewTitle">
-              <div class="title">{{ selectedCategory }}</div>
-            </div>
-            <div class="newList" v-if="newProduct">
+          <div class="new" v-if="list.length > 0">
+            <div class="newList" v-if="list">
               <div
                 class="newsItem"
-                v-for="item in newProduct"
-                :key="item"
+                v-for="(item, index) in list"
+                :key="index"
                 @click="
                   router.push({
-                    path: '/newDetail',
-                    query: { id: item.goodsId, search: selectedCategory },
+                    path: '/nft/detail',
+                    query: { id: item.tokenId },
                   })
                 "
               >
-                <!-- <img class="newsImg" :src="item.image" alt="" />
-                    -->
-                <div
-                  class="newsImg"
-                  :style="{
-                    backgroundImage: `url(${item.cover}) `,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: 'contain',
-                    backgroundPosition: 'center',
-                  }"
-                ></div>
+                <div class="nftBg">
+                  <div
+                    class="newsImg"
+                    :style="{
+                      backgroundImage: `url(${item.cover}) `,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }"
+                  ></div>
+                </div>
                 <div class="newsTitle">{{ item.name }}</div>
                 <div class="Preview">
                   <div class="Price">${{ item.price }}</div>
-                  <div class="Sold">Sold {{ item.sold }}</div>
                 </div>
               </div>
             </div>
@@ -59,10 +43,21 @@
               "
               v-else
             >
-              No data for now
+              {{ t("noData") }}
             </div>
           </div>
-          <!-- <div v-if="selectedCategory === 'Hot'">Hot 内容</div> -->
+          <div
+            class="NoData"
+            style="
+              font-size: 20px;
+              text-align: center;
+              color: #e621ca;
+              margin-top: 60px;
+            "
+            v-else
+          >
+            {{ t("noData") }}
+          </div>
         </div>
       </div>
     </div>
@@ -70,38 +65,36 @@
 </template>
 
 <script setup lang="ts">
-import { displayDetailsGoods } from "@/api/shop";
+import { displayNFTForSale } from "@/api/nft";
 import router from "@/router";
 import { onMounted, ref } from "vue";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 定义分类列表
-const categories = ref(["All goods", "New", "Hot"]);
 
+// 类型
+interface NFT {
+  cover: string;
+  describe: string;
+  image: string;
+  name: string;
+  price: string;
+  status: string;
+  title: string;
+  tokenId: string;
+}
 // 选中的分类，默认选中 "All goods"
-const selectedCategory = ref("Hot");
 // all goods 点击的时候 search 是空，new点击的时候 search 是空，  hot 点击的时候 search 是 hot，
-const newProduct = ref();
-const getNewProductData = async (search: string) => {
-  const res = await displayDetailsGoods({ search });
-  console.log("getNewProductData", res.data.json);
+const list = ref<NFT[]>([]);
+const getList = async () => {
+  const res = await displayNFTForSale();
   if (res.data.code === 0) {
-    newProduct.value = res.data.json.displayDetailsGoodsList;
+    list.value = res.data.json;
   }
 };
-const ClickCategory = (item: string) => {
-  selectedCategory.value = item;
-  if (item === "New") {
-    getNewProductData("");
-  }
-  if (item === "All goods") {
-    getNewProductData("");
-  }
-  if (item === "Hot") {
-    getNewProductData("hot");
-  }
-};
+
 onMounted(() => {
-  getNewProductData("hot");
+  getList();
 });
 </script>
 
@@ -109,7 +102,7 @@ onMounted(() => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  // height: 100%;
+  height: 100vh;
 
   .container {
     padding: 43px 120px 153px 120px;
@@ -129,33 +122,7 @@ onMounted(() => {
   line-height: 20px; /* 125% */
   margin-bottom: 20px;
 }
-.Sidebar {
-  display: flex;
-  gap: 52px;
-  .SidebarSidebar {
-    width: 74px;
-    display: flex;
-    flex-direction: column;
 
-    .sidebarItem {
-      padding: 8px 0;
-      color: #fff;
-      font-family: Rubik;
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 700;
-      line-height: 20px; /* 125% */
-      cursor: pointer;
-      text-align: center;
-      &:last-child {
-        border-bottom: 1px solid #212121;
-      }
-    }
-    .active {
-      color: #e621ca;
-    }
-  }
-}
 .SidebarContent {
   padding-top: 8px;
   flex: 1;
@@ -187,13 +154,30 @@ onMounted(() => {
     row-gap: 26px;
     .newsItem {
       width: 274px;
+      .nftBg {
+        width: 234px;
+        height: 234px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        //   background: url("@/assets/images/nftBg.png") no-repeat center;
+        //   background-size: cover;
+        //   border-radius: 8px;
+        //   width: 284px;
+        //   height: 284px;
+        //   display: flex;
+        //   align-items: end;
+        //   justify-content: center;
+        //   margin-bottom: 20px;
+        background: #121212;
+      }
       .newsImg {
         display: flex;
-        width: 274px;
-        height: 274px;
+        width: 234px;
+        height: 234px;
         border-radius: 8px;
-        margin-bottom: 12px;
         cursor: pointer;
+        margin-bottom: 20px;
       }
     }
     .newsTitle {
@@ -253,6 +237,9 @@ onMounted(() => {
             .newList {
               .newsItem {
                 width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
                 padding: 6px;
                 border-radius: 6px;
                 box-sizing: border-box;

@@ -2,49 +2,14 @@
 import { showAllHotMovie } from "@/api/activity";
 import { computed, onMounted, ref } from "vue";
 import { useWindowSize } from "@vueuse/core";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 const activeIndex = ref<number | null>(null);
 const { width, height } = useWindowSize();
-// 轮播数据
-const carouselItems = ref([
-  {
-    image: "/src/assets/images/hot1.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot2.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot1.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot2.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot1.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot2.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot1.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    image: "/src/assets/images/hot2.png",
-    text: "Creation of The Gods: Kingdom of Storms",
-  },
-]);
 const HotMoviesdata = ref<any>([]);
 const getHotMoviesData = async () => {
   const res = await showAllHotMovie();
   if (res.data.code === 0) {
-    console.log("res", res.data.json);
     HotMoviesdata.value = res.data.json;
   }
 };
@@ -96,7 +61,7 @@ const prev = () => {
   <div class="home_view">
     <div class="container">
       <div class="HotmovieTitle">
-        <div class="title">Hot Movie</div>
+        <div class="title">{{ t("shop.shop9") }}</div>
         <!-- <div class="all">
           All
           <svg
@@ -143,7 +108,7 @@ const prev = () => {
               class="participate"
               v-if="width < 824 || activeIndex === index"
             >
-              COMMINGLE SOON
+              {{ t("shop.shop7") }}
             </div>
             <div
               class="circle"
@@ -173,7 +138,7 @@ const prev = () => {
         "
         v-else
       >
-        No data for now
+      {{ t("noData") }}
       </div>
     </div>
   </div>

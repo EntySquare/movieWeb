@@ -1,7 +1,7 @@
 import { ElNotification } from "element-plus";
 import { ref } from "vue";
 import { Web3 } from "web3";
-import useWalletStore from "@/store/modules/home";
+import useWalletStore from "@/store/modules/wallet";
 import { useTokenStore } from "@/store/modules/my";
 import { addressLogin } from "@/api/login";
 // 格式化字符串的函数
@@ -9,8 +9,8 @@ export const formatData = (input: string): string => {
     if (input.length <= 10) {
         return input; // 如果字符串较短，不需要省略
     }
-    const start = input.slice(0, 5); // 获取前5个字符
-    const end = input.slice(-4); // 获取后4个字符
+    const start = input.slice(0, 4); // 获取前5个字符
+    const end = input.slice(-3); // 获取后4个字符
     return `${start}...${end}`; // 返回格式化后的字符串
 };
 
@@ -50,23 +50,19 @@ export const connectWallet = async () => {
         }
 
         provider.value = metaMask;
-        console.log("provider", provider.value);
 
         web3.value = new Web3(provider.value);
         //获取网络ID
         const chain = await provider.value.request({ method: "eth_chainId" });
-        console.log('chain', chain);
 
         if (chain !== walletStore.BSC_chain_id) {
             // 切换BSC网络
             try {
-                // await provider.value.request({
-                // method: "wallet_switchEthereumChain",
-                // params: [{ chainId: walletStore.BSC_chain_id }],
-                // });
+                await provider.value.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: walletStore.BSC_chain_id }],
+                });
             } catch (switchError) {
-                console.log("switchError", switchError);
-
                 return;
             }
         }
@@ -81,7 +77,6 @@ export const connectWallet = async () => {
             const res = await addressLogin({ address: walletStore.walletAddress });
             if (res.data.code === 0) {
 
-                console.log("res1111", res.data.json);
                 tokenStore.setWalletData(res.data.json);
                 walletStore.setWalletAddress(newAddress); // 更新 Pinia
                 ElNotification({
@@ -135,14 +130,12 @@ export const connectWallet = async () => {
             title: "The connection failed. Please check that the network or wallet plug-in is installed correctly",
             duration: 1000,
         });
-        console.log('error', error);
 
     }
 };
 
 // 退出钱包
 export const logoutWallet = () => {
-    console.log('provider.value', provider.value);
 
     provider.value = null;
     web3.value = null;

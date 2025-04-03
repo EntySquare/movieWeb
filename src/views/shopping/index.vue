@@ -4,6 +4,9 @@ import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
 import { onMounted, ref } from "vue";
 import { useWindowSize } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const activeIndex = ref(null);
 // 鼠标移入，记录当前悬停的元素索引
 const hoverItem = (index: any) => {
@@ -16,50 +19,11 @@ const { width, height } = useWindowSize();
 const resetItems = () => {
   activeIndex.value = null;
 };
-const movies = [
-  {
-    id: 0,
-    img: "/src/assets/images/hot1.png",
-    title: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    id: 1,
-    img: "/src/assets/images/hot2.png",
-    title: "Creation of The Gods: Kingdom of Storms",
-  },
-  {
-    id: 2,
-    img: "/src/assets/images/hot2.png",
-    title: "Creation of The Gods: Kingdom of Storms",
-  },
-];
 
 const HotMoviesdata = ref();
-// const getHotMoviesData = async () => {
-//   const res = await showAllHotMovie();
-//   if (res.data.code === 0) {
-//     console.log("getHotMoviesData", res.data.json);
-//     HotMoviesdata.value = res.data.json;
-//   }
-// };
-
 const hotHotEvent = ref();
-// const gethotHotEventData = async () => {
-//   const res = await showAllHotEvent();
-//   if (res.data.code === 0) {
-//     console.log("gethotHotEventData", res.data.json);
-//     hotHotEvent.value = res.data.json;
-//   }
-// };
-
 const newProduct = ref();
-// const getNewProductData = async () => {
-//   const res = await displayDetailsGoods({ search: "" });
-//   if (res.data.code === 0) {
-//     console.log("getNewProductData", res.data.json);
-//     newProduct.value = res.data.json.displayDetailsGoodsList;
-//   }
-// };
+
 import { ElSkeleton } from "element-plus";
 
 // 新增加载状态
@@ -112,9 +76,10 @@ onMounted(() => {
     <div class="container">
       <div class="shopTop">
         <div class="movie">
-          <div class="movieText">Movie og pass card</div>
+          <div class="movieText">{{ t("shop.shop1") }}</div>
           <div class="movieBtn">
-            Mint now<svg
+            {{ t("shop.shop2")
+            }}<svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="17"
@@ -142,9 +107,9 @@ onMounted(() => {
           <!-- New Product Section -->
           <div class="New">
             <div class="NewTitle">
-              <div class="title">New Product</div>
+              <div class="title">{{ t("shop.shop3") }}</div>
               <div class="more" @click="router.push('/new')">
-                More
+                {{ t("shop.shop4") }}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="6"
@@ -187,7 +152,9 @@ onMounted(() => {
                   <div class="newsTitle">{{ item.name }}</div>
                   <div class="Preview">
                     <div class="Price">${{ item.price }}</div>
-                    <div class="Sold">Sold {{ item.sold }}</div>
+                    <div class="Sold">
+                      {{ t("shop.shop5") }} {{ item.sold }}
+                    </div>
                   </div>
                 </div>
               </template>
@@ -206,9 +173,9 @@ onMounted(() => {
           <!-- Hot Movie Section -->
           <div class="Hotmovie">
             <div class="HotmovieTitle">
-              <div class="title">Hot Movie</div>
+              <div class="title">{{ t("shop.shop9") }}</div>
               <div class="all" @click="router.push('/hotMovie')">
-                All
+                {{ t("shop.shop6") }}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="14"
@@ -255,8 +222,11 @@ onMounted(() => {
                   >
                     <div class="circleImg" alt=""></div>
                   </div>
-                  <div class="participate" v-if="width < 824 || activeIndex === index">
-                    COMMINGLE SOON
+                  <div
+                    class="participate"
+                    v-if="width < 824 || activeIndex === index"
+                  >
+                    {{ t("shop.shop7") }}
                   </div>
                 </div>
               </template>
@@ -272,9 +242,10 @@ onMounted(() => {
         </div>
         <div class="HotEvent">
           <div class="HotEventTitle">
-            <div class="title">Hot Event</div>
+            <div class="title">{{ t("shop.shop8") }}</div>
             <div class="All" @click="router.push('/hotEvent')">
-              All<svg
+              {{ t("shop.shop6")
+              }}<svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="14"
                 height="15"
@@ -784,6 +755,30 @@ onMounted(() => {
           font-weight: 500;
           line-height: 14px; /* 116.667% */
         }
+      }
+    }
+  }
+}
+@media (max-width: 1440px) {
+  .home_view {
+    .shopbottom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 70px;
+
+      .bottomLeft {
+        display: flex;
+        flex-direction: column;
+
+        gap: 53px;
+        width: 100%;
+        .newList {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+      .HotEvent {
+        width: 100%;
       }
     }
   }

@@ -1,17 +1,28 @@
 <script lang="ts" setup name="AppFooter">
 import router from "@/router";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 </script>
 <template>
   <footer class="app_footer">
     <div class="container">
-      <div class="logo"><img src="@/assets/images/logo.png" alt="" /></div>
       <div class="footerBottom">
-        <div class="text">© 2025 Movie.network. All rights reserved.</div>
-        <div class="fotterLink">
-          <div class="item" @click="router.push('/my/protocol')">
-            Privacy Policy
+        <div class="text">© {{ t("fotter.network") }}</div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+          "
+        >
+          <div class="logo"><img src="@/assets/images/logo.png" alt="" /></div>
+          <div class="fotterLink">
+            <div class="item" @click="router.push('/my/protocol')">
+              {{ t("fotter.Privacy") }}
+            </div>
+            <div class="item">{{ t("fotter.Terms") }}</div>
           </div>
-          <div class="item">Terms of Use</div>
         </div>
         <div class="appLogo">
           <div class="appLogoItem">
@@ -58,9 +69,11 @@ import router from "@/router";
   display: flex;
   padding: 32px 80px;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-end;
   align-self: stretch;
   .text {
+    align-items: flex-end;
+    display: flex;
     color: #8c8c8c;
     font-family: Inter;
     font-size: 12px;
@@ -71,7 +84,7 @@ import router from "@/router";
   .fotterLink {
     display: flex;
     gap: 20px;
-    margin-left: -60px;
+
     .item {
       color: @xtxColor;
       font-family: Rubik;

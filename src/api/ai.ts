@@ -18,3 +18,24 @@ export const voteWahlPool = (data: any) => {
         data: data
     })
 }
+
+
+// /vote/distributeBonus  领取奖励
+
+export const distributeBonus = (data: any) => {
+    return requestLong({
+        url: '/vote/distributeBonus',
+        method: 'post',
+        data: data
+    })
+}
+
+// /vote/judgeBonus 判断是否领取 
+
+export const judgeBonus = (data: any) => {
+    return request({
+        url: '/vote/judgeBonus',
+        method: 'post',
+        data: data
+    })
+}

@@ -25,6 +25,10 @@ let router = createRouter({
           path: "/nft",
           component: () => import("@/views/nft/index.vue"),
         },
+        {
+          path: "/nft/detail",
+          component: () => import("@/views/nft/nftdetail.vue"),
+        },
         { path: "/new", component: () => import("@/views/shopping/New.vue") },
         {
           path: "/newDetail",
@@ -61,6 +65,10 @@ let router = createRouter({
         {
           path: "/my/Activities",
           component: () => import("@/views/my/Activities.vue"),
+        },
+        {
+          path: "/test",
+          component: () => import("@/views/ai/test.vue"),
         },
       ],
     },

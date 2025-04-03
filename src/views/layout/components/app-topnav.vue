@@ -1,6 +1,6 @@
 <script lang="ts" setup name="AppTopnav">
 import router from "@/router";
-import useWalletStore from "@/store/modules/home";
+import useWalletStore from "@/store/modules/wallet";
 import { useTokenStore } from "@/store/modules/my";
 import { addressLogin } from "@/api/login";
 import { useWindowSize } from "@/utils/useWindowSize";
@@ -19,6 +19,10 @@ import useCartStore from "@/store/modules/cart";
 import Web3 from "web3";
 import usdtAbi from "@/abiU.json";
 
+import { useI18n } from "vue-i18n";
+import { watch } from "fs";
+const { t } = useI18n();
+
 const { windowWidth } = useWindowSize();
 const walletStore = useWalletStore();
 const isMenuOpen = ref(false);
@@ -29,9 +33,6 @@ const toggleMenu = () => {
 };
 const login = async () => {
   await connectWallet();
-  // const res = await addressLogin({ address: walletStore.walletAddress });
-  // console.log("res", res.data.json);
-  // tokenStore.setWalletData(res.data.json);
 };
 const TO = (link: any) => {
   router.push(link);
@@ -48,22 +49,7 @@ const addToCart = async () => {
   isActiveCart.value = true;
 };
 const selectedCartId = ref(); // 记录选中的 cartId
-// const BuyNowCartClick = () => {
-//   if (!selectedCartId.value) {
-//     ElNotification({
-//       dangerouslyUseHTMLString: true,
-//       showClose: false,
-//       customClass: "message-logout",
-//       title: "Please select the item to purchase",
-//       duration: 1000,
-//     });
-//     return;
-//   }
-//   isActiveCart.value = false;
-//   const productStore = useProductStore();
-//   productStore.setProduct([cartList.value]);
-//   router.push("/newBuy");
-// };
+
 const web3 = new Web3(window.ethereum);
 const loading = ref(false);
 const submitForm = async () => {
@@ -74,7 +60,7 @@ const submitForm = async () => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: "Please select the item to purchase",
+      title: t("ElNoti.el1"),
       duration: 1000,
     });
     loading.value = false;
@@ -88,7 +74,7 @@ const submitForm = async () => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title: "Please connect your wallet before purchasing",
+      title: t("ElNoti.el2"),
       duration: 1000,
     });
 
@@ -102,8 +88,7 @@ const submitForm = async () => {
     ElNotification({
       showClose: true,
       customClass: "message-logout",
-      title:
-        "The current network is not BSC mainnet, please switch to Binance Smart Chain.",
+      title: t("ElNoti.el3"),
       duration: 5000,
     });
     loading.value = false;
@@ -119,23 +104,14 @@ const submitForm = async () => {
     "0x55d398326f99059fF775485246999027B3197955"
   );
 
-  console.log("usdtContract", usdtContract);
-
   // 计算 USDT 转账金额（USDT 使用 6 位小数）
   const amount = web3.utils.toWei(cartList.value.price.toString(), "ether");
   // const amount = web3.utils.toWei("0.01", "ether");
-  console.log("amountmwei", amount);
 
   // 电影票接收地址
   const recipientAddress = useTokenStore().toAddress;
-  console.log("recipientAddress", recipientAddress);
-
   // 余额验证
-  console.log("开始获取 BNB 余额");
   const bnbBalance = await web3.eth.getBalance(senderAddress);
-  console.log("BNB 余额:", web3.utils.fromWei(bnbBalance, "ether"));
-
-  console.log("开始获取 USDT 余额");
   const usdtBalance = await usdtContract.methods
     .balanceOf(senderAddress)
     .call();
@@ -144,8 +120,7 @@ const submitForm = async () => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title:
-        "Your USDT balance is insufficient, please recharge before purchasing.",
+      title: t("ElNoti.el4"),
       duration: 5000,
     });
     loading.value = false;
@@ -154,22 +129,14 @@ const submitForm = async () => {
 
   // 计算 Gas 费
   const baseGasPrice = await web3.eth.getGasPrice();
-  console.log("baseGasPrice", baseGasPrice);
 
   const estimatedGas = await usdtContract.methods
     .transfer(recipientAddress, amount)
     .estimateGas({ from: senderAddress });
-
-  console.log("estimatedGas", estimatedGas);
-
   const gasParams = {
     gasPrice: Math.floor(Number(baseGasPrice) * 1.2), // 20%缓冲
     gasLimit: Math.floor(Number(estimatedGas) * 1.5), // 50%余量
   };
-
-  console.log("gasParams", gasParams);
-
-  console.log("开始发送 USDT 交易...");
   const txHash = await usdtContract.methods
     .transfer(recipientAddress, amount)
     .send({
@@ -177,7 +144,6 @@ const submitForm = async () => {
       gasPrice: gasParams.gasPrice.toString(),
       gas: web3.utils.toHex(gasParams.gasLimit),
     });
-  console.log("txHash", txHash.transactionHash);
 
   const res = await purchaseGoods({
     cartsId: cartList.value?.cartId || "",
@@ -195,13 +161,13 @@ const submitForm = async () => {
     ElNotification({
       dangerouslyUseHTMLString: true,
       customClass: "message-logout",
-      title: cartList.value.title + " Successful purchase",
+      title: cartList.value.title + t("ElNoti.el5"),
       message: `<div style="display: flex; align-items: center;justify-content: space-between;">
               <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
-                Purchase Success!
+                ${t("ElNoti.el6")}
               </div>
               <div id="verify-link" style="display: flex; align-items: center; color: #e621ca; cursor: pointer;">
-                verification
+                ${t("ElNoti.el7")}
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z" fill="#D339C4"/>
                 </svg>
@@ -231,186 +197,19 @@ const submitForm = async () => {
   } else {
     ElNotification({
       customClass: "message-logout",
-      title: "Purchase failed",
+      title: t("ElNoti.el8"),
       duration: 60000,
     });
     loading.value = false;
   }
-  // usdtContract.methods
-  //   .transfer(recipientAddress, amount)
-  //   .send({
-  //     from: senderAddress,
-  //     gasPrice: gasParams.gasPrice.toString(),
-  //     gas: web3.utils.toHex(gasParams.gasLimit),
-  //   })
-  //   .on("transactionHash", async (hash) => {
-  //     console.log("实时交易哈希（事件监听）:", hash); // 立即打印
-  //     // 发送交易信息到后端
-  //     try {
-  //     } catch (error) {
-  //       console.error("后端请求错误", error);
-  //     } finally {
-  //       loading.value = false;
-  //     }
-  //   })
-  //   .on("receipt", (receipt) => {
-  //     console.log("交易确认（收据）:", receipt.transactionHash);
-  //   })
-  //   .on("error", (error) => {
-  //     console.error("交易错误:", error);
-  //   });
 };
-
-// const submitForm = async () => {
-//   loading.value = true;
-
-//   // 1. 选择支付的商品
-//   if (!selectedCartId.value) {
-//     ElNotification({
-//       customClass: "message-logout",
-//       title: "请选择要购买的商品",
-//       duration: 1000,
-//     });
-//     loading.value = false;
-//     return;
-//   }
-
-//   // 2. 连接钱包
-//   let provider;
-//   if (window.okxwallet) {
-//     provider = window.okxwallet; // OKX 钱包
-//   } else if (window.ethereum) {
-//     provider = window.ethereum; // MetaMask
-//   } else {
-//     ElNotification({
-//       customClass: "message-logout",
-//       title: "请安装 MetaMask 或 OKX 钱包",
-//       duration: 2000,
-//     });
-//     loading.value = false;
-//     return;
-//   }
-
-//   const web3 = new Web3(provider);
-
-//   try {
-//     // 3. 获取用户地址
-//     const accounts = await web3.eth.requestAccounts();
-//     const senderAddress = accounts[0];
-
-//     if (!senderAddress) {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: "未检测到钱包地址",
-//         duration: 2000,
-//       });
-//       loading.value = false;
-//       return;
-//     }
-
-//     // 4. 检查网络（Arbitrum）
-//     const networkId = await web3.eth.net.getId();
-//     console.log("networkId", networkId);
-
-//     if (networkId !== 42161n) {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: "请切换到 Arbitrum One 网络",
-//         duration: 5000,
-//       });
-//       loading.value = false;
-//       return;
-//     }
-
-//     // 5. 计算 USDT 交易参数
-//     const usdtContract = new web3.eth.Contract(
-//       usdtAbi,
-//       "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9" // 主网 USDT 地址
-//     );
-
-//     const amount = web3.utils.toWei(cartList.value.price.toString(), "mwei");
-//     const recipientAddress = "0x5f5c3a0c19005d8f3607222d79a7492412501582";
-
-//     // 6. 检查 USDT 余额
-//     const usdtBalance = await usdtContract.methods
-//       .balanceOf(senderAddress)
-//       .call();
-
-//     if (Number(usdtBalance) < Number(amount)) {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: "USDT 余额不足",
-//         duration: 5000,
-//       });
-//       loading.value = false;
-//       return;
-//     }
-
-//     // 7. 发送 USDT 交易
-//     const tx = await usdtContract.methods
-//       .transfer(recipientAddress, amount)
-//       .send({
-//         from: senderAddress,
-//       });
-
-//     console.log("交易哈希:", tx.transactionHash);
-
-//     // 8. 通知后台
-//     const res = await purchaseGoods({
-//       cartsId: cartList.value?.cartId || "",
-//       goodsId: cartList.value.goodsId,
-//       number: String(cartList.value.number),
-//       amount: cartList.value.price.toString(),
-//       hash: tx.transactionHash,
-//       from: senderAddress,
-//       payType: 3, // 3 表示 USDT 付款
-//       remarks: "",
-//     });
-
-//     if (res.data.code === 0) {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: "购买成功",
-//         duration: 6000,
-//       });
-//       router.push("/newBuy");
-//     } else {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: res.data.json,
-//         duration: 6000,
-//       });
-//     }
-//   } catch (error: any) {
-//     if (error.code === 4001) {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: "交易已取消",
-//         duration: 5000,
-//       });
-//     } else {
-//       ElNotification({
-//         customClass: "message-logout",
-//         title: "支付失败",
-//         duration: 5000,
-//       });
-//     }
-//     console.error("支付错误:", error);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
 
 const getCartListStore = useCartStore();
 const goodsCartList = computed(() => getCartListStore.cartList ?? []);
 const getCartList = async () => {
   const res = await displayGoodsCart();
-  console.log("res", res.data);
   if (res.data.code === 0) {
-    // goodsCartList = res.data.json.goodsCartList;
     getCartListStore.setcartList(res.data.json.goodsCartList);
-    console.log("goodsCartList", goodsCartList);
-    console.log("getCartListStore.cartList", getCartListStore.cartList);
   }
 };
 const totalPrice = computed(() => {
@@ -442,13 +241,12 @@ const removeFromCart = async (number: any) => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: "Deletion failure",
+      title: t("ElNoti.el9"),
       duration: 1000,
     });
   }
 };
 const handleNumberChange = async (item: any) => {
-  console.log("item", item.number, item);
   const res = await modifyGoodsCart({
     cartsId: item.cartId,
     number: item.number,
@@ -467,7 +265,7 @@ const handleNumberChange = async (item: any) => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: "Change failed",
+      title: t("ElNoti.el10"),
       duration: 1000,
     });
     getCartList();
@@ -484,12 +282,10 @@ const toggleSelection = (item: any) => {
   if (selectedCartId.value === item.cartId) {
     setTimeout(() => {
       selectedCartId.value = ""; // 取消选中
-      console.log("选中的商品ID取消:", item);
       cartList.value = "";
     }, 0);
   } else {
     selectedCartId.value = item.cartId; // 选中
-    console.log("选中的商品ID勾选:", item);
     cartList.value = item;
   }
 };
@@ -556,38 +352,39 @@ const toggleSelection = (item: any) => {
           class="navLink"
           v-if="windowWidth > 824"
           :class="{ active: isActive('/home') }"
-          >HOME</router-link
+          >{{ t("nav.home") }}</router-link
         >
         <router-link
           to="/mint"
           class="navLink"
           v-if="windowWidth > 824"
           :class="{ active: isActive('/mint') }"
-          >MINT</router-link
+          >{{ t("nav.mint") }}</router-link
         >
         <router-link
           to="/shop"
           class="navLink"
           v-if="windowWidth > 824"
           :class="{ active: isActive('/shop') }"
-          >SHOP</router-link
+          >{{ t("nav.shop") }}</router-link
         >
         <router-link
           to="/nft"
           class="navLink"
           v-if="windowWidth > 824"
           :class="{ active: isActive('/nft') }"
-          >NFT</router-link
+          >{{ t("nav.nft") }}</router-link
         >
         <router-link
           to="/ai"
           class="navLink"
           v-if="windowWidth > 824"
           :class="{ active: isActive('/ai') }"
-          >AI</router-link
         >
-        <div class="LAUNCHBtn" @click="login" v-if="!walletStore.isWallet">
-          Connect wallet
+          {{ t("nav.ai") }}
+        </router-link>
+        <div class="LAUNCHBtn" @click="login" v-if="!useWalletStore().isWallet">
+          {{ t("nav.connect") }}
         </div>
         <div v-else style="display: flex; align-items: center; gap: 12px">
           <router-link to="/my">
@@ -652,15 +449,16 @@ const toggleSelection = (item: any) => {
             </svg>
           </div>
         </div>
+        <SETLANGUAGE />
       </div>
     </div>
     <el-drawer v-model="isMenuOpen" :with-header="false" size="100%">
       <div class="overlay">
-        <div @click="TO('/home')" class="text">home</div>
-        <div @click="TO('/mint')" class="text">MINT</div>
-        <div @click="TO('/shop')" class="text">SHOP</div>
-        <div @click="TO('/nft')" class="text">NFT</div>
-        <div @click="TO('/ai')" class="text">AI</div>
+        <div @click="TO('/home')" class="text">{{ t("nav.home") }}</div>
+        <div @click="TO('/mint')" class="text">{{ t("nav.mint") }}</div>
+        <div @click="TO('/shop')" class="text">{{ t("nav.shop") }}</div>
+        <div @click="TO('/nft')" class="text">{{ t("nav.nft") }}</div>
+        <div @click="TO('/ai')" class="text">{{ t("nav.ai") }}</div>
 
         <div class="iconLink">
           <div class="iconLinkItem">
@@ -714,7 +512,7 @@ const toggleSelection = (item: any) => {
     <div class="cart" :class="{ activeCart: isActiveCart }" v-loading="loading">
       <div style="width: 100%">
         <div class="cartTitle">
-          <div>Shopping cart</div>
+          <div>{{ t("nav.shopping") }}</div>
           <div class="icon" @click="isActiveCart = false">
             <svg
               t="1740736413412"
@@ -733,54 +531,6 @@ const toggleSelection = (item: any) => {
             </svg>
           </div>
         </div>
-        <!-- <div class="cartList" v-if="goodsCartList.length > 0">
-            <div
-              class="cartItem"
-              v-for="(item, index) in goodsCartList"
-              :key="index"
-            >
-              <div
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  gap: 16px;
-                "
-              >
-                <img class="cartItemImg" :src="item.image" alt="" />
-                <div class="text">
-                  <div class="cartItemName">{{ item.describe }}</div>
-                  <div class="cartItemPN">
-                    <div class="cartItemPrice">${{ item.price }}</div>
-                    <div class="cartItemNum">* {{ item.number }}</div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="Delete"
-                @click="removeFromCart(item.cartId)"
-                style="cursor: pointer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <path
-                    d="M20.25 4.5H16.875V3.375C16.875 2.67881 16.5984 2.01113 16.1062 1.51884C15.6139 1.02656 14.9462 0.75 14.25 0.75H9.75C9.05381 0.75 8.38613 1.02656 7.89384 1.51884C7.40156 2.01113 7.125 2.67881 7.125 3.375V4.5H3.75C3.45163 4.5 3.16548 4.61853 2.9545 4.8295C2.74353 5.04048 2.625 5.32663 2.625 5.625C2.625 5.92337 2.74353 6.20952 2.9545 6.4205C3.16548 6.63147 3.45163 6.75 3.75 6.75H4.125V19.5C4.125 19.9973 4.32254 20.4742 4.67417 20.8258C5.02581 21.1775 5.50272 21.375 6 21.375H18C18.4973 21.375 18.9742 21.1775 19.3258 20.8258C19.6775 20.4742 19.875 19.9973 19.875 19.5V6.75H20.25C20.5484 6.75 20.8345 6.63147 21.0455 6.4205C21.2565 6.20952 21.375 5.92337 21.375 5.625C21.375 5.32663 21.2565 5.04048 21.0455 4.8295C20.8345 4.61853 20.5484 4.5 20.25 4.5ZM9.375 3.375C9.375 3.27554 9.41451 3.18016 9.48483 3.10984C9.55516 3.03951 9.65054 3 9.75 3H14.25C14.3495 3 14.4448 3.03951 14.5152 3.10984C14.5855 3.18016 14.625 3.27554 14.625 3.375V4.5H9.375V3.375ZM17.625 19.125H6.375V6.75H17.625V19.125ZM10.875 9.75V15.75C10.875 16.0484 10.7565 16.3345 10.5455 16.5455C10.3345 16.7565 10.0484 16.875 9.75 16.875C9.45163 16.875 9.16548 16.7565 8.9545 16.5455C8.74353 16.3345 8.625 16.0484 8.625 15.75V9.75C8.625 9.45163 8.74353 9.16548 8.9545 8.9545C9.16548 8.74353 9.45163 8.625 9.75 8.625C10.0484 8.625 10.3345 8.74353 10.5455 8.9545C10.7565 9.16548 10.875 9.45163 10.875 9.75ZM15.375 9.75V15.75C15.375 16.0484 15.2565 16.3345 15.0455 16.5455C14.8345 16.7565 14.5484 16.875 14.25 16.875C13.9516 16.875 13.6655 16.7565 13.4545 16.5455C13.2435 16.3345 13.125 16.0484 13.125 15.75V9.75C13.125 9.45163 13.2435 9.16548 13.4545 8.9545C13.6655 8.74353 13.9516 8.625 14.25 8.625C14.5484 8.625 14.8345 8.74353 15.0455 8.9545C15.2565 9.16548 15.375 9.45163 15.375 9.75Z"
-                    fill="#707070"
-                    style="
-                      fill: #707070;
-                      fill: color(display-p3 0.4406 0.4406 0.4406);
-                      fill-opacity: 1;
-                    "
-                  />
-                </svg>
-              </div>
-            </div>
-          </div> -->
         <!-- 购物车列表 -->
         <el-radio-group v-model="selectedCartId" class="cartList">
           <div
@@ -853,7 +603,7 @@ const toggleSelection = (item: any) => {
       </div>
       <div class="SubtotalAll">
         <div class="Subtotal">
-          <div class="SubtotalTitle">Subtotal</div>
+          <div class="SubtotalTitle">{{ t("nav.Subtotal") }}</div>
           <div class="SubtotalPrice">${{ totalPrice }}</div>
         </div>
         <div
@@ -861,7 +611,7 @@ const toggleSelection = (item: any) => {
           @click="submitForm()"
           :class="{ disabled: !selectedCartId }"
         >
-          Buy now
+          {{ t("nav.BuyNow") }}
         </div>
       </div>
     </div>
@@ -872,7 +622,7 @@ const toggleSelection = (item: any) => {
 .app-topnav {
   border-bottom: 1px solid #1e1e1e;
   background: #000;
-  min-height: 81px;
+  height: 88px;
 }
 
 .container {
@@ -1020,13 +770,13 @@ const toggleSelection = (item: any) => {
   border-radius: 50%;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1190px) {
   .container {
     padding: 32px;
   }
 }
 
-@media (max-width: 922px) {
+@media (max-width: 1108px) {
   .container {
     .topLeft {
       gap: 18px;
@@ -1037,7 +787,24 @@ const toggleSelection = (item: any) => {
     }
   }
 }
+@media (max-width: 885px) {
+  .container {
+    .topLeft {
+      gap: 16px;
+      .appLogo {
+        gap: 8px;
+      }
+    }
 
+    .topRight {
+      gap: 20px;
+      .LAUNCHBtn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+  }
+}
 @media (max-width: 824px) {
   .app-topnav {
     border-bottom: none;
@@ -1065,15 +832,21 @@ const toggleSelection = (item: any) => {
     }
   }
 }
-@media (max-width: 380px) {
-  .topLeft {
-    .logo {
-      flex-shrink: 0;
+@media (max-width: 416px) {
+  .container {
+    padding: 16px;
+    .topLeft {
+      .logo {
+        flex-shrink: 0;
 
-      img {
-        width: 66px;
-        height: auto;
+        img {
+          width: 66px;
+          height: auto;
+        }
       }
+    }
+    .topRight {
+      gap: 12px;
     }
   }
 }
@@ -1417,4 +1190,4 @@ const toggleSelection = (item: any) => {
 .el-drawer {
   --el-drawer-bg-color: #000 !important;
 }
-</style>
+</style>@/store/modules/wallet@/store/modules/wallet

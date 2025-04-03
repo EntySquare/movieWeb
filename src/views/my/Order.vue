@@ -3,6 +3,8 @@ import { showAllMyTicket } from "@/api/my";
 import { OrderInfo } from "@/api/type";
 import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 复制数据到剪贴板
 const copyToClipboard = async (data: string) => {
   try {
@@ -20,7 +22,6 @@ const copyToClipboard = async (data: string) => {
 const orderList = ref<OrderInfo[]>([]);
 const getorderList = async () => {
   const res = await showAllMyTicket();
-  console.log("res", res.data);
   if (res.data.code === 0) {
     orderList.value = res.data.json;
   }
@@ -105,7 +106,7 @@ onMounted(() => {
         "
         v-else
       >
-        No data for now
+      {{ t("noData") }}
       </div>
     </div>
   </div>

@@ -89,6 +89,9 @@ const props = withDefaults(
   }
 );
 
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const emit = defineEmits(["vote-complete"]);
 
 // 状态管理
@@ -129,7 +132,7 @@ const showBattleTip = (votedTeam: "left" | "right") => {
   const poolReward = (total * 10).toFixed(2); // 100 票 = 10 USDT
 
   if (votedVotes === opponentVotes) {
-    tipMessage.value = "势均力敌！";
+    tipMessage.value = t("ai.ai4");
     tipSubMessage.value = "";
     tipType.value = "leading";
   } else {
@@ -140,13 +143,19 @@ const showBattleTip = (votedTeam: "left" | "right") => {
     if (isLeading) {
       // 计算增加10%需要多少票
       tipMessage.value = ` <div style="color: #e621ca; ">
-      🎉 再投 ${neededFor10Percent} 票锁定票房霸主！🎉
-      </div>`;
-      tipSubMessage.value = `你的 ${votedName} 已占据 ${percentage}% 票房高地！
-      现在每多投${throwMore}票，最终奖池分红比例就上涨1%。<br> <br>
-      距离奖池结算还剩${diff}小时，转发达到${forwarding}条即可激活「双倍票力」BUFF！ <br> <br>
-                <span style="color: #e621ca">守住王座分大奖 >>></span>
-`;
+            🎉 ${t("ai.ai5")} ${neededFor10Percent} ${t("ai.ai6")}🎉
+            </div>`;
+      tipSubMessage.value = `${t("ai.ai7")} ${votedName} ${t(
+        "ai.ai8"
+      )} ${percentage}% ${t("ai.ai9")}
+            ${t("ai.ai10")}${throwMore}${t("ai.ai11")}<br> <br>
+            ${t("ai.ai12")}${diff}${t("ai.ai13")}${forwarding}${t(
+        "ai.ai14"
+      )} <br> <br>
+                      <span style="color: #e621ca">守住王${t(
+                        "ai.ai15"
+                      )}座分大奖 >>></span>
+      `;
 
       tipType.value = "leading";
     } else {
@@ -154,13 +163,15 @@ const showBattleTip = (votedTeam: "left" | "right") => {
       // 计算增加10%需要多少票
       const neededToFlip = voteDiff + 1; // 翻盘需要的票数
 
-      tipMessage.value = ` <span style="color: #000">🔥 只差 ${neededToFlip} 票就能逆风翻盘！🔥 </span>
+      tipMessage.value = ` <span style="color: #000">🔥 ${t(
+        "ai.ai16"
+      )} ${neededToFlip} ${t("ai.ai17")}🔥 </span>
     `;
-      tipSubMessage.value = `你的 ${votedName} 正在蓄力反超！
-      点击邀请好友助力，再拉 ${neededToFlip} 人投票便能翻转劣势！<br> <br>
-      转发达到${forwarding}条即可激活「双倍票力」BUFF！  <br> <br>
-      当前奖池已累积 ${total} ，只要领先对方就能瓜分巨额奖金！ <br><br>
-       <span style="color: #000">胜负就在一念之间，快去召唤援军 >>></span>`;
+      tipSubMessage.value = `${t("ai.ai18")} ${votedName} ${t("ai.ai19")}
+      ${t("ai.ai20")} ${neededToFlip}  ${t("ai.ai21")}<br> <br>
+       ${t("ai.ai22")}${forwarding} ${t("ai.ai23")}  <br> <br>
+       ${t("ai.ai24")} ${total}  ${t("ai.ai25")} <br><br>
+       <span style="color: #000"> ${t("ai.ai26")} >>></span>`;
 
       tipType.value = "catching";
     }

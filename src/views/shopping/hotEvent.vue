@@ -16,10 +16,10 @@
             style="fill: white; fill-opacity: 0.8"
           />
         </svg>
-        Back
+        {{ t("back") }}
       </div>
       <div class="bg">
-        <span>Creation of The Gods:</span> <span>Kingdom of Storms</span>
+        <span>{{ t("shop.shop13") }}</span> <span>{{ t("shop.shop14") }}</span>
       </div>
       <div class="HotEventList" v-if="hotHotEvent">
         <div
@@ -74,7 +74,7 @@
         "
         v-else
       >
-        No data for now
+        {{ t("noData") }}
       </div>
     </div>
   </div>
@@ -84,11 +84,13 @@
 import { showAllHotEvent } from "@/api/activity";
 import { onMounted, ref } from "vue";
 import router from "@/router";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const hotHotEvent = ref();
 const gethotHotEventData = async () => {
   const res = await showAllHotEvent();
   if (res.data.code === 0) {
-    console.log("gethotHotEventData", res.data.json);
     hotHotEvent.value = res.data.json;
   }
 };

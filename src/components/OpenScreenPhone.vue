@@ -1,44 +1,3 @@
-<script setup lang="ts">
-import { useWindowSize } from "@/utils/useWindowSize";
-import { ref } from "vue";
-
-const { windowWidth } = useWindowSize();
-
-const CoreFeaturesList = ref([
-  {
-    title: "Exclusive VIP Events",
-    text: "Holders can attend offline VIP events such as film premieres and red carpets.",
-  },
-  {
-    title: "Airdrop Rewards",
-    text: "Get regular airdrops of project tokens, limited edition NFTs and souvenirs.",
-  },
-  {
-    title: "Neighbourhood Benefits",
-    text: "Free or priority access to limited edition physical peripherals and digital content.",
-  },
-  {
-    title: "Community Dividend",
-    text: "Holders participate in a portion of the platform's profit sharing, sharing the benefits of the project's success.",
-  },
-]);
-const MarketingPlanList = ref([
-  {
-    title: "Short-term goals",
-    text: "Complete financing and launch two exchanges. ( e.g. Binance, OKX )",
-  },
-  {
-    title: "Medium-term goals",
-    text: "Build a complete film content financing and distribution ecosystem.",
-  },
-  {
-    title: "Long-term goals",
-    text: "Achieve FDV 100M and become a blockchain film ecosystem benchmark.",
-  },
-]);
-</script>
-
-
 <template>
   <div class="Homeview">
     <div class="Empowering">
@@ -54,16 +13,13 @@ const MarketingPlanList = ref([
         <div class="logo">
           <img src="@/assets/images/HomeLogo.png" alt="" />
         </div>
-        <div class="title2">Empowering the</div>
-        <div class="title3">Web3 Entertainment Economy</div>
+        <div class="title2">{{ t("home.home2") }}</div>
+        <div class="title3">{{ t("home.home3") }}</div>
       </div>
       <div class="OurTeam">
-        <div class="OurTeamTitle">Our Team</div>
+        <div class="OurTeamTitle">{{ t("home.home4") }}</div>
         <div class="OurTeamText">
-          Experienced film investor & producer in the Chinese-speaking world ·
-          European Film Producer & Co-Investment Advisor · Experienced Hollywood
-          film financier & producer · Global Film Distribution Expert &
-          Strategic Advisor
+          {{ t("home.home5") }}
         </div>
       </div>
     </div>
@@ -71,11 +27,11 @@ const MarketingPlanList = ref([
       <div class="secondBg"></div>
       <div class="VisionFath">
         <div class="Vision">Vision and core objectives</div>
+        <div class="Vision">{{ t("home.home6") }}</div>
         <div class="MovieIS">
-          <span class="Movie">Movie</span> is an entertainment ecosystem based
-          on blockchain technology focused on empowering content production,
-          distribution and fan interaction in the film industry through a token
-          economy model <span class="Tokenomics">(Tokenomics)</span>.
+          <span class="Movie">{{ t("home.home7") }}</span> {{ t("home.home8")
+          }}<span class="Tokenomics">{{ t("home.home9") }}</span
+          >.
         </div>
       </div>
     </div>
@@ -237,8 +193,8 @@ const MarketingPlanList = ref([
                 </defs>
               </svg>
             </div>
-            <div class="title">{{ item.title }}</div>
-            <div class="text">{{ item.text }}</div>
+            <div class="title">{{ t(item.title) }}</div>
+            <div class="text">{{ t(item.text) }}</div>
           </div>
         </div>
       </div>
@@ -328,17 +284,55 @@ const MarketingPlanList = ref([
                 </defs>
               </svg>
             </div>
-            <div class="title">{{ item.title }}</div>
-            <div class="text">{{ item.text }}</div>
+            <div class="title">{{ t(item.title) }}</div>
+            <div class="text">{{ t(item.text) }}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { useWindowSize } from "@/utils/useWindowSize";
+import { ref } from "vue";
 
+const { windowWidth } = useWindowSize();
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
-
+const CoreFeaturesList = ref([
+  {
+    title: "home.home12",
+    text: "home.home13",
+  },
+  {
+    title: "home.home14",
+    text: "home.home15",
+  },
+  {
+    title: "home.home16",
+    text: "home.home17",
+  },
+  {
+    title: "home.home18",
+    text: "home.home19",
+  },
+]);
+const MarketingPlanList = ref([
+  {
+    title: "home.home20",
+    text: "home.home21",
+  },
+  {
+    title: "home.home22",
+    text: "home.home23",
+  },
+  {
+    title: "home.home24",
+    text: "home.home25",
+  },
+]);
+</script>
 <style scoped lang="less">
 @media (max-width: 824px) {
   .Homeview {

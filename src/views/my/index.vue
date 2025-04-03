@@ -1,6 +1,6 @@
 <script setup lang='ts' name="HomeView">
 import router from "@/router";
-import useWalletStore from "@/store/modules/home";
+import useWalletStore from "@/store/modules/wallet";
 import { ElNotification } from "element-plus";
 import { computed, onMounted, ref } from "vue";
 import Web3 from "web3";
@@ -10,7 +10,8 @@ import { addressLogin } from "@/api/login";
 import { useTokenStore } from "@/store/modules/my";
 import { OrderInfo } from "@/api/type";
 const walletStore = useWalletStore();
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 复制数据到剪贴板
 const copyToClipboard = async (data: string) => {
   try {
@@ -29,7 +30,6 @@ const copyToClipboard = async (data: string) => {
 const ActivityList = ref<OrderInfo[]>([]);
 const getActivityList = async () => {
   const res = await showAllMyActivity();
-  console.log("res", res.data);
   if (res.data.code === 0) {
     ActivityList.value = res.data.json;
   }
@@ -217,7 +217,7 @@ onMounted(() => {
             "
             v-else
           >
-            No data for now
+            {{ t("noData") }}
           </div>
         </div>
         <div class="order" @click="router.push('/my/order')">
@@ -441,4 +441,4 @@ onMounted(() => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-</style>
+</style>@/store/modules/wallet@/store/modules/wallet

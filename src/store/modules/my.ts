@@ -16,7 +16,7 @@ export const useTokenStore = defineStore('my', {
       this.userToken = '';
       this.toAddress = '';
       this.contractAddress = '';
-      }
+    }
   },
   persist: true // 确保数据在刷新页面后仍然保留（需要 pinia-plugin-persistedstate）
 });

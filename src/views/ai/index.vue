@@ -2,30 +2,31 @@
 import router from "@/router";
 import { onMounted, ref } from "vue";
 import { RouteLocationRaw } from "vue-router";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 const activeIndex = ref(null);
 const movies = [
   {
     id: 0,
     img: "/src/assets/images/hot1.png",
-    title: "Creation of The Gods: Kingdom of Storms",
-    categories: ["Fantasy", "Action"],
+    title: "ai.ai1",
+    categories: ["ai.ai2", "ai.ai3"],
     recordImg: "/src/assets/images/Record.png",
     link: "/ai/vote",
   },
   {
     id: 1,
     img: "/src/assets/images/app1.png",
-    title: "Creation of The Gods: Kingdom of Storms",
-    categories: ["Fantasy", "Action"],
+    title: "ai.ai1",
+    categories: ["ai.ai2", "ai.ai3"],
     recordImg: "/src/assets/images/Record1.png",
     link: "/ai/vote",
   },
   {
     id: 2,
     img: "/src/assets/images/app2.png",
-    title: "Creation of The Gods: Kingdom of Storms",
-    categories: ["Fantasy", "Action"],
+    title: "ai.ai1",
+    categories: ["ai.ai2", "ai.ai3"],
     recordImg: "/src/assets/images/Record2.png",
     link: "/ai/vote",
   },
@@ -62,11 +63,11 @@ const resetItems = () => {
         >
           <img class="hotImg" :src="movie.img" alt="" />
           <div class="hotText">
-            {{ movie.title }}
+            {{ t(movie.title) }}
           </div>
           <div class="Fantasy">
             <span v-for="(category, index) in movie.categories" :key="index">
-              {{ category }}
+              {{ t(category) }}
               <svg
                 v-if="index !== movie.categories.length - 1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -98,7 +99,7 @@ const resetItems = () => {
           </div>
           <!-- @click="navigateTo(movie.link)" -->
           <div class="participate" @click="router.push(movie.link)">
-            COMMINGLE SOON
+            {{ t("shop.shop7") }}
           </div>
         </div>
       </div>
@@ -108,7 +109,9 @@ const resetItems = () => {
 
 <style scoped lang="less">
 .home_view {
-  background: #121212;
+  // background: #121212;
+  background: rgb(0, 0, 0);
+
   width: 100%;
   height: 100vh;
 
@@ -264,10 +267,8 @@ const resetItems = () => {
             width: calc(100% - 50px);
           }
           .circle {
-            width: 340px;
-            transform: none;
-            top: 0;
-            left: 0;
+            width: 200px;
+            height: 200px;
           }
           .participate {
             left: 80px;
@@ -276,6 +277,7 @@ const resetItems = () => {
             z-index: 6;
           }
           .hotText {
+            font-size: 20px;
           }
         }
         .HotmovieItem:hover {

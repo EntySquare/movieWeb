@@ -16,7 +16,7 @@
             style="fill: white; fill-opacity: 0.8"
           />
         </svg>
-        Back
+        {{ t("back") }}
       </div>
       <div class="Sidebar">
         <div class="SidebarSidebar">
@@ -27,14 +27,32 @@
             class="sidebarItem"
             :class="{ active: selectedCategory === item }"
           >
-            {{ item }}
+            {{
+              item === "All goods"
+                ? t("shop.shop10")
+                : item === "New"
+                ? t("shop.shop11")
+                : item === "Hot"
+                ? t("shop.shop12")
+                : ""
+            }}
           </div>
         </div>
         <div class="SidebarContent">
           <!-- <div v-if="selectedCategory === 'All goods'">All goods 内容</div> -->
           <div class="new">
             <div class="NewTitle">
-              <div class="title">{{ selectedCategory }}</div>
+              <div class="title">
+                {{
+                  selectedCategory === "All goods"
+                    ? t("shop.shop10")
+                    : selectedCategory === "New"
+                    ? t("shop.shop11")
+                    : selectedCategory === "Hot"
+                    ? t("shop.shop12")
+                    : ""
+                }}
+              </div>
             </div>
             <div class="newList" v-if="newProduct">
               <div
@@ -62,7 +80,7 @@
                 <div class="newsTitle">{{ item.name }}</div>
                 <div class="Preview">
                   <div class="Price">${{ item.price }}</div>
-                  <div class="Sold">Sold {{ item.sold }}</div>
+                  <div class="Sold">{{ t("sold") }} {{ item.sold }}</div>
                 </div>
               </div>
             </div>
@@ -76,7 +94,7 @@
               "
               v-else
             >
-              No data for now
+              {{ t("noData") }}
             </div>
           </div>
           <!-- <div v-if="selectedCategory === 'Hot'">Hot 内容</div> -->
@@ -90,7 +108,8 @@
 import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
 import { onMounted, ref } from "vue";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 定义分类列表
 const categories = ref(["All goods", "New", "Hot"]);
 
@@ -100,7 +119,6 @@ const selectedCategory = ref("Hot");
 const newProduct = ref();
 const getNewProductData = async (search: string) => {
   const res = await displayDetailsGoods({ search });
-  console.log("getNewProductData", res.data.json);
   if (res.data.code === 0) {
     newProduct.value = res.data.json.displayDetailsGoodsList;
   }

@@ -4,17 +4,18 @@
       class="container"
       v-loading="loading"
       style="display: flex; flex-direction: column; gap: 100px"
+      v-if="List.length > 0"
     >
       <div v-for="(item, index) in List" :key="index">
         <div style="display: flex; flex-direction: column; align-items: center">
           <h1 style="color: #d339c4; margin-bottom: 40px">
-            {{ item.title }} 投票
+            {{ item.title }} {{ t("ai.ai27") }}
           </h1>
           <h4 style="color: #fff; margin-bottom: 10px">
-            开始时间： {{ item.startAt }}
+            {{ t("ai.ai28") }} {{ item.startAt }}
           </h4>
           <h4 style="color: #fff; margin-bottom: 60px">
-            截止时间： {{ item.endAt }}
+            {{ t("ai.ai29") }} {{ item.endAt }}
           </h4>
         </div>
 
@@ -30,14 +31,14 @@
 
           <!-- 投票按钮组 -->
         </div>
-        <div class="vote-box">
+        <div class="vote-box" v-if="item.status === 1">
           <div class="shop">
             <div class="avatar"></div>
-            <div class="role">角色A : {{ item.roleOne }}</div>
+            <div class="role">{{ t("ai.ai30") }} : {{ item.roleOne }}</div>
             <el-input
               :disabled="item.status !== 1"
               v-model.number="voteAmountLeft"
-              placeholder="输入票数"
+              :placeholder="t('ai.ai31')"
               type="number"
               min="1"
             />
@@ -56,13 +57,13 @@
                 @click="vote(true, item.poolId)"
                 :class="{ disabled: item.status !== 1 }"
               >
-                <span>支持{{ item.roleOne }}</span>
+                <span>{{ t("ai.ai32") }}{{ item.roleOne }}</span>
               </div>
 
               <div
                 class="participate"
                 :class="{ disabled: item.status !== 1 }"
-                @click="shareOnTwitter(item.roleOne)"
+                @click="shareOnTwitter(item.roleOne, true, item.poolId)"
               >
                 <svg
                   t="1742884235460"
@@ -89,7 +90,7 @@
                   font-weight: 600;
                   margin-right: 20px;
                 "
-                >转发次数 : {{ item.sharesOne }}</span
+                >{{ t("ai.ai33") }} : {{ item.sharesOne }}</span
               >
             </div>
           </div>
@@ -118,12 +119,12 @@
           </span>
           <div class="shop">
             <div class="avatar"></div>
-            <div class="role">角色B : {{ item.roleTwo }}</div>
+            <div class="role">{{ t("ai.ai34") }} : {{ item.roleTwo }}</div>
 
             <el-input
               :disabled="item.status !== 1"
               v-model.number="voteAmountRight"
-              placeholder="输入票数"
+              :placeholder="t('ai.ai31')"
               type="number"
               min="1"
             />
@@ -142,12 +143,12 @@
                 @click="vote(false, item.poolId)"
                 :class="{ disabled: item.status !== 1 }"
               >
-                <span>支持{{ item.roleTwo }}</span>
+                <span>{{ t("ai.ai32") }}{{ item.roleTwo }}</span>
               </div>
               <div
                 class="participate"
                 :class="{ disabled: item.status !== 1 }"
-                @click="shareOnTwitter(item.roleTwo)"
+                @click="shareOnTwitter(item.roleTwo, false, item.poolId)"
               >
                 <svg
                   t="1742884235460"
@@ -174,11 +175,83 @@
                   font-weight: 600;
                   margin-right: 20px;
                 "
-                >转发次数 : {{ item.sharesTwo }}</span
+                >{{ t("ai.ai33") }} : {{ item.sharesTwo }}</span
               >
             </div>
           </div>
         </div>
+        <!-- winner 0 表示还不知道，1 表示 a 赢，2 表示b 赢 -->
+
+        <div v-if="item.status === 2">
+          <div class="victory">
+            <div class="victoryTitle">
+              {{ t("ai.ai35")
+              }}{{
+                item.winner === 0
+                  ? t("ai.ai36")
+                  : item.winner === 1
+                  ? item.roleOne
+                  : item.roleTwo
+              }}
+              {{ t("ai.ai37") }}
+            </div>
+            <div class="victoryBox">
+              <div class="victoryBoxIcon">
+                <svg
+                  t="1743497012494"
+                  class="icon"
+                  viewBox="0 0 1024 1024"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  p-id="2949"
+                  width="44"
+                  height="44"
+                >
+                  <path
+                    d="M609.630574 116.018364c-34.014698 34.014698-33.994232 89.153506 0 123.146714 8.620331 8.620331 18.600637 14.988366 29.247115 19.262716l-49.771567 124.409474-203.982788-58.269101c8.337899-29.416983 1.344624-62.271252-21.787212-85.402066-33.994232-33.994232-89.13304-34.014698-123.146714 0s-33.994232 89.153506 0 123.146715c23.130813 23.130813 55.986105 30.125111 85.403088 21.787212l58.269102 203.982788-124.409475 49.771567c-4.27435-10.647501-10.642384-20.626783-19.262715-29.247115-33.994232-33.994232-89.13304-34.014698-123.146715 0-34.014698 34.014698-33.994232 89.153506 0 123.146715s89.13304 34.014698 123.146715 0c4.771677-4.771677 8.66638-10.031471 12.145621-15.511276l254.673283 159.183466 41.048905 41.048905c22.689768 22.689768 59.428507 22.669302 82.09781 0L917.498384 629.131721c22.669302-22.669302 22.689768-59.408041 0-82.09781l-41.048905-41.048905-159.162999-254.694773c5.490038-3.406586 10.719132-7.352455 15.490809-12.125155 34.014698-34.014698 33.994232-89.153506 0-123.146714s-89.13304-34.014698-123.146715 0zM281.237289 280.213983c11.323906-11.32493 29.745465-11.30344 41.048905 0 11.30344 11.30344 11.323906 29.724998 0 41.048905s-29.745465 11.30344-41.048905 0c-11.30344-11.30344-11.323906-29.723975 0-41.048905zM158.090575 690.705078c-11.30344-11.30344-11.323906-29.724998 0-41.048905 11.323906-11.32493 29.745465-11.30344 41.048904 0 11.30344 11.30344 11.323906 29.724998 0 41.048905-11.323906 11.323906-29.745465 11.30344-41.048904 0z m718.358904-102.622262L589.106122 875.426173l-41.048905-41.048905L835.400574 547.033911l41.048905 41.048905z m-73.718978-90.477664L498.628458 801.707195 306.395272 681.58742l99.015108-39.607067c7.491625-3.006474 14.06432-7.414877 19.47761-12.828166 14.510482-14.510482 20.765953-36.159548 14.772448-57.022715l-53.353138-186.845479 186.845478 53.353139c20.863167 5.993504 42.511209-0.261966 57.022715-14.772448 5.41329-5.41329 9.82067-11.985986 12.828167-19.47761l39.607066-99.015108 120.119775 192.233186zM691.728384 198.116173c-11.32493 11.323906-29.745465 11.30344-41.048905 0-11.30344-11.30344-11.32493-29.724998 0-41.048905 11.323906-11.32493 29.745465-11.30344 41.048905 0s11.323906 29.724998 0 41.048905z"
+                    fill="#d81e06"
+                    p-id="2950"
+                  ></path>
+                </svg>
+              </div>
+              <div class="victoryAvatar"></div>
+              <div class="victoryRole">
+                {{ t("ai.ai35") }}:
+                <span style="color: #ff0000; font-weight: 500">
+                  {{
+                    item.winner === 0
+                      ? t("ai.ai36")
+                      : item.winner === 1
+                      ? item.roleOne
+                      : item.roleTwo
+                  }}</span
+                >
+              </div>
+              <div class="victoryVotes">
+                {{ t("ai.ai38") }}:
+                <span style="color: #ff0000; font-weight: 500">
+                  {{
+                    item.winner === 0
+                      ? t("ai.ai36")
+                      : item.winner === 1
+                      ? item.numberOne
+                      : item.numberTwo
+                  }}</span
+                >
+              </div>
+              <!-- <div class="victoryBtn">Claim Rewards</div> -->
+              <div
+                class="victoryBtn"
+                v-if="isPickUp"
+                @click="claimReward(item)"
+              >
+                {{ t("ai.ai39") }}
+              </div>
+              <div class="victoryBtn_d" v-else>{{ t("ai.ai40") }}</div>
+            </div>
+          </div>
+        </div>
+
         <!-- <div class="settlement">
           <div
             class="settlementshop"
@@ -198,13 +271,31 @@
         </div> -->
       </div>
     </div>
+    <div
+      v-else
+      style="
+        text-align: center;
+        color: #e621ca;
+        font-family: Rubik;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+      "
+    >
+      {{ t("ai.ai41") }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { ElMessage, ElNotification } from "element-plus";
-import { displayWahlPool, voteWahlPool } from "@/api/ai";
+import {
+  displayWahlPool,
+  distributeBonus,
+  judgeBonus,
+  voteWahlPool,
+} from "@/api/ai";
 //类型
 type Pool = {
   poolId: number;
@@ -218,21 +309,36 @@ type Pool = {
   numberTwo: number;
   sharesOne: number;
   sharesTwo: number;
+  winner: number;
 };
 
 import Web3 from "web3";
 import contractABI from "@/abi.json";
-import useWalletStore from "@/store/modules/home";
+import useWalletStore from "@/store/modules/wallet";
 const List = ref<Pool[]>([]);
 
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
+interface PoolT {
+  nameA: string;
+  nameB: string;
+  endTime: bigint;
+  totalA: bigint;
+  totalB: bigint;
+  amountA: bigint;
+  amountB: bigint;
+  settled: boolean;
+  winner: boolean;
+}
+
 // **合约信息**
-const contractAddress = "0xCC666E1C0f26F826F9d9f05Ea5ab023eDf8694b9"; // 你的投票合约地址
+const contractAddress = "0xcFB915BA26D2248e90Bd0e808B906D7F6A4CE85c"; // 你的投票合约地址
 
 // **初始化 Web3**
 const web3 = new Web3(window.ethereum);
 const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-const useFreeVote = ref(false); // 免费票数
 const loading = ref(false); // 控制按钮 loading 状态
 const walletStore = useWalletStore(); // 导入钱包状态
 
@@ -242,12 +348,22 @@ const voteAmountRight = ref(1);
 const vote = async (forA: boolean, poolId: number) => {
   if (forA) {
     if (voteAmountLeft.value <= 0) {
-      ElMessage.error("请输入正确的票数！");
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: t("ElNoti.el20"),
+        duration: 2000,
+      });
       return;
     }
   } else {
     if (voteAmountRight.value <= 0) {
-      ElMessage.error("请输入正确的票数！");
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: t("ElNoti.el20"),
+        duration: 2000,
+      });
       return;
     }
   }
@@ -258,7 +374,7 @@ const vote = async (forA: boolean, poolId: number) => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title: "请先连接钱包",
+      title: t("ElNoti.el21"),
       duration: 1000,
     });
     loading.value = false;
@@ -266,44 +382,34 @@ const vote = async (forA: boolean, poolId: number) => {
   }
 
   try {
-    const pool = await contract.methods.getPool(poolId).call();
+    const pool = (await contract.methods.getPool(poolId).call()) as PoolT;
+
     const endTime = Number(pool.endTime);
     const currentTime = Math.floor(Date.now() / 1000);
     if (currentTime >= endTime) {
       console.error("投票已结束！");
-      ElMessage.error("投票已结束！");
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: t("ElNoti.el22"),
+        duration: 2000,
+      });
       loading.value = false;
       return;
     }
+
     // **3. 确保钱包余额充足**
     const balance = await web3.eth.getBalance(walletStore.walletAddress);
-    console.log("钱包余额:", web3.utils.fromWei(balance, "ether"), "ETH");
 
     const voteAmount = forA ? voteAmountLeft.value : voteAmountRight.value;
-    // **5. 确保参数传递正确**
-    console.log("投票参数:", { poolId, forA, voteAmount });
-
-    console.log("投票池信息:", pool);
-    const userVotes = await contract.methods
-      .getUserVotes(poolId, walletStore.walletAddress)
-      .call();
-    console.log("用户当前投票信息:", userVotes);
 
     // **7. 发送交易**
     try {
-      console.log("即将发送交易: ", {
-        poolId,
-        forA,
-        voteAmount,
-        wallet: walletStore.walletAddress,
-        useFreeVote: useFreeVote.value,
-      });
       const tx = await contract.methods
-        .vote(poolId, forA, voteAmount, useFreeVote.value)
+        .vote(poolId, forA, voteAmount, false)
         .send({
           from: walletStore.walletAddress,
         });
-      console.log("tx", tx);
       // 2. 等待交易确认
       const res = await voteWahlPool({
         hash: tx.transactionHash,
@@ -312,9 +418,13 @@ const vote = async (forA: boolean, poolId: number) => {
         amount: voteAmount,
         weise: 2, // weise 1 转发 2 投票
       });
-      console.log("res", res);
       if (res.data.code === 0) {
-        ElMessage.success("投票成功！");
+        ElNotification({
+          showClose: false,
+          customClass: "message-logout",
+          title: t("ElNoti.el23"),
+          duration: 2000,
+        });
         if (forA) {
           leftVotes.value += voteAmount;
         } else {
@@ -323,13 +433,32 @@ const vote = async (forA: boolean, poolId: number) => {
         getList();
         loading.value = false;
       } else {
-        ElMessage.error(res.data.json.message_zh);
+        ElNotification({
+          showClose: false,
+          customClass: "message-logout",
+          title: res.data.json.message_zh,
+          duration: 2000,
+        });
       }
 
       loading.value = false;
-    } catch (error) {
+    } catch (error: any) {
       console.error("投票失败:", error);
-      ElMessage.error("投票失败");
+      if (error.message.includes("User denied transaction signature")) {
+        ElNotification({
+          showClose: false,
+          customClass: "message-logout",
+          title: t("ElNoti.el24"),
+          duration: 2000,
+        });
+      } else {
+        ElNotification({
+          showClose: false,
+          customClass: "message-logout",
+          title: t("ElNoti.el25"),
+          duration: 2000,
+        });
+      }
       loading.value = false;
       return;
     } finally {
@@ -337,15 +466,19 @@ const vote = async (forA: boolean, poolId: number) => {
     }
   } catch (error) {
     console.error("投票失败:", error);
-    ElMessage.error("投票失败，请重试！");
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el26"),
+      duration: 2000,
+    });
+
     loading.value = false;
   } finally {
     loading.value = false; // **确保任何情况下都会取消loading**
   }
 };
 const getLeftVotes = (poolId: number) => {
-  console.log("poolId", poolId);
-
   const pool = List.value.find((p) => p.poolId === poolId);
   return pool ? Number(pool.numberOne) : 0;
 };
@@ -355,68 +488,242 @@ const getRightVotes = (poolId: number) => {
   return pool ? Number(pool.numberTwo) : 0;
 };
 
+// 判断是否领取奖励处理
+const isPickUp = ref(true);
+const checkBonusForWinners = async () => {
+  if (List.value.length === 0) return;
+  for (const item of List.value) {
+    if (item.winner === 2) {
+      try {
+        const res = await judgeBonus({ poolId: item.poolId, win: item.winner });
+        if (res.data.code === 0) {
+          isPickUp.value = res.data.json;
+        }
+      } catch (error) {}
+    }
+  }
+};
+
+watch(
+  () => useTokenStore().userToken,
+  (newToken: any) => {
+    if (newToken) {
+      checkBonusForWinners();
+    }
+  },
+  { immediate: true }
+);
 // **获取投票列表**
 const getList = async () => {
   const res = await displayWahlPool();
   if (res.data.code === 0) {
     List.value = res.data.json;
+    checkBonusForWinners();
   }
 };
 
 // 转发
+let previousTitle = "";
+const isTwitterShared = ref(false);
 
-const shareOnTwitter = (Role: any) => {
+const shareOnTwitter = async (Role: any, forA: boolean, poolId: number) => {
+  loading.value = true;
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el21"),
+      duration: 1000,
+    });
+    loading.value = false;
+    return;
+  }
+
+  const pool = (await contract.methods.getPool(poolId).call()) as PoolT;
+  const endTime = Number(pool.endTime);
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (currentTime >= endTime) {
+    console.error("投票已结束！");
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el22"),
+      duration: 2000,
+    });
+    loading.value = false;
+    return;
+  }
   const shareText = `
-【人气投票冲刺！助力${Role}获胜，一起瓜分万U奖池🔥】
+${t("ai.ai42")}${Role}${t("ai.ai43")}
 
-家人们！【${Role}】的票数正在冲顶，就差你一票！✨
-参与即免费送价值88U的票！
-投票即享奖池分红，票数越高奖金越多🎁
+${t("ai.ai44")}${Role}${t("ai.ai45")}
+${t("ai.ai46")}
+${t("ai.ai47")}
 
-戳链接火速支援👉https://your-vote-website.com
+${t("ai.ai48")}👉 https://dizhi.com
  #MovieAI逆风翻盘 #全民瓜分MovieAI奖池
- 转发扩散！
+${t("ai.ai49")}
  `;
-  // const url = encodeURIComponent("https://your-vote-website.com"); // 你的网站链接
 
-  // const tags = "MovieAI逆风翻盘,全民瓜分MovieAI奖池,转发扩散 "; // 推特标签，多个标签用逗号分隔
+  //  [ Popularity voting sprint! Help ${Role} win, and share the 10,000U prize pool🔥]
+
+  // Family members! The votes for [${Role}] are rushing to the top, and you are the only one short! ✨
+  // Get a free ticket worth 88U by participating!
+
+  // Vote to enjoy the prize pool dividend, the higher the number of votes, the more prize money🎁
+
+  // Click the link to support quickly👉 https://website.com
+  // #MovieAI逆风翻盘 #全民股分电影AI奖池
+  // Forward and spread!
+
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
     shareText
   )}`;
 
+  // 记录当前页面标题
+  previousTitle = document.title;
+
+  // 监听用户是否返回
+  isTwitterShared.value = false;
   window.open(twitterUrl, "_blank");
+
+  // 监听窗口焦点变化
+  const handleFocus = async () => {
+    if (!isTwitterShared.value) {
+      isTwitterShared.value = true;
+      document.title = previousTitle; // 恢复标题
+
+      // 用户返回后执行投票
+      try {
+        // loading.value = true;
+        const userVotes = await contract.methods
+          .getUserVotes(poolId, walletStore.walletAddress)
+          .call();
+        const tx = await contract.methods.vote(poolId, forA, 88, true).send({
+          from: walletStore.walletAddress,
+        });
+        // 2. 等待交易确认
+        const res = await voteWahlPool({
+          hash: tx.transactionHash,
+          poolId: poolId,
+          role: forA ? 1 : 2,
+          amount: 88,
+          weise: 1, // weise 1 转发 2 投票
+        });
+        if (res.data.code === 0) {
+          ElNotification({
+            showClose: false,
+            customClass: "message-logout",
+            title: t("ElNoti.el27"),
+            duration: 2000,
+          });
+          if (forA) {
+            leftVotes.value += 88;
+          } else {
+            rightVotes.value += 88;
+          }
+          getList();
+          loading.value = false;
+        } else {
+          ElNotification({
+            showClose: false,
+            customClass: "message-logout",
+            title: res.data.json.message_zh,
+            duration: 2000,
+          });
+        }
+
+        loading.value = false;
+      } catch (error: any) {
+        console.error("转发失败:", error);
+        if (error.message.includes("User denied transaction signature")) {
+          ElNotification({
+            showClose: false,
+            customClass: "message-logout",
+            title: t("ElNoti.el28"),
+            duration: 2000,
+          });
+        } else {
+          ElNotification({
+            showClose: false,
+            customClass: "message-logout",
+            title: t("ElNoti.el29"),
+            duration: 2000,
+          });
+        }
+        return;
+      } finally {
+        loading.value = false; // **确保任何情况下都会取消loading**
+      }
+    }
+  };
+
+  window.addEventListener("focus", handleFocus);
+
+  // 组件卸载时移除监听
+  onUnmounted(() => {
+    window.removeEventListener("focus", handleFocus);
+  });
 };
 
 import SuperPkBar from "./SuperPkBar.vue";
-import gsap from "gsap";
+import { useTokenStore } from "@/store/modules/my";
 
 const leftVotes = ref(0);
 const rightVotes = ref(0);
 
-// 投票处理
+// 领取奖励
 
-// 按钮动画
-const animateButton = (side: string) => {
-  const target = `.${side}-team`;
+const claimReward = async (item: any) => {
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el21"),
+      duration: 1000,
+    });
+    return;
+  }
 
-  gsap.to(target, {
-    scale: 0.95,
-    duration: 0.1,
-    yoyo: true,
-    repeat: 1,
-    ease: "power2.inOut",
-  });
-
-  gsap.to(`${target} .particles`, {
-    opacity: 1,
-    scale: 2,
-    duration: 0.8,
-    ease: "power2.out",
-  });
+  try {
+    loading.value = true;
+    const tx = await contract.methods
+      .claim(item.poolId)
+      .send({ from: walletStore.walletAddress });
+    const res = await distributeBonus({
+      hash: tx.transactionHash,
+      poolId: item.poolId,
+      win: item.winner,
+    });
+    if (res.data.code === 0) {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: t("ElNoti.el30"),
+        duration: 2000,
+      });
+      getList();
+      loading.value = false;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: res.data.json.message_zh,
+        duration: 2000,
+      });
+      loading.value = false;
+    }
+  } catch (error) {
+    console.error("领取失败:", error);
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el31"),
+      duration: 2000,
+    });
+    loading.value = false;
+  }
 };
-
-const Victory = ref(false);
-// 鼠标悬浮光效
 
 onMounted(() => {
   getList();
@@ -424,6 +731,77 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+.victory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+  .victoryTitle {
+    font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC",
+      "Microsoft YaHei", sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ff0000;
+    margin-bottom: 40px;
+  }
+  .victoryBox {
+    position: relative;
+    padding: 50px 20px;
+    border-radius: 10px;
+    background: #1a1a1a73;
+    text-align: center;
+    box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.138);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+    gap: 30px;
+    .victoryBoxIcon {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50% - 108px);
+      top: 22px;
+    }
+    .victoryRole {
+      font-size: 18px;
+    }
+    .victoryVotes {
+      font-size: 16px;
+    }
+    .victoryBtn {
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      background: #ff000069;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease-in-out;
+      &:hover {
+        background: #ff0000;
+      }
+    }
+    .victoryBtn_d {
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      background: #ff000069;
+      color: #ffffff84;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: not-allowed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
 .vote-container {
   text-align: center;
   padding: 20px;
@@ -449,16 +827,20 @@ onMounted(() => {
   align-items: center;
   transition: all 0.3s ease-in-out;
   gap: 20px;
+
   &:hover {
     transform: scale(1.05);
   }
 }
-.avatar {
+
+.avatar,
+.victoryAvatar {
   width: 88px;
   height: 88px;
   flex-shrink: 0;
   background: #292929;
 }
+
 .role {
   color: #fff;
   font-family: Lato;
@@ -468,6 +850,7 @@ onMounted(() => {
   line-height: normal;
   letter-spacing: 0.08px;
 }
+
 .Number {
   color: #fff;
   font-family: Montserrat;
@@ -477,6 +860,7 @@ onMounted(() => {
   line-height: normal;
   letter-spacing: 0.07px;
 }
+
 .vs {
   font-size: 24px;
   font-weight: bold;
@@ -486,6 +870,7 @@ onMounted(() => {
   color: green;
   margin-top: 10px;
 }
+
 .participate {
   flex: 1;
   cursor: pointer;
@@ -503,20 +888,28 @@ onMounted(() => {
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
-  line-height: 22px; /* 157.143% */
+  line-height: 22px;
+  /* 157.143% */
   letter-spacing: 0.07px;
-  transition: all 0.3s ease-in-out; /* 鼠标悬浮时的平滑过渡 */
+  transition: all 0.3s ease-in-out;
+
+  /* 鼠标悬浮时的平滑过渡 */
   .icon {
-    fill: #d339c4; /* 继承父级 color */
+    fill: #d339c4;
+    /* 继承父级 color */
     transition: fill 0.3s ease, transform 0.3s ease;
   }
+
   &:hover {
     color: #f9f9f9;
     background: #d339c4;
   }
+
   &:hover .icon {
-    fill: #f9f9f9; /* 继承父级 color */
-    transform: scale(1.1); /* 放大 10% */
+    fill: #f9f9f9;
+    /* 继承父级 color */
+    transform: scale(1.1);
+    /* 放大 10% */
     transition: fill 0.3s ease, transform 0.3s ease;
   }
 }
@@ -524,6 +917,7 @@ onMounted(() => {
 :deep(.el-loading-mask) {
   background-color: rgba(0, 0, 0, 0.7);
 }
+
 :deep(.el-loading-spinner .path) {
   stroke: #e621ca;
 }
@@ -545,61 +939,84 @@ onMounted(() => {
 .vote-button {
   flex: 1;
   position: relative;
-  padding: 10px 0px;
   border-radius: 12px;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.3s ease;
   user-select: none;
+  display: flex;
+  padding: 6px 2px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 10px;
+  background: rgba(27, 27, 27, 0.6);
+  font-family: Rubik;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 22px;
+  /* 157.143% */
+  letter-spacing: 0.07px;
+  transition: all 0.3s ease-in-out;
 }
 
 .vote-button span {
   position: relative;
   z-index: 2;
-  color: white;
   font-weight: bold;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .left-team {
-  background: linear-gradient(135deg, #45b3ff, #2d8cf0);
-  box-shadow: 0 6px 20px rgba(69, 179, 255, 0.3);
-  transform: scale(1);
+  color: #45b3ff;
   &:hover {
-    transform: scale(1.1);
+    background: linear-gradient(135deg, #45b3ff, #2d8cf0);
+    box-shadow: 0 6px 20px rgba(69, 179, 255, 0.3);
+    color: #fff;
   }
 }
 
 .right-team {
-  background: linear-gradient(135deg, #ff5e7d, #ff3b3b);
-  box-shadow: 0 6px 20px rgba(255, 94, 125, 0.3);
-  transform: scale(1);
+  color: #ff3b3b;
   &:hover {
-    transform: scale(1.1);
+    background: linear-gradient(135deg, #ff5e7d, #ff3b3b);
+    box-shadow: 0 6px 20px rgba(255, 94, 125, 0.3);
+    color: #fff;
   }
 }
+
 .disabled {
   background: rgba(27, 27, 27, 0.6);
   // pointer-events: none; /* 禁止点击 */
   box-shadow: none;
   cursor: not-allowed !important;
+
   .icon {
-    fill: #d339c342; /* 继承父级 color */
+    fill: #d339c342;
+    /* 继承父级 color */
   }
+
   &:hover {
     background: rgba(27, 27, 27, 0.6);
-    transform: scale(1); /* 放大 10% */
+    transform: scale(1);
+    /* 放大 10% */
   }
+
   &:hover .icon {
-    fill: #d339c342; /* 继承父级 color */
-    transform: scale(1); /* 放大 10% */
+    fill: #d339c342;
+    /* 继承父级 color */
+    transform: scale(1);
+    /* 放大 10% */
   }
 }
+
 .el-input {
   display: flex;
   width: 100%;
   // padding: 16px 24px;
 }
+
 :deep(.el-input__wrapper) {
   width: 100%;
   display: flex;
@@ -609,6 +1026,7 @@ onMounted(() => {
   border: none;
   box-shadow: none;
 }
+
 :deep(.el-input__inner) {
   width: 100%;
   color: rgb(255, 255, 255);
@@ -619,6 +1037,7 @@ onMounted(() => {
   line-height: normal;
   letter-spacing: -0.36px;
 }
+
 :deep(.el-input__inner::placeholder) {
   color: rgba(255, 255, 255, 0.32);
   font-family: Inter;
@@ -645,12 +1064,14 @@ onMounted(() => {
   background: #1a1a1a73;
   text-align: center;
   box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.138);
+
   .settlementshop {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
   }
+
   .settlementavatar {
     width: 88px;
     height: 88px;
@@ -659,9 +1080,11 @@ onMounted(() => {
     margin-bottom: 20px;
   }
 }
+
 .ZoomIn {
   transform: scale(1.1);
 }
+
 .Downsizing {
   transform: scale(0.9);
   //透明
@@ -689,6 +1112,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 11px;
 }
+
 .el-notification__title {
   color: #fff;
   font-family: Rubik;
@@ -706,9 +1130,10 @@ onMounted(() => {
     justify-content: center;
     align-items: center;
     gap: 40px;
+
     .shop {
       width: 90%;
     }
   }
 }
-</style>
+</style>@/store/modules/wallet@/store/modules/wallet

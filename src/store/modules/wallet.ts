@@ -4,7 +4,7 @@ const useWalletStore = defineStore("wallet", {
   state: () => ({
     walletAddress: "", // 存钱包地址
     isWallet: false, // 是否有钱包
-    BSC_chain_id:"0x38"
+    BSC_chain_id: "0x38"
   }),
   actions: {
     setWalletAddress(address: string) {

@@ -3,7 +3,7 @@ import { ref } from "vue";
 import Web3 from "web3";
 
 import usdtAbi from "@/abiU.json";
-import useWalletStore from "@/store/modules/home";
+import useWalletStore from "@/store/modules/wallet";
 import { ElNotification } from "element-plus";
 const selectedIndex = ref(null); // 记录选中的索引
 const selectItem = (index: any) => {
@@ -74,7 +74,6 @@ const sendUsdtTransaction = async () => {
 
   try {
     const txHash = await web3.eth.sendTransaction(transactionParameters);
-    console.log("Transaction Hash:交易哈希", txHash);
     return txHash;
   } catch (error) {
     console.error("Transaction failed:", error);
@@ -526,4 +525,4 @@ const sendUsdtTransaction = async () => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-</style>
+</style>@/store/modules/wallet@/store/modules/wallet

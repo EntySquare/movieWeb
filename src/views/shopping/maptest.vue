@@ -92,7 +92,6 @@ export default defineComponent({
             (status: string, result: { regeocode: { formattedAddress: any; }; }) => {
               if (status === "complete") {
                 const address = result.regeocode.formattedAddress;
-                console.log("地址:", address); // 打印逆地理编码的地址
                 nearbyPlace.value = `附近位置: ${address}`;
               } else {
                 console.error("逆地理编码失败:", status, result);

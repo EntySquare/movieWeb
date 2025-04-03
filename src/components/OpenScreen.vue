@@ -3,7 +3,7 @@
     <div class="Empowering">
       <div class="blackBg" :class="bgClass">
         <div class="title1">
-          Entertainment ecosystem based on blockchain technology
+          {{ t("home.home1") }}
         </div>
       </div>
       <div class="bigBg" :class="bgClass"></div>
@@ -14,28 +14,24 @@
         <div class="logo">
           <img src="@/assets/images/HomeLogo.png" alt="" />
         </div>
-        <div class="title2">Empowering the</div>
-        <div class="title3">Web3 Entertainment Economy</div>
+        <div class="title2">{{ t("home.home2") }}</div>
+        <div class="title3">{{ t("home.home3") }}</div>
       </div>
       <div class="OurTeam" :class="bgClass">
-        <div class="OurTeamTitle">Our Team</div>
+        <div class="OurTeamTitle">{{ t("home.home4") }}</div>
         <div class="OurTeamText">
-          Experienced film investor & producer in the Chinese-speaking world ·
-          European Film Producer & Co-Investment Advisor · Experienced Hollywood
-          film financier & producer · Global Film Distribution Expert &
-          Strategic Advisor
+          {{ t("home.home5") }}
         </div>
       </div>
     </div>
     <div class="second">
       <div class="secondBg"></div>
       <div class="VisionFath">
-        <div class="Vision">Vision and core objectives</div>
+        <div class="Vision">{{ t("home.home6") }}</div>
         <div class="MovieIS">
-          <span class="Movie">Movie</span> is an entertainment ecosystem based
-          on blockchain technology focused on empowering content production,
-          distribution and fan interaction in the film industry through a token
-          economy model <span class="Tokenomics">(Tokenomics)</span>.
+          <span class="Movie">{{ t("home.home7") }}</span> {{ t("home.home8")
+          }}<span class="Tokenomics">{{ t("home.home9") }}</span
+          >.
         </div>
       </div>
     </div>
@@ -45,7 +41,7 @@
         <div class="OGPASS">
           <img src="@/assets/images/OGPASS.png" alt="" />
         </div>
-        <div class="CoreFeaturesTitle">Core Features</div>
+        <div class="CoreFeaturesTitle">{{ t("home.home10") }}</div>
         <div class="CoreFeaturesList">
           <div
             class="CoreFeaturesItem"
@@ -197,8 +193,8 @@
                 </defs>
               </svg>
             </div>
-            <div class="title">{{ item.title }}</div>
-            <div class="text">{{ item.text }}</div>
+            <div class="title">{{ t(item.title) }}</div>
+            <div class="text">{{ t(item.text) }}</div>
           </div>
         </div>
       </div>
@@ -209,7 +205,7 @@
         <div class="Roadmap">
           <img src="@/assets/images/Roadmap.png" alt="" />
         </div>
-        <div class="MarketingPlanTitle">Marketing Plan</div>
+        <div class="MarketingPlanTitle">{{ t("home.home11") }}</div>
         <div class="MarketingPlanList">
           <div
             class="MarketingPlanItem"
@@ -288,8 +284,8 @@
                 </defs>
               </svg>
             </div>
-            <div class="title">{{ item.title }}</div>
-            <div class="text">{{ item.text }}</div>
+            <div class="title">{{ t(item.title) }}</div>
+            <div class="text">{{ t(item.text) }}</div>
           </div>
         </div>
       </div>
@@ -323,36 +319,39 @@ const handleClick = () => {
 
 const CoreFeaturesList = ref([
   {
-    title: "Exclusive VIP Events",
-    text: "Holders can attend offline VIP events such as film premieres and red carpets.",
+    title: "home.home12",
+    text: "home.home13",
   },
   {
-    title: "Airdrop Rewards",
-    text: "Get regular airdrops of project tokens, limited edition NFTs and souvenirs.",
+    title: "home.home14",
+    text: "home.home15",
   },
   {
-    title: "Neighbourhood Benefits",
-    text: "Free or priority access to limited edition physical peripherals and digital content.",
+    title: "home.home16",
+    text: "home.home17",
   },
   {
-    title: "Community Dividend",
-    text: "Holders participate in a portion of the platform's profit sharing, sharing the benefits of the project's success.",
+    title: "home.home18",
+    text: "home.home19",
   },
 ]);
 const MarketingPlanList = ref([
   {
-    title: "Short-term goals",
-    text: "Complete financing and launch two exchanges. ( e.g. Binance, OKX )",
+    title: "home.home20",
+    text: "home.home21",
   },
   {
-    title: "Medium-term goals",
-    text: "Build a complete film content financing and distribution ecosystem.",
+    title: "home.home22",
+    text: "home.home23",
   },
   {
-    title: "Long-term goals",
-    text: "Achieve FDV 100M and become a blockchain film ecosystem benchmark.",
+    title: "home.home24",
+    text: "home.home25",
   },
 ]);
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 </script>
 
 <style scoped lang="less">
