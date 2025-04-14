@@ -19,7 +19,7 @@ onMounted(() => {
 // 当前轮播起始索引
 const currentIndex = ref(0);
 const visibleCount = 5; // 一次展示 5 张
-
+const loading = ref(false);
 // 计算可见的轮播项
 const visibleItems = computed(() =>
   HotMoviesdata.value.slice(
@@ -59,7 +59,7 @@ const prev = () => {
 
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div class="HotmovieTitle">
         <div class="title">{{ t("shop.shop9") }}</div>
         <!-- <div class="all">
@@ -138,7 +138,7 @@ const prev = () => {
         "
         v-else
       >
-      {{ t("noData") }}
+        {{ t("noData") }}
       </div>
     </div>
   </div>
@@ -391,5 +391,12 @@ const prev = () => {
       }
     }
   }
+}
+
+:deep(.el-loading-mask) {
+  background: #000000c7;
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>

@@ -616,4 +616,4 @@ const sendUsdtTransaction = async () => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-</style>@/store/modules/wallet@/store/modules/wallet
+</style>

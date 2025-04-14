@@ -5,26 +5,16 @@ import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-// 复制数据到剪贴板
-const copyToClipboard = async (data: string) => {
-  try {
-    await navigator.clipboard.writeText(data);
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      title: "Copy successfully",
-      duration: 1000,
-    });
-  } catch (err) {
-    console.error("复制失败:", err);
-  }
-};
+
+const loading = ref(false);
 const orderList = ref<OrderInfo[]>([]);
 const getorderList = async () => {
+  loading.value = true;
   const res = await showAllMyTicket();
   if (res.data.code === 0) {
     orderList.value = res.data.json;
   }
+  loading.value = false;
 };
 onMounted(() => {
   getorderList();
@@ -32,7 +22,7 @@ onMounted(() => {
 </script>
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div style="width: 100%">
         <div class="back" @click="$router.back()">
           <svg
@@ -106,7 +96,7 @@ onMounted(() => {
         "
         v-else
       >
-      {{ t("noData") }}
+        {{ t("noData") }}
       </div>
     </div>
   </div>
@@ -211,6 +201,13 @@ onMounted(() => {
       }
     }
   }
+}
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>
 <style>

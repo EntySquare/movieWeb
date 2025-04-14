@@ -8,10 +8,12 @@ import layout from "@/views/layout/index.vue";
 let router = createRouter({
   // 设置路由模式
   history: createWebHistory(),
+  
   // 设置路由对象
   routes: [
     {
       path: "/",
+
       component: layout,
       redirect: "/home", // 根路径重定向到 /home
       children: [
@@ -69,6 +71,10 @@ let router = createRouter({
         {
           path: "/test",
           component: () => import("@/views/ai/test.vue"),
+        },
+        {
+          path: "/collection",
+          component: () => import("@/views/collection/index.vue"),
         },
       ],
     },

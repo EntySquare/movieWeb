@@ -3,11 +3,8 @@ import router from "@/router";
 import useWalletStore from "@/store/modules/wallet";
 import { ElNotification } from "element-plus";
 import { computed, onMounted, ref } from "vue";
-import Web3 from "web3";
-import { connectWallet, formatData } from "@/utils/wallet";
+import { connectWallet, formatData1 } from "@/utils/wallet";
 import { showAllMyActivity } from "@/api/my";
-import { addressLogin } from "@/api/login";
-import { useTokenStore } from "@/store/modules/my";
 import { OrderInfo } from "@/api/type";
 const walletStore = useWalletStore();
 import { useI18n } from "vue-i18n";
@@ -26,17 +23,40 @@ const copyToClipboard = async (data: string) => {
     console.error("复制失败:", err);
   }
 };
+const loading = ref(false);
 
 const ActivityList = ref<OrderInfo[]>([]);
 const getActivityList = async () => {
-  const res = await showAllMyActivity();
-  if (res.data.code === 0) {
-    ActivityList.value = res.data.json;
+  loading.value = true;
+
+  try {
+    const res = await showAllMyActivity();
+    if (res.data.code === 0) {
+      ActivityList.value = res.data.json;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: res.data.json.message_zh,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
 };
 
 const login = async () => {
+  loading.value = true;
   await connectWallet();
+  loading.value = false;
 };
 onMounted(() => {
   getActivityList();
@@ -44,7 +64,7 @@ onMounted(() => {
 </script>
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div class="my">
         <div class="avater" v-if="walletStore.isWallet">
           <svg
@@ -99,7 +119,7 @@ onMounted(() => {
           class="nameCopy"
           @click="copyToClipboard(walletStore.walletAddress)"
         >
-          <div class="name">{{ formatData(walletStore.walletAddress) }}</div>
+          <div class="name">{{ formatData1(walletStore.walletAddress) }}</div>
           <div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -244,10 +264,11 @@ onMounted(() => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  height: 100%;
+  height: 100vh;
   .container {
     padding: 48px 16px 136px 16px;
     width: 100%;
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -411,6 +432,14 @@ onMounted(() => {
     }
   }
 }
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
+}
 </style>
 <style>
 .message-logout {
@@ -441,4 +470,4 @@ onMounted(() => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-</style>@/store/modules/wallet@/store/modules/wallet
+</style>

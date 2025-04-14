@@ -736,6 +736,7 @@ const submitForm = async () => {
     }
   }
 }
+
 </style>
   
   <style>
@@ -768,4 +769,4 @@ const submitForm = async () => {
   letter-spacing: 0.56px;
 }
 </style>
-  @/store/modules/wallet@/store/modules/wallet
+  

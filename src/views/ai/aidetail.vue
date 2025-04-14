@@ -1,7 +1,6 @@
 <script setup lang='ts' name="HomeView">
-import { CSSProperties, reactive, ref, watch } from "vue";
+import { CSSProperties, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
 const videos = ref([
   {
     imageSrc: "/src/assets/images/Producing.png",
@@ -48,7 +47,6 @@ const goToSlide = (index: number) => {
 const prevSlide = () => {
   currentIndex.value =
     (currentIndex.value - 1 + videos.value.length) % videos.value.length;
-
   resetVideo();
 };
 
@@ -1289,5 +1287,13 @@ const onSliderInput1 = () => {
       z-index: 5;
     }
   }
+}
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>

@@ -5,7 +5,7 @@ export default {
     sections: {
       introduction: {
         title: '1. Introduction',
-        choosing: 'Thank you for choosing the',
+        choosing: 'Thank you for choosing the ',
         content:
           " Platform (the 'Platform'). We are committed to building a decentralized film ecosystem through blockchain technology and token economy model (",
         Whenusing:
@@ -113,7 +113,8 @@ export default {
     connect: 'Connect WALLET',
     shopping: 'Shopping cart',
     Subtotal: 'Subtotal',
-    BuyNow: 'Buy now'
+    BuyNow: 'Buy now',
+    collection: 'Collection card',
   },
   fotter: {
     network: '2025 Movie.network. All rights reserved.',
@@ -240,7 +241,7 @@ export default {
     el32: 'Authorization successful',
     el33: 'Authorization failed, please check your wallet and try again',
     el34: 'Transaction failed, please try again later',
-
+    el35: 'Request failed'
   },
   ai: {
     ai1: 'Creation of The Gods: Kingdom of Storms',

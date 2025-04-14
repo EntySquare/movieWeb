@@ -39,3 +39,22 @@ export const judgeBonus = (data: any) => {
         data: data
     })
 }
+
+// /vote/getInviterInfo 获取邀请者信息 这个就是先去看看 获得转发链接的用户，在后台看看返回他这个上一级和上上级推荐人是谁
+export const getInviterInfo = (data: any) => {
+    return request({
+        url: '/vote/getInviterInfo',
+        method: 'post',
+        data: data
+    })
+}
+
+// /vote/inviterVote 然后是这个，就是邀请人获得额外投票
+
+export const inviterVote = (data: any) => {
+    return request({
+        url: '/vote/inviterVote',
+        method: 'post',
+        data: data
+    })
+}

@@ -24,10 +24,8 @@ import { watch } from "fs";
 const { t } = useI18n();
 
 const { windowWidth } = useWindowSize();
-const walletStore = useWalletStore();
 const isMenuOpen = ref(false);
 
-const tokenStore = useTokenStore();
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
@@ -70,7 +68,7 @@ const submitForm = async () => {
   const productStore = useProductStore();
   productStore.setProduct([cartList.value]);
 
-  if (walletStore.walletAddress === "") {
+  if (useWalletStore().walletAddress === "") {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
@@ -383,6 +381,15 @@ const toggleSelection = (item: any) => {
         >
           {{ t("nav.ai") }}
         </router-link>
+        <router-link
+          to="/collection"
+          class="navLink"
+          v-if="windowWidth > 824"
+          :class="{ active: isActive('/collection') }"
+        >
+          {{ t("nav.collection") }}
+        </router-link>
+
         <div class="LAUNCHBtn" @click="login" v-if="!useWalletStore().isWallet">
           {{ t("nav.connect") }}
         </div>
@@ -390,7 +397,7 @@ const toggleSelection = (item: any) => {
           <router-link to="/my">
             <div class="my">
               <div class="name">
-                {{ formatData(walletStore.walletAddress) }}
+                {{ formatData(useWalletStore().walletAddress) }}
               </div>
               <div class="avatar"></div>
             </div>
@@ -459,6 +466,9 @@ const toggleSelection = (item: any) => {
         <div @click="TO('/shop')" class="text">{{ t("nav.shop") }}</div>
         <div @click="TO('/nft')" class="text">{{ t("nav.nft") }}</div>
         <div @click="TO('/ai')" class="text">{{ t("nav.ai") }}</div>
+        <div @click="TO('/collection')" class="text">
+          {{ t("nav.collection") }}
+        </div>
 
         <div class="iconLink">
           <div class="iconLinkItem">
@@ -478,7 +488,7 @@ const toggleSelection = (item: any) => {
           </div>
         </div>
         <div
-          v-if="walletStore.isWallet"
+          v-if="useWalletStore().isWallet"
           @click="logout"
           style="
             display: flex;
@@ -1190,4 +1200,4 @@ const toggleSelection = (item: any) => {
 .el-drawer {
   --el-drawer-bg-color: #000 !important;
 }
-</style>@/store/modules/wallet@/store/modules/wallet
+</style>

@@ -1,6 +1,6 @@
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div class="Sidebar">
         <div class="SidebarContent">
           <div class="new" v-if="list.length > 0">
@@ -70,7 +70,7 @@ import router from "@/router";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-// 定义分类列表
+const loading = ref(false);
 
 // 类型
 interface NFT {
@@ -87,10 +87,12 @@ interface NFT {
 // all goods 点击的时候 search 是空，new点击的时候 search 是空，  hot 点击的时候 search 是 hot，
 const list = ref<NFT[]>([]);
 const getList = async () => {
+  loading.value = true;
   const res = await displayNFTForSale();
   if (res.data.code === 0) {
     list.value = res.data.json;
   }
+  loading.value = false;
 };
 
 onMounted(() => {
@@ -254,5 +256,13 @@ onMounted(() => {
       }
     }
   }
+}
+
+:deep(.el-loading-mask) {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>

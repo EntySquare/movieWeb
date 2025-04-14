@@ -5,32 +5,9 @@ import { RouteLocationRaw } from "vue-router";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 const activeIndex = ref(null);
-const movies = [
-  {
-    id: 0,
-    img: "/src/assets/images/hot1.png",
-    title: "ai.ai1",
-    categories: ["ai.ai2", "ai.ai3"],
-    recordImg: "/src/assets/images/Record.png",
-    link: "/ai/vote",
-  },
-  {
-    id: 1,
-    img: "/src/assets/images/app1.png",
-    title: "ai.ai1",
-    categories: ["ai.ai2", "ai.ai3"],
-    recordImg: "/src/assets/images/Record1.png",
-    link: "/ai/vote",
-  },
-  {
-    id: 2,
-    img: "/src/assets/images/app2.png",
-    title: "ai.ai1",
-    categories: ["ai.ai2", "ai.ai3"],
-    recordImg: "/src/assets/images/Record2.png",
-    link: "/ai/vote",
-  },
-];
+import recordImg from "@/assets/images/Record.png";
+import recordImg1 from "@/assets/images/Record1.png";
+import recordImg2 from "@/assets/images/Record2.png";
 const navigateTo = (path: RouteLocationRaw) => {
   router.push(path);
 };
@@ -48,7 +25,7 @@ const resetItems = () => {
 <template>
   <div class="home_view">
     <div class="container">
-      <div class="HotmovieList">
+      <!-- <div class="HotmovieList">
         <div
           v-for="(movie, index) in movies"
           :key="index"
@@ -80,12 +57,7 @@ const resetItems = () => {
               </svg>
             </span>
           </div>
-          <!-- <div
-            class="circle"
-            :style="{
-              background: `url('${movie.recordImg}') no-repeat center/cover`,
-            }"
-          ></div> -->
+
           <div
             class="circle"
             :style="{
@@ -97,8 +69,134 @@ const resetItems = () => {
           >
             <div class="circleImg" alt=""></div>
           </div>
-          <!-- @click="navigateTo(movie.link)" -->
           <div class="participate" @click="router.push(movie.link)">
+            {{ t("shop.shop7") }}
+          </div>
+        </div>
+    
+      </div> -->
+      <div class="HotmovieList">
+        <div
+          class="HotmovieItem"
+          @mouseenter="hoverItem(0)"
+          @mouseleave="resetItems"
+          :class="{
+            active: activeIndex === 0,
+            moveLeft: activeIndex !== null && activeIndex > 0,
+            moveRight: activeIndex !== null && activeIndex < 0,
+          }"
+        >
+          <img class="hotImg" src="@/assets/images/hot1.png" alt="" />
+          <div class="hotText">{{ t("ai.ai1") }}</div>
+          <div class="Fantasy">
+            <span>{{ t("ai.ai2") }}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4"
+              height="5"
+              viewBox="0 0 4 5"
+              fill="none"
+            >
+              <circle cx="2" cy="2.5" r="2" fill="#C2C2C2" />
+            </svg>
+            <span>{{ t("ai.ai3") }}</span>
+          </div>
+          <div
+            class="circle"
+            :style="{
+              backgroundImage: `url(${recordImg})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }"
+          >
+            <div class="circleImg" alt=""></div>
+          </div>
+          <div class="participate" @click="router.push('/ai/vote')">
+            {{ t("shop.shop7") }}
+          </div>
+        </div>
+
+        <!-- 第二个 -->
+        <div
+          class="HotmovieItem"
+          @mouseenter="hoverItem(1)"
+          @mouseleave="resetItems"
+          :class="{
+            active: activeIndex === 1,
+            moveLeft: activeIndex !== null && activeIndex > 1,
+            moveRight: activeIndex !== null && activeIndex < 1,
+          }"
+        >
+          <img class="hotImg" src="@/assets/images/app1.png" alt="" />
+          <div class="hotText">{{ t("ai.ai1") }}</div>
+          <div class="Fantasy">
+            <span>{{ t("ai.ai2") }}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4"
+              height="5"
+              viewBox="0 0 4 5"
+              fill="none"
+            >
+              <circle cx="2" cy="2.5" r="2" fill="#C2C2C2" />
+            </svg>
+            <span>{{ t("ai.ai3") }}</span>
+          </div>
+          <div
+            class="circle"
+            :style="{
+              backgroundImage: `url(${recordImg1})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }"
+          >
+            <div class="circleImg" alt=""></div>
+          </div>
+          <div class="participate" @click="router.push('/ai/vote')">
+            {{ t("shop.shop7") }}
+          </div>
+        </div>
+
+        <!-- 第三个 -->
+        <div
+          class="HotmovieItem"
+          @mouseenter="hoverItem(2)"
+          @mouseleave="resetItems"
+          :class="{
+            active: activeIndex === 2,
+            moveLeft: activeIndex !== null && activeIndex > 2,
+            moveRight: activeIndex !== null && activeIndex < 2,
+          }"
+        >
+          <img class="hotImg" src="@/assets/images/app2.png" alt="" />
+          <div class="hotText">{{ t("ai.ai1") }}</div>
+          <div class="Fantasy">
+            <span>{{ t("ai.ai2") }}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="4"
+              height="5"
+              viewBox="0 0 4 5"
+              fill="none"
+            >
+              <circle cx="2" cy="2.5" r="2" fill="#C2C2C2" />
+            </svg>
+            <span>{{ t("ai.ai3") }}</span>
+          </div>
+          <div
+            class="circle"
+            :style="{
+              backgroundImage: `url(${recordImg2})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }"
+          >
+            <div class="circleImg" alt=""></div>
+          </div>
+          <div class="participate" @click="router.push('/ai/vote')">
             {{ t("shop.shop7") }}
           </div>
         </div>

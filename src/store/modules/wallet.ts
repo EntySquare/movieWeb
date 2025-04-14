@@ -10,6 +10,8 @@ const useWalletStore = defineStore("wallet", {
     setWalletAddress(address: string) {
       this.walletAddress = address;
       this.isWallet = true;
+      console.log('setWalletAddress', address, this.isWallet);
+
     },
     clearWalletAddress() {
       this.walletAddress = "";

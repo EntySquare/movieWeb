@@ -589,6 +589,7 @@ const submitForm = async () => {
 <style>
 .message-logout {
   top: 104px !important;
+
   right: 24px !important;
   background: #000;
   color: #fff;

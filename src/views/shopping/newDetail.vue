@@ -120,12 +120,12 @@ onMounted(async () => {
   if (search === "Hot") {
     getNewProductData("hot");
   }
-  getCartList();
+  // getCartList();
 });
-const getCartList = async () => {
-  const res = await displayGoodsCart();
-  goodsCartList.value = res.data.json.goodsCartList;
-};
+// const getCartList = async () => {
+//   const res = await displayGoodsCart();
+//   goodsCartList.value = res.data.json.goodsCartList;
+// };
 
 const loading = ref(false);
 const add = ref(false);
@@ -288,10 +288,6 @@ const addToCart = async () => {
     goodsId: selectedProduct.value.goodsId,
   });
   if (res.data.code === 0) {
-    const res = await displayGoodsCart();
-    if (res.data.code === 0) {
-      getCartListStore.setcartList(res.data.json.goodsCartList);
-    }
     ElNotification({
       showClose: false,
       customClass: "message-logout",
@@ -800,4 +796,4 @@ const addToCart = async () => {
   line-height: normal;
   letter-spacing: 0.56px;
 }
-</style>@/store/modules/wallet@/store/modules/wallet
+</style>

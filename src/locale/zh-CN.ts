@@ -109,7 +109,8 @@ export default {
     connect: '连接钱包',
     shopping: '购物车',
     Subtotal: '小计',
-    BuyNow: '立即购买'
+    BuyNow: '立即购买',
+    collection: '收藏卡'
   },
   fotter: {
     network: "2025 Movie.network. 版权所有。",
@@ -223,11 +224,11 @@ export default {
     el29: '转发失败，请检查钱包连接和网络状态！',
     el30: '领取成功！',
     el31: '领取失败，请重试！',
-
     el32: '授权成功',
     el33: '授权失败，请检查钱包后重试',
     el34: '交易失败，请稍后再试',
-  
+    el35: '请求失败'
+
   },
   ai: {
     ai1: "封神：风暴之国",

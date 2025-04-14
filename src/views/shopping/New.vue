@@ -1,6 +1,6 @@
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div class="back" @click="$router.back()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -110,6 +110,7 @@ import router from "@/router";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
+const loading = ref(false);
 // 定义分类列表
 const categories = ref(["All goods", "New", "Hot"]);
 
@@ -118,10 +119,12 @@ const selectedCategory = ref("Hot");
 // all goods 点击的时候 search 是空，new点击的时候 search 是空，  hot 点击的时候 search 是 hot，
 const newProduct = ref();
 const getNewProductData = async (search: string) => {
+  loading.value = true;
   const res = await displayDetailsGoods({ search });
   if (res.data.code === 0) {
     newProduct.value = res.data.json.displayDetailsGoodsList;
   }
+  loading.value = false;
 };
 const ClickCategory = (item: string) => {
   selectedCategory.value = item;
@@ -302,5 +305,12 @@ onMounted(() => {
       }
     }
   }
+}
+
+:deep(.el-loading-mask) {
+  background: #000000c7;
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>

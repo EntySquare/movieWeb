@@ -13,6 +13,14 @@ export const formatData = (input: string): string => {
     const end = input.slice(-3); // 获取后4个字符
     return `${start}...${end}`; // 返回格式化后的字符串
 };
+export const formatData1 = (input: string): string => {
+    if (input.length <= 10) {
+        return input; // 如果字符串较短，不需要省略
+    }
+    const start = input.slice(0, 5); // 获取前5个字符
+    const end = input.slice(-4); // 获取后4个字符
+    return `${start}...${end}`; // 返回格式化后的字符串
+};
 
 // !钱包登录
 declare global {
@@ -55,17 +63,17 @@ export const connectWallet = async () => {
         //获取网络ID
         const chain = await provider.value.request({ method: "eth_chainId" });
 
-        if (chain !== walletStore.BSC_chain_id) {
-            // 切换BSC网络
-            try {
-                await provider.value.request({
-                    method: "wallet_switchEthereumChain",
-                    params: [{ chainId: walletStore.BSC_chain_id }],
-                });
-            } catch (switchError) {
-                return;
-            }
-        }
+        // if (chain !== walletStore.BSC_chain_id) {
+        //     // 切换BSC网络
+        //     try {
+        //         await provider.value.request({
+        //             method: "wallet_switchEthereumChain",
+        //             params: [{ chainId: walletStore.BSC_chain_id }],
+        //         });
+        //     } catch (switchError) {
+        //         return;
+        //     }
+        // }
 
         const accounts = await provider.value.request({
             method: "eth_requestAccounts",
@@ -76,7 +84,6 @@ export const connectWallet = async () => {
 
             const res = await addressLogin({ address: walletStore.walletAddress });
             if (res.data.code === 0) {
-
                 tokenStore.setWalletData(res.data.json);
                 walletStore.setWalletAddress(newAddress); // 更新 Pinia
                 ElNotification({

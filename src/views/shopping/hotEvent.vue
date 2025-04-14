@@ -1,6 +1,6 @@
 <template>
   <div class="home_view">
-    <div class="container">
+    <div class="container" v-loading="loading">
       <div class="back" @click="$router.back()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -87,12 +87,15 @@ import router from "@/router";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
+const loading = ref(false);
 const hotHotEvent = ref();
 const gethotHotEventData = async () => {
+  loading.value = true;
   const res = await showAllHotEvent();
   if (res.data.code === 0) {
     hotHotEvent.value = res.data.json;
   }
+  loading.value = false;
 };
 onMounted(() => {
   gethotHotEventData();
@@ -215,5 +218,12 @@ onMounted(() => {
       }
     }
   }
+}
+
+:deep(.el-loading-mask) {
+  background: #000000c7;
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>
