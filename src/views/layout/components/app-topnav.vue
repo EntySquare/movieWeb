@@ -20,8 +20,7 @@ import Web3 from "web3";
 import usdtAbi from "@/abiU.json";
 
 import { useI18n } from "vue-i18n";
-import { watch } from "fs";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const { windowWidth } = useWindowSize();
 const isMenuOpen = ref(false);
@@ -254,7 +253,10 @@ const handleNumberChange = async (item: any) => {
       dangerouslyUseHTMLString: true,
       showClose: false,
       customClass: "message-logout",
-      title: res.data.json.message,
+      title:
+        locale.value === "zh"
+          ? res.data.json.message_zh
+          : res.data.json.message,
       duration: 1000,
     });
     getCartList();
@@ -908,7 +910,7 @@ const toggleSelection = (item: any) => {
   // right: 80px;
   right: -520px;
   transition: right 0.3s ease-in-out; /* 过渡动画 */
-  z-index: 10;
+  z-index: 10000;
   display: flex;
   width: 361px;
   height: 453px;

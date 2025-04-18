@@ -3,14 +3,37 @@ import { showAllHotMovie } from "@/api/activity";
 import { computed, onMounted, ref } from "vue";
 import { useWindowSize } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+import { ElNotification } from "element-plus";
+const { t, locale } = useI18n();
 const activeIndex = ref<number | null>(null);
 const { width, height } = useWindowSize();
 const HotMoviesdata = ref<any>([]);
 const getHotMoviesData = async () => {
-  const res = await showAllHotMovie();
-  if (res.data.code === 0) {
-    HotMoviesdata.value = res.data.json;
+  loading.value = true;
+  try {
+    const res = await showAllHotMovie();
+    if (res.data.code === 0) {
+      HotMoviesdata.value = res.data.json;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
 };
 onMounted(() => {

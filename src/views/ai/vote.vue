@@ -270,13 +270,170 @@
     </div>
   </div>
 
-  <el-dialog v-model="showDialog" title="邀请信息" @close="handleDialogClose">
-    <p>你是通过邀请链接进来的</p>
+  <el-dialog
+    v-model="showDialog"
+    title="邀请信息"
+    @close="handleDialogClose"
+    modal
+    :close-on-click-modal="false"
+  >
+    <div v-if="targetPool" v-loading="dialogloading">
+      <div class="vote-box" v-if="targetPool.status === 1">
+        <div class="shop">
+          <div class="avatar"></div>
+          <div class="role">
+            投票角色 :
+            {{ role === 1 ? targetPool.roleOne : targetPool.roleTwo }}
+          </div>
+          <el-input
+            :disabled="targetPool.status !== 1"
+            v-model.number="voteAmount"
+            :placeholder="t('ai.ai31')"
+            type="number"
+            min="1"
+          />
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 10px;
+              width: 100%;
+            "
+          >
+            <!-- 状态 0-下架 1-进行中 2-结束 3-奖励已发放 -->
+            <div
+              class="vote-button left-team"
+              @click="vote(true, targetPool.poolId, voteAmount)"
+              :class="{ disabled: targetPool.status !== 1 }"
+            >
+              <span
+                >{{ t("ai.ai32") }}
+                {{ role === 1 ? targetPool.roleOne : targetPool.roleTwo }}</span
+              >
+            </div>
+
+            <div
+              class="participate"
+              :class="{ disabled: targetPool.status !== 1 }"
+              @click="
+                shareOnTwitter(
+                  role === 1 ? targetPool.roleOne : targetPool.roleTwo,
+                  true,
+                  targetPool.poolId
+                )
+              "
+            >
+              <svg
+                t="1742884235460"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="2873"
+                width="14"
+                height="14"
+              >
+                <path
+                  d="M922.026667 439.04l-267.221334-282.368v185.258667h-85.333333c-250.325333 0-455.253333 181.504-481.322667 413.44 115.157333-133.674667 291.925333-218.922667 480.682667-218.922667h85.077333l0.554667 185.173333 267.52-282.581333z m-438.528 189.44C268.8 662.570667 87.04 821.76 47.232 1024A529.664 529.664 0 0 1 0 805.461333C0 502.272 254.976 256.597333 569.472 256.597333V40.96a35.242667 35.242667 0 0 1 10.368-30.208 39.68 39.68 0 0 1 54.4 0l378.794667 400.298667a35.413333 35.413333 0 0 1 10.88 27.861333 35.498667 35.498667 0 0 1-10.88 27.904l-376.704 398.08a37.973333 37.973333 0 0 1-56.448 2.133333 35.114667 35.114667 0 0 1-10.410667-30.208l-0.64-215.082666c-26.88 0-53.546667 2.005333-79.701333 5.845333l-5.632 0.853333z"
+                  p-id="2874"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <div style="width: 100%; text-align: end">
+            <span
+              style="
+                color: #d339c4;
+                font-size: 14px;
+                font-weight: 600;
+                margin-right: 20px;
+              "
+              >{{ t("ai.ai33") }} :
+              {{
+                role === 1 ? targetPool.sharesOne : targetPool.sharesTwo
+              }}</span
+            >
+          </div>
+        </div>
+      </div>
+      <!-- winner 0 表示还不知道，1 表示 a 赢，2 表示b 赢 -->
+
+      <div v-if="targetPool.status === 2">
+        <div class="victory">
+          <div class="victoryTitle">
+            {{ t("ai.ai35")
+            }}{{
+              targetPool.winner === 0
+                ? t("ai.ai36")
+                : targetPool.winner === 1
+                ? targetPool.roleOne
+                : targetPool.roleTwo
+            }}
+            {{ t("ai.ai37") }}
+          </div>
+          <div class="victoryBox">
+            <div class="victoryBoxIcon">
+              <svg
+                t="1743497012494"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="2949"
+                width="44"
+                height="44"
+              >
+                <path
+                  d="M609.630574 116.018364c-34.014698 34.014698-33.994232 89.153506 0 123.146714 8.620331 8.620331 18.600637 14.988366 29.247115 19.262716l-49.771567 124.409474-203.982788-58.269101c8.337899-29.416983 1.344624-62.271252-21.787212-85.402066-33.994232-33.994232-89.13304-34.014698-123.146714 0s-33.994232 89.153506 0 123.146715c23.130813 23.130813 55.986105 30.125111 85.403088 21.787212l58.269102 203.982788-124.409475 49.771567c-4.27435-10.647501-10.642384-20.626783-19.262715-29.247115-33.994232-33.994232-89.13304-34.014698-123.146715 0-34.014698 34.014698-33.994232 89.153506 0 123.146715s89.13304 34.014698 123.146715 0c4.771677-4.771677 8.66638-10.031471 12.145621-15.511276l254.673283 159.183466 41.048905 41.048905c22.689768 22.689768 59.428507 22.669302 82.09781 0L917.498384 629.131721c22.669302-22.669302 22.689768-59.408041 0-82.09781l-41.048905-41.048905-159.162999-254.694773c5.490038-3.406586 10.719132-7.352455 15.490809-12.125155 34.014698-34.014698 33.994232-89.153506 0-123.146714s-89.13304-34.014698-123.146715 0zM281.237289 280.213983c11.323906-11.32493 29.745465-11.30344 41.048905 0 11.30344 11.30344 11.323906 29.724998 0 41.048905s-29.745465 11.30344-41.048905 0c-11.30344-11.30344-11.323906-29.723975 0-41.048905zM158.090575 690.705078c-11.30344-11.30344-11.323906-29.724998 0-41.048905 11.323906-11.32493 29.745465-11.30344 41.048904 0 11.30344 11.30344 11.323906 29.724998 0 41.048905-11.323906 11.323906-29.745465 11.30344-41.048904 0z m718.358904-102.622262L589.106122 875.426173l-41.048905-41.048905L835.400574 547.033911l41.048905 41.048905z m-73.718978-90.477664L498.628458 801.707195 306.395272 681.58742l99.015108-39.607067c7.491625-3.006474 14.06432-7.414877 19.47761-12.828166 14.510482-14.510482 20.765953-36.159548 14.772448-57.022715l-53.353138-186.845479 186.845478 53.353139c20.863167 5.993504 42.511209-0.261966 57.022715-14.772448 5.41329-5.41329 9.82067-11.985986 12.828167-19.47761l39.607066-99.015108 120.119775 192.233186zM691.728384 198.116173c-11.32493 11.323906-29.745465 11.30344-41.048905 0-11.30344-11.30344-11.32493-29.724998 0-41.048905 11.323906-11.32493 29.745465-11.30344 41.048905 0s11.323906 29.724998 0 41.048905z"
+                  fill="#d81e06"
+                  p-id="2950"
+                ></path>
+              </svg>
+            </div>
+            <div class="victoryAvatar"></div>
+            <div class="victoryRole">
+              {{ t("ai.ai35") }}:
+              <span style="color: #ff0000; font-weight: 500">
+                {{
+                  targetPool.winner === 0
+                    ? t("ai.ai36")
+                    : targetPool.winner === 1
+                    ? targetPool.roleOne
+                    : targetPool.roleTwo
+                }}</span
+              >
+            </div>
+            <div class="victoryVotes">
+              {{ t("ai.ai38") }}:
+              <span style="color: #ff0000; font-weight: 500">
+                {{
+                  targetPool.winner === 0
+                    ? t("ai.ai36")
+                    : targetPool.winner === 1
+                    ? targetPool.numberOne
+                    : targetPool.numberTwo
+                }}</span
+              >
+            </div>
+            <!-- <div class="victoryBtn">Claim Rewards</div> -->
+            <div
+              class="victoryBtn"
+              v-if="isPickUp"
+              @click="claimReward(targetPool)"
+            >
+              {{ t("ai.ai39") }}
+            </div>
+            <div class="victoryBtn_d" v-else>{{ t("ai.ai40") }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch, watchEffect } from "vue";
 import { ElNotification } from "element-plus";
 import {
   displayWahlPool,
@@ -290,9 +447,17 @@ import {
 import SuperPkBar from "./SuperPkBar.vue";
 import { useTokenStore } from "@/store/modules/my";
 import { useRoute } from "vue-router";
+import Web3 from "web3";
+import contractABI from "@/abi.json";
+import useWalletStore from "@/store/modules/wallet";
 
+import { useI18n } from "vue-i18n";
+import router from "@/router";
+import { connectWallet } from "@/utils/wallet";
+const { t, locale } = useI18n();
+const List = ref<Pool[]>([]);
 //类型
-type Pool = {
+interface Pool {
   poolId: number;
   title: string;
   roleOne: string;
@@ -307,17 +472,9 @@ type Pool = {
   winner: number;
   voteAmountLeft: number;
   voteAmountRight: number;
-};
+}
 
-import Web3 from "web3";
-import contractABI from "@/abi.json";
-import useWalletStore from "@/store/modules/wallet";
-const List = ref<Pool[]>([]);
-
-import { useI18n } from "vue-i18n";
-import router from "@/router";
-const { t } = useI18n();
-
+const dialogloading = ref(false);
 interface PoolT {
   nameA: string;
   nameB: string;
@@ -331,11 +488,16 @@ interface PoolT {
 }
 
 // **合约信息**
-const contractAddress = "0xcFB915BA26D2248e90Bd0e808B906D7F6A4CE85c"; // 你的投票合约地址
+const contractAddress = "0x4AA23BA3ECC62770bA4Ef83B551d8FD0C923Bcc9"; // 你的投票合约地址
 
 // **初始化 Web3**
 const web3 = new Web3(window.ethereum);
 const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+const firstRecommender = ref("0x0000000000000000000000000000000000000000"); // 推荐人地址1
+const firstRecommendVotes = ref(0); // 推荐人票数1
+const secondRecommender = ref("0x0000000000000000000000000000000000000000"); // 推荐人地址2
+const secondRecommendVotes = ref(0); // 推荐人票数2
 
 const loading = ref(false); // 控制按钮 loading 状态
 const walletStore = useWalletStore(); // 导入钱包状态
@@ -353,6 +515,7 @@ const vote = async (forA: boolean, poolId: number, voteAmount: number) => {
   }
 
   loading.value = true;
+  dialogloading.value = true;
   // **1. 连接钱包**
   if (walletStore.walletAddress === "") {
     ElNotification({
@@ -361,6 +524,7 @@ const vote = async (forA: boolean, poolId: number, voteAmount: number) => {
       title: t("ElNoti.el21"),
       duration: 1000,
     });
+    dialogloading.value = false;
     loading.value = false;
     return;
   }
@@ -368,19 +532,24 @@ const vote = async (forA: boolean, poolId: number, voteAmount: number) => {
   try {
     const pool = (await contract.methods.getPool(poolId).call()) as PoolT;
 
-    const endTime = Number(pool.endTime);
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (currentTime >= endTime) {
-      console.error("投票已结束！");
-      ElNotification({
-        showClose: false,
-        customClass: "message-logout",
-        title: t("ElNoti.el22"),
-        duration: 2000,
-      });
-      loading.value = false;
-      return;
-    }
+    // const endTime = Number(pool.endTime);
+    // const currentTime = Math.floor(Date.now() / 1000);
+    // if (currentTime >= endTime) {
+    //   console.error("投票已结束！", pool, currentTime, endTime);
+    //   ElNotification({
+    //     showClose: false,
+    //     customClass: "message-logout",
+    //     title: t("ElNoti.el22"),
+    //     duration: 2000,
+    //   });
+    //   loading.value = false;
+    //   return;
+    // }
+
+    //  address firstRecommender,
+    // uint256 firstRecommendVotes,
+    // address secondRecommender,
+    // uint256 secondRecommendVotes
 
     await parseInitialQuery();
     // **3. 确保钱包余额充足**
@@ -388,41 +557,64 @@ const vote = async (forA: boolean, poolId: number, voteAmount: number) => {
 
     // **7. 发送交易**
     try {
-      const tx = await contract.methods
-        .vote(poolId, forA, voteAmount, false)
+      console.log("2222222");
+
+      contract.methods
+        .vote(
+          poolId,
+          forA,
+          voteAmount,
+          false,
+          firstRecommender.value,
+          firstRecommendVotes.value,
+          secondRecommender.value,
+          secondRecommendVotes.value
+        )
         .send({
           from: walletStore.walletAddress,
+        })
+        .on("transactionHash", (hash: string) => {
+          // ✅ 这里提前记录 txHash
+          localStorage.setItem(
+            "pendingVoteTx",
+            JSON.stringify({
+              txHash: hash,
+              poolId,
+              role: forA ? 1 : 2,
+              amount: voteAmount,
+              address: walletStore.walletAddress,
+            })
+          );
+          console.log("交易哈希已获取并保存:", hash);
+        })
+        .on("receipt", async (receipt: any) => {
+          // ✅ 收到链上确认，继续后续逻辑
+          await handleVoteConfirmed(receipt.transactionHash);
+        })
+        .on("error", (err: any) => {
+          loading.value = false;
+          dialogloading.value = false;
+          console.error("交易失败:", err);
+          ElNotification({
+            title: err.message.includes("User denied")
+              ? t("ElNoti.el24")
+              : t("ElNoti.el25"),
+            customClass: "message-logout",
+            duration: 2000,
+          });
+        })
+        .catch((err: any) => {
+          // ✅ 这里是解决 Uncaught (in promise) 的关键
+          console.error("Promise 报错捕获:", err);
+          loading.value = false;
+          dialogloading.value = false;
+          ElNotification({
+            showClose: false,
+            customClass: "message-logout",
+            title: t("ElNoti.el26"),
+            duration: 2000,
+          });
         });
-      // 2. 等待交易确认
-      const res = await voteWahlPool({
-        hash: tx.transactionHash,
-        poolId: poolId,
-        role: forA ? 1 : 2,
-        amount: voteAmount,
-        weise: 2, // weise 1 转发 2 投票
-        address: walletStore.walletAddress,
-      });
-      if (res.data.code === 0) {
-        getinviterVote(tx.transactionHash);
-        ElNotification({
-          showClose: false,
-          customClass: "message-logout",
-          title: t("ElNoti.el23"),
-          duration: 2000,
-        });
-
-        getList();
-        loading.value = false;
-      } else {
-        ElNotification({
-          showClose: false,
-          customClass: "message-logout",
-          title: res.data.json.message_zh,
-          duration: 2000,
-        });
-      }
-
-      loading.value = false;
     } catch (error: any) {
       console.error("投票失败:", error);
       if (error.message.includes("User denied transaction signature")) {
@@ -441,9 +633,7 @@ const vote = async (forA: boolean, poolId: number, voteAmount: number) => {
         });
       }
       loading.value = false;
-      return;
-    } finally {
-      loading.value = false; // **确保任何情况下都会取消loading**
+      dialogloading.value = false;
     }
   } catch (error) {
     console.error("投票失败:", error);
@@ -455,10 +645,62 @@ const vote = async (forA: boolean, poolId: number, voteAmount: number) => {
     });
 
     loading.value = false;
-  } finally {
-    loading.value = false; // **确保任何情况下都会取消loading**
+    dialogloading.value = false;
   }
 };
+
+const handleVoteConfirmed = async (txHash: string) => {
+  try {
+    const pending = JSON.parse(localStorage.getItem("pendingVoteTx") || "{}");
+    console.log("pending", pending);
+
+    if (txHash && pending?.txHash) {
+      const res = await voteWahlPool({
+        hash: txHash,
+        poolId: pending.poolId,
+        role: pending.role,
+        amount: pending.amount,
+        weise: 2,
+        address: pending.address,
+      });
+      localStorage.removeItem("pendingVoteTx");
+      localStorage.setItem(
+        "confirmingVoteTx",
+        JSON.stringify({ ...pending, txHash })
+      );
+      if (res.data.code === 0) {
+        await setinviterVote(txHash);
+      } else {
+        ElNotification({
+          title:
+            locale.value === "zh"
+              ? res.data.json.message_zh
+              : res.data.json.message,
+          customClass: "message-logout",
+          duration: 2000,
+        });
+      }
+
+      localStorage.removeItem("confirmingVoteTx"); // ✅ 清理
+    }
+  } catch (e) {
+    console.error("等待确认失败：", e);
+  } finally {
+    loading.value = false;
+    dialogloading.value = false;
+  }
+};
+const setinviterVote = async (txHash: string) => {
+  await getinviterVote(txHash);
+  ElNotification({
+    title: t("ElNoti.el23"),
+    customClass: "message-logout",
+    duration: 2000,
+  });
+  handleDialogClose();
+  getList();
+};
+
 const getLeftVotes = (poolId: number) => {
   const pool = List.value.find((p) => p.poolId === poolId);
   return pool ? Number(pool.numberOne) : 0;
@@ -483,7 +725,10 @@ const checkBonusForWinners = async () => {
           ElNotification({
             showClose: false,
             customClass: "message-logout",
-            title: res.data.json.message_zh,
+            title:
+              locale.value === "zh"
+                ? res.data.json.message_zh
+                : res.data.json.message,
             duration: 2000,
           });
         }
@@ -518,7 +763,10 @@ const getList = async () => {
       ElNotification({
         showClose: false,
         customClass: "message-logout",
-        title: res.data.json.message_zh,
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
         duration: 2000,
       });
     }
@@ -551,21 +799,23 @@ const shareOnTwitter = async (Role: any, forA: boolean, poolId: number) => {
     loading.value = false;
     return;
   }
+  console.log("111111");
 
-  const pool = (await contract.methods.getPool(poolId).call()) as PoolT;
-  const endTime = Number(pool.endTime);
-  const currentTime = Math.floor(Date.now() / 1000);
-  if (currentTime >= endTime) {
-    console.error("投票已结束！");
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      title: t("ElNoti.el22"),
-      duration: 2000,
-    });
-    loading.value = false;
-    return;
-  }
+  // const pool = (await contract.methods.getPool(poolId).call()) as PoolT;
+  // const endTime = Number(pool.endTime);
+  // const currentTime = Math.floor(Date.now() / 1000);
+  // if (currentTime >= endTime) {
+  //   console.error("投票已结束！");
+  //   ElNotification({
+  //     showClose: false,
+  //     customClass: "message-logout",
+  //     title: t("ElNoti.el22"),
+  //     duration: 2000,
+  //   });
+  //   loading.value = false;
+  //   return;
+  // }
+  // console.log("2222222");
   const shareText = `
 ${t("ai.ai42")}${Role}${t("ai.ai43")}
 
@@ -610,13 +860,25 @@ ${t("ai.ai49")}
 
       // 用户返回后执行投票
       try {
-        // loading.value = true;
+        loading.value = true;
+        dialogloading.value = true;
         const userVotes = await contract.methods
           .getUserVotes(poolId, walletStore.walletAddress)
           .call();
-        const tx = await contract.methods.vote(poolId, forA, 88, true).send({
-          from: walletStore.walletAddress,
-        });
+        const tx = await contract.methods
+          .vote(
+            poolId,
+            forA,
+            88,
+            true,
+            "0x0000000000000000000000000000000000000000",
+            0,
+            "0x0000000000000000000000000000000000000000",
+            0
+          )
+          .send({
+            from: walletStore.walletAddress,
+          });
         // 2. 等待交易确认
         const res = await voteWahlPool({
           hash: tx.transactionHash,
@@ -637,18 +899,24 @@ ${t("ai.ai49")}
           } else {
             rightVotes.value += 88;
           }
+          handleDialogClose();
           getList();
           loading.value = false;
+          dialogloading.value = false;
         } else {
           ElNotification({
             showClose: false,
             customClass: "message-logout",
-            title: res.data.json.message_zh,
+            title:
+              locale.value === "zh"
+                ? res.data.json.message_zh
+                : res.data.json.message,
             duration: 2000,
           });
         }
 
         loading.value = false;
+        dialogloading.value = false;
       } catch (error: any) {
         console.error("转发失败:", error);
         if (error.message.includes("User denied transaction signature")) {
@@ -669,6 +937,7 @@ ${t("ai.ai49")}
         return;
       } finally {
         loading.value = false; // **确保任何情况下都会取消loading**
+        dialogloading.value = false;
       }
     }
   };
@@ -720,7 +989,10 @@ const claimReward = async (item: any) => {
       ElNotification({
         showClose: false,
         customClass: "message-logout",
-        title: res.data.json.message_zh,
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
         duration: 2000,
       });
       loading.value = false;
@@ -737,20 +1009,26 @@ const claimReward = async (item: any) => {
   }
 };
 
-// 在页面进入时判断 有要调后端接口
+//判断是否通过邀请进入 有要调后端接口
 const route = useRoute();
 
+const firstId = ref();
+const secondId = ref();
+
 const parseInitialQuery = async () => {
+  console.log(" walletStore.walletAddress", walletStore.walletAddress);
+
   if (
     route.query.inviter &&
     route.query.poolId &&
     route.query.role &&
     route.query.address &&
+    walletStore.walletAddress !== "" &&
     route.query.address !== walletStore.walletAddress
   ) {
     const inviteId = route.query.inviter;
     const poolId = route.query.poolId;
-    const role = route.query.poolId;
+    const role = route.query.role;
     const address = route.query.address;
 
     try {
@@ -761,15 +1039,33 @@ const parseInitialQuery = async () => {
         inviteAddress: address,
         address: walletStore.walletAddress,
       });
-      // if (res.data.code === 0) {
-      // } else {
-      //   ElNotification({
-      //     showClose: false,
-      //     customClass: "message-logout",
-      //     title: res.data.json.message_zh,
-      //     duration: 2000,
-      //   });
-      // }
+      console.log("判断是否通过邀请进入", res.data.json);
+
+      if (res.data.code === 0) {
+        firstRecommender.value =
+          res.data.json.firstAddress === ""
+            ? "0x0000000000000000000000000000000000000000"
+            : res.data.json.firstAddress;
+        firstId.value = res.data.json.firstId;
+        firstRecommendVotes.value = res.data.json.firstAddress === "" ? 0 : 30;
+        secondRecommender.value =
+          res.data.json.secondAddress === ""
+            ? "0x0000000000000000000000000000000000000000"
+            : res.data.json.secondAddress;
+        secondId.value = res.data.json.secondId;
+        secondRecommendVotes.value =
+          res.data.json.secondAddress === "" ? 0 : 15;
+      } else {
+        ElNotification({
+          showClose: false,
+          customClass: "message-logout",
+          title:
+            locale.value === "zh"
+              ? res.data.json.message_zh
+              : res.data.json.message,
+          duration: 2000,
+        });
+      }
     } catch (error) {
       ElNotification({
         showClose: false,
@@ -788,17 +1084,21 @@ const getinviterVote = async (hash: string) => {
     route.query.poolId &&
     route.query.role &&
     route.query.address &&
+    walletStore.walletAddress !== "" &&
     route.query.address !== walletStore.walletAddress
   ) {
     const poolId = route.query.poolId;
-    const role = route.query.poolId;
-    const address = route.query.address;
+    const role = route.query.role;
     const res = await inviterVote({
       hash: hash,
-      address: address,
       poolId: Number(poolId),
       role: Number(role),
+      firstAddress: firstRecommender.value,
+      firstId: firstId.value,
+      secondAddress: secondRecommender.value,
+      secondId: secondId.value,
     });
+    console.log("邀请人获得额外投票", res);
   }
 };
 // 控制弹窗显示
@@ -812,9 +1112,38 @@ const handleDialogClose = () => {
   router.replace({ path: route.path, query: {} });
 };
 
-onMounted(() => {
+const inviter = ref();
+const poolId = ref();
+const role = ref();
+const address = ref();
+const targetPool = ref<Pool>();
+const voteAmount = ref(1); //弹窗票数
+const autoVote = async (
+  poolId: number,
+  role: number,
+  address: string,
+  inviter: number
+) => {
+  targetPool.value = List.value.find((pool) => pool.poolId === poolId);
+
+  if (targetPool.value) {
+    console.log("targetPool", targetPool.value.status);
+    showDialog.value = true;
+  } else {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "暂无该投票池信息",
+      duration: 2000,
+    });
+    router.replace({ path: route.path, query: {} });
+  }
+};
+
+onMounted(async () => {
   getList();
-  // parseInitialQuery();
+  await connectWallet();
+  console.log(" walletStore.walletAddress", walletStore.walletAddress);
 
   if (
     route.query.inviter &&
@@ -822,7 +1151,52 @@ onMounted(() => {
     route.query.role &&
     route.query.address
   ) {
-    showDialog.value = true;
+    if (
+      walletStore.walletAddress !== "" &&
+      walletStore.walletAddress !== route.query.address
+    ) {
+      inviter.value = Number(route.query.inviter);
+      poolId.value = Number(route.query.poolId);
+      role.value = Number(route.query.role);
+      address.value = route.query.address?.toString();
+
+      autoVote(poolId.value, role.value, address.value, inviter.value);
+    } else {
+      router.replace({ path: route.path, query: {} });
+    }
+  }
+
+  const pendingTx = localStorage.getItem("pendingVoteTx");
+
+  if (pendingTx) {
+    console.log("pendingTx");
+    const { txHash } = JSON.parse(pendingTx);
+
+    dialogloading.value = true;
+    console.log("txHash", txHash);
+    await handleVoteConfirmed(txHash); // 等待上链 & 走后续逻辑
+    dialogloading.value = false;
+  }
+
+  const confirmTx = localStorage.getItem("confirmingVoteTx");
+  if (confirmTx) {
+    const { txHash } = JSON.parse(confirmTx);
+    if (txHash) {
+      loading.value = true;
+      dialogloading.value = true;
+      await setinviterVote(txHash);
+    }
+  }
+});
+
+watchEffect(() => {
+  const isVoting =
+    localStorage.getItem("pendingVoteTx") ||
+    localStorage.getItem("confirmingVoteTx");
+  if (isVoting) {
+    window.onbeforeunload = () => "交易进行中，请不要刷新或关闭页面。";
+  } else {
+    window.onbeforeunload = null;
   }
 });
 </script>

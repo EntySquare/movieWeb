@@ -4,17 +4,38 @@ import { OrderInfo } from "@/api/type";
 import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const loading = ref(false);
 const orderList = ref<OrderInfo[]>([]);
 const getorderList = async () => {
   loading.value = true;
-  const res = await showAllMyTicket();
-  if (res.data.code === 0) {
-    orderList.value = res.data.json;
+
+  try {
+    const res = await showAllMyTicket();
+    if (res.data.code === 0) {
+      orderList.value = res.data.json;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
-  loading.value = false;
 };
 onMounted(() => {
   getorderList();
@@ -39,17 +60,17 @@ onMounted(() => {
               style="fill: white; fill-opacity: 0.8"
             />
           </svg>
-          Back
+          {{ t("back") }}
         </div>
       </div>
-      <div class="Order">Order History</div>
+      <div class="Order">{{ t("my.my2") }}</div>
       <div class="father" v-if="orderList.length > 0">
         <div class="DataFather">
           <!-- <div class="date">Jan 12,2025 / Mon</div> -->
           <div class="data" v-for="(item, index) in orderList" :key="index">
             <div class="dataItem">
-              <div class="title">{{ item.activityName }}1111</div>
-              <div class="price">${{ item.price }}1111</div>
+              <div class="title">{{ item.activityName }}</div>
+              <div class="price">${{ item.price }}</div>
             </div>
             <!-- <div class="dataItem">
               <div class="title">Title of film-related activities</div>

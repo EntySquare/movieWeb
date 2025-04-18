@@ -4,6 +4,10 @@ import { Web3 } from "web3";
 import useWalletStore from "@/store/modules/wallet";
 import { useTokenStore } from "@/store/modules/my";
 import { addressLogin } from "@/api/login";
+
+import i18n from '@/locale';
+
+const t = i18n.global.t;
 // 格式化字符串的函数
 export const formatData = (input: string): string => {
     if (input.length <= 10) {
@@ -82,7 +86,7 @@ export const connectWallet = async () => {
         if (accounts.length > 0) {
             const newAddress = accounts.length > 0 ? accounts[0] : "";
 
-            const res = await addressLogin({ address: walletStore.walletAddress });
+            const res = await addressLogin({ address: newAddress });
             if (res.data.code === 0) {
                 tokenStore.setWalletData(res.data.json);
                 walletStore.setWalletAddress(newAddress); // 更新 Pinia

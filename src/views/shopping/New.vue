@@ -107,9 +107,10 @@
 <script setup lang="ts">
 import { displayDetailsGoods } from "@/api/shop";
 import router from "@/router";
+import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const loading = ref(false);
 // 定义分类列表
 const categories = ref(["All goods", "New", "Hot"]);
@@ -120,11 +121,32 @@ const selectedCategory = ref("Hot");
 const newProduct = ref();
 const getNewProductData = async (search: string) => {
   loading.value = true;
-  const res = await displayDetailsGoods({ search });
-  if (res.data.code === 0) {
-    newProduct.value = res.data.json.displayDetailsGoodsList;
+
+  try {
+    const res = await displayDetailsGoods({ search });
+    if (res.data.code === 0) {
+      newProduct.value = res.data.json.displayDetailsGoodsList;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
-  loading.value = false;
 };
 const ClickCategory = (item: string) => {
   selectedCategory.value = item;

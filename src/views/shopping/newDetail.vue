@@ -77,13 +77,10 @@
 import {
   addGoodsCart,
   displayDetailsGoods,
-  displayGoodsCart,
   purchaseGoods,
   scanPurchaseStatus,
 } from "@/api/shop";
 import router from "@/router";
-import { useFormStore } from "@/store/modules/buy";
-import useCartStore from "@/store/modules/cart";
 import useWalletStore from "@/store/modules/wallet";
 import { useProductStore } from "@/store/modules/product";
 import { ElNotification } from "element-plus";
@@ -93,7 +90,7 @@ import { useRoute } from "vue-router";
 import Web3 from "web3";
 import { useTokenStore } from "@/store/modules/my";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const search = route.query.search;
 const itemId = route.query.id; // 获取 id
@@ -101,6 +98,7 @@ const itemId = route.query.id; // 获取 id
 const newProduct = ref(); // 存储所有商品数据
 const selectedProduct = ref(); // 存储匹配到的商品
 const getNewProductData = async (search: any) => {
+  loading.value = true;
   const res = await displayDetailsGoods({ search });
   newProduct.value = res.data.json.displayDetailsGoodsList;
 
@@ -108,8 +106,37 @@ const getNewProductData = async (search: any) => {
   selectedProduct.value = newProduct.value.find(
     (item: any) => item.goodsId == itemId
   );
+
+  try {
+    const res = await displayDetailsGoods({ search });
+    if (res.data.code === 0) {
+      newProduct.value = res.data.json.displayDetailsGoodsList;
+      // 过滤匹配的商品
+      selectedProduct.value = newProduct.value.find(
+        (item: any) => item.goodsId == itemId
+      );
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
+  }
 };
-const goodsCartList = ref<any>([]); // 存储购物车数据
 onMounted(async () => {
   if (search === "New") {
     getNewProductData("");
@@ -255,12 +282,25 @@ const submitForm = async () => {
         useProductStore().setHash(txHash.transactionHash);
         router.push("/newBuy");
         loading.value = false;
+      } else {
+        ElNotification({
+          showClose: false,
+          customClass: "message-logout",
+          title:
+            locale.value === "zh"
+              ? res.data.json.message_zh
+              : res.data.json.message,
+          duration: 5000,
+        });
       }
     } else {
       ElNotification({
         showClose: false,
         customClass: "message-logout",
-        title: res.data.json.message_zh,
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
         duration: 5000,
       });
     }
@@ -280,7 +320,6 @@ const submitForm = async () => {
     loading.value = false;
   }
 };
-const getCartListStore = useCartStore();
 const addToCart = async () => {
   loading.value = true;
   const res = await addGoodsCart({
@@ -299,7 +338,10 @@ const addToCart = async () => {
     ElNotification({
       showClose: false,
       customClass: "message-logout",
-      title: t("ElNoti.el19"),
+      title:
+        locale.value === "zh"
+          ? res.data.json.message_zh
+          : res.data.json.message,
       duration: 1000,
     });
     loading.value = false;

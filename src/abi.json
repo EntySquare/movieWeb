@@ -28,6 +28,42 @@
   {
    "inputs": [
     {
+     "internalType": "address",
+     "name": "_usdt",
+     "type": "address"
+    }
+   ],
+   "stateMutability": "nonpayable",
+   "type": "constructor"
+  },
+  {
+   "anonymous": false,
+   "inputs": [
+    {
+     "indexed": true,
+     "internalType": "uint256",
+     "name": "poolId",
+     "type": "uint256"
+    },
+    {
+     "indexed": true,
+     "internalType": "address",
+     "name": "user",
+     "type": "address"
+    },
+    {
+     "indexed": false,
+     "internalType": "uint256",
+     "name": "amount",
+     "type": "uint256"
+    }
+   ],
+   "name": "Claimed",
+   "type": "event"
+  },
+  {
+   "inputs": [
+    {
      "internalType": "string",
      "name": "_nameA",
      "type": "string"
@@ -52,6 +88,149 @@
    "outputs": [],
    "stateMutability": "nonpayable",
    "type": "function"
+  },
+  {
+   "anonymous": false,
+   "inputs": [
+    {
+     "indexed": true,
+     "internalType": "uint256",
+     "name": "poolId",
+     "type": "uint256"
+    },
+    {
+     "indexed": false,
+     "internalType": "uint256",
+     "name": "endTime",
+     "type": "uint256"
+    }
+   ],
+   "name": "PoolCreated",
+   "type": "event"
+  },
+  {
+   "anonymous": false,
+   "inputs": [
+    {
+     "indexed": true,
+     "internalType": "uint256",
+     "name": "poolId",
+     "type": "uint256"
+    },
+    {
+     "indexed": false,
+     "internalType": "bool",
+     "name": "winnerA",
+     "type": "bool"
+    }
+   ],
+   "name": "PoolSettled",
+   "type": "event"
+  },
+  {
+   "inputs": [
+    {
+     "internalType": "address",
+     "name": "_address",
+     "type": "address"
+    }
+   ],
+   "name": "removeFromWhitelist",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+  },
+  {
+   "inputs": [
+    {
+     "internalType": "uint256",
+     "name": "poolId",
+     "type": "uint256"
+    }
+   ],
+   "name": "settlePool",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+  },
+  {
+   "inputs": [
+    {
+     "internalType": "uint256",
+     "name": "poolId",
+     "type": "uint256"
+    },
+    {
+     "internalType": "bool",
+     "name": "forA",
+     "type": "bool"
+    },
+    {
+     "internalType": "uint256",
+     "name": "votes",
+     "type": "uint256"
+    },
+    {
+     "internalType": "bool",
+     "name": "useFreeVote",
+     "type": "bool"
+    },
+    {
+     "internalType": "address",
+     "name": "firstRecommender",
+     "type": "address"
+    },
+    {
+     "internalType": "uint256",
+     "name": "firstRecommendVotes",
+     "type": "uint256"
+    },
+    {
+     "internalType": "address",
+     "name": "secondRecommender",
+     "type": "address"
+    },
+    {
+     "internalType": "uint256",
+     "name": "secondRecommendVotes",
+     "type": "uint256"
+    }
+   ],
+   "name": "vote",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+  },
+  {
+   "anonymous": false,
+   "inputs": [
+    {
+     "indexed": true,
+     "internalType": "uint256",
+     "name": "poolId",
+     "type": "uint256"
+    },
+    {
+     "indexed": true,
+     "internalType": "address",
+     "name": "voter",
+     "type": "address"
+    },
+    {
+     "indexed": false,
+     "internalType": "uint256",
+     "name": "amount",
+     "type": "uint256"
+    },
+    {
+     "indexed": false,
+     "internalType": "bool",
+     "name": "forA",
+     "type": "bool"
+    }
+   ],
+   "name": "Voted",
+   "type": "event"
   },
   {
    "inputs": [
@@ -160,57 +339,120 @@
    "type": "function"
   },
   {
-   "inputs": [
+   "inputs": [],
+   "name": "owner",
+   "outputs": [
     {
      "internalType": "address",
-     "name": "_address",
+     "name": "",
      "type": "address"
     }
    ],
-   "name": "removeFromWhitelist",
-   "outputs": [],
-   "stateMutability": "nonpayable",
+   "stateMutability": "view",
+   "type": "function"
+  },
+  {
+   "inputs": [],
+   "name": "poolCount",
+   "outputs": [
+    {
+     "internalType": "uint256",
+     "name": "",
+     "type": "uint256"
+    }
+   ],
+   "stateMutability": "view",
    "type": "function"
   },
   {
    "inputs": [
     {
      "internalType": "uint256",
-     "name": "poolId",
+     "name": "",
      "type": "uint256"
     }
    ],
-   "name": "settlePool",
-   "outputs": [],
-   "stateMutability": "nonpayable",
+   "name": "pools",
+   "outputs": [
+    {
+     "internalType": "string",
+     "name": "nameA",
+     "type": "string"
+    },
+    {
+     "internalType": "string",
+     "name": "nameB",
+     "type": "string"
+    },
+    {
+     "internalType": "uint256",
+     "name": "endTime",
+     "type": "uint256"
+    },
+    {
+     "internalType": "uint256",
+     "name": "totalA",
+     "type": "uint256"
+    },
+    {
+     "internalType": "uint256",
+     "name": "totalB",
+     "type": "uint256"
+    },
+    {
+     "internalType": "uint256",
+     "name": "amountA",
+     "type": "uint256"
+    },
+    {
+     "internalType": "uint256",
+     "name": "amountB",
+     "type": "uint256"
+    },
+    {
+     "internalType": "bool",
+     "name": "settled",
+     "type": "bool"
+    },
+    {
+     "internalType": "bool",
+     "name": "winner",
+     "type": "bool"
+    }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+  },
+  {
+   "inputs": [],
+   "name": "usdt",
+   "outputs": [
+    {
+     "internalType": "contract IERC20",
+     "name": "",
+     "type": "address"
+    }
+   ],
+   "stateMutability": "view",
    "type": "function"
   },
   {
    "inputs": [
     {
-     "internalType": "uint256",
-     "name": "poolId",
-     "type": "uint256"
-    },
+     "internalType": "address",
+     "name": "",
+     "type": "address"
+    }
+   ],
+   "name": "whitelistedAddresses",
+   "outputs": [
     {
      "internalType": "bool",
-     "name": "forA",
-     "type": "bool"
-    },
-    {
-     "internalType": "uint256",
-     "name": "votes",
-     "type": "uint256"
-    },
-    {
-     "internalType": "bool",
-     "name": "useFreeVote",
+     "name": "",
      "type": "bool"
     }
    ],
-   "name": "vote",
-   "outputs": [],
-   "stateMutability": "nonpayable",
+   "stateMutability": "view",
    "type": "function"
   }
  ]

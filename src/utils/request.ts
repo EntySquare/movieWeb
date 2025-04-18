@@ -5,7 +5,9 @@ import { useTokenStore } from "@/store/modules/my";
 import { ElNotification } from 'element-plus';
 import useWalletStore from '@/store/modules/wallet';
 import { connectWallet } from "@/utils/wallet";
+import i18n from '@/locale';
 
+const t = i18n.global.t;
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
@@ -56,8 +58,8 @@ request.interceptors.response.use(
 
             ElNotification({
                 customClass: "message-logout",
-                title: '会话过期',
-                message: '请重新登录',
+                title: t('SessionExpiration'),
+                message: t('logInAgain'),
                 offset: 164,
                 duration: 1000
             });

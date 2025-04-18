@@ -68,7 +68,7 @@ import Web3 from "web3";
 import { useI18n } from "vue-i18n";
 import { buyUserMint, displayNFTForSale } from "@/api/nft";
 import router from "@/router";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const itemId = route.query.id; // 获取 id
 const loading = ref(false);
@@ -89,13 +89,36 @@ const nftData = ref();
 const list = ref<NFT>();
 const getNftData = async () => {
   loading.value = true;
-  const res = await displayNFTForSale();
-  nftData.value = res.data.json;
-  if (nftData.value.length > 0) {
-    list.value = nftData.value.find((item: any) => item.tokenId == itemId);
-    authorizedAmount.value = list.value!.price;
+  try {
+    const res = await displayNFTForSale();
+    if (res.data.code == 0) {
+      nftData.value = res.data.json;
+      if (nftData.value.length > 0) {
+        list.value = nftData.value.find((item: any) => item.tokenId == itemId);
+        authorizedAmount.value = list.value!.price;
+      }
+      loading.value = false;
+    } else {
+      loading.value = false;
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
-  loading.value = false;
 };
 onMounted(async () => {
   getNftData();
@@ -736,7 +759,6 @@ const submitForm = async () => {
     }
   }
 }
-
 </style>
   
   <style>

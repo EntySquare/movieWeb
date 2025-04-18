@@ -170,7 +170,7 @@ import { computed } from "vue";
 import { purchaseAddAddress } from "@/api/my";
 const productStore = useProductStore();
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 let hash = ref<string | number>(productStore.hash);
 hash = computed(() => {
@@ -269,7 +269,10 @@ const submitForm = async () => {
         showClose: false,
         customClass: "message-logout",
         duration: 1000,
-        title: t("shop.shop43"),
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
       });
     }
   } catch (err) {

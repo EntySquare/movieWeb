@@ -286,56 +286,63 @@ const sendUsdtTransaction = async () => {
     gasPrice: Math.floor(Number(baseGasPrice) * 1.2), // 20%缓冲
     gasLimit: Math.floor(Number(estimatedGas) * 1.5), // 50%余量
   };
-  // **调用 USDT 合约的 `transfer` 方法**
-  const tx = await usdtContract.methods
-    .transfer(recipientAddress, amount)
-    .send({
-      from: senderAddress,
-      gasPrice: gasParams.gasPrice.toString(),
-      gas: web3.utils.toHex(gasParams.gasLimit),
-    });
-  // **调用后端接口，通知交易成功**
-  const res = await purchaseActivity({
-    address: senderAddress,
-    hash: tx.transactionHash,
-    price: selectedProduct.value.price,
-    activityId: selectedProduct.value.movieId,
-  });
-
-  if (res.data.code === 0) {
-    ElNotification({
-      dangerouslyUseHTMLString: true,
-      customClass: "message-logout",
-      title: selectedProduct.value.title,
-      message: `
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px; font-weight: 500;">
-           ${t("ElNoti.el6")}
-          </div>
-          <div id="verify-link" style="display: flex; align-items: center; color: #e621ca; font-size: 12px; font-weight: 500; cursor: pointer;">
-            ${t("ElNoti.el7")}
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z" fill="#D339C4"/>
-            </svg>
-          </div>
-        </div>`,
-      duration: 6000,
-    });
-
-    setTimeout(() => {
-      const verifyLink = document.getElementById("verify-link");
-      if (verifyLink) {
-        verifyLink.addEventListener("click", () => {
-          router.push("/my");
-        });
-      }
-    }, 100);
-  }
 
   try {
+    // **调用 USDT 合约的 `transfer` 方法**
+    const tx = await usdtContract.methods
+      .transfer(recipientAddress, amount)
+      .send({
+        from: senderAddress,
+        gasPrice: gasParams.gasPrice.toString(),
+        gas: web3.utils.toHex(gasParams.gasLimit),
+      });
+    // **调用后端接口，通知交易成功**
+    const res = await purchaseActivity({
+      address: senderAddress,
+      hash: tx.transactionHash,
+      price: selectedProduct.value.price,
+      activityId: selectedProduct.value.movieId,
+    });
+
+    if (res.data.code === 0) {
+      ElNotification({
+        dangerouslyUseHTMLString: true,
+        customClass: "message-logout",
+        title: selectedProduct.value.title,
+        message: `
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px; font-weight: 500;">
+             ${t("ElNoti.el6")}
+            </div>
+            <div id="verify-link" style="display: flex; align-items: center; color: #e621ca; font-size: 12px; font-weight: 500; cursor: pointer;">
+              ${t("ElNoti.el7")}
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M10.0895 7.46427L5.71452 11.8393C5.59123 11.9626 5.42402 12.0318 5.24967 12.0318C5.07532 12.0318 4.90811 11.9626 4.78483 11.8393C4.66155 11.716 4.59229 11.5488 4.59229 11.3744C4.59229 11.2001 4.66155 11.0329 4.78483 10.9096L8.69553 6.99998L4.78592 3.08927C4.72488 3.02823 4.67646 2.95576 4.64342 2.876C4.61038 2.79624 4.59338 2.71076 4.59338 2.62443C4.59338 2.5381 4.61038 2.45262 4.64342 2.37286C4.67646 2.2931 4.72488 2.22063 4.78592 2.15959C4.84697 2.09854 4.91944 2.05012 4.9992 2.01708C5.07895 1.98404 5.16444 1.96704 5.25077 1.96704C5.3371 1.96704 5.42258 1.98404 5.50234 2.01708C5.5821 2.05012 5.65457 2.09854 5.71561 2.15959L10.0906 6.53459C10.1517 6.59563 10.2002 6.66813 10.2332 6.74794C10.2662 6.82774 10.2832 6.91328 10.2831 6.99966C10.283 7.08603 10.2658 7.17153 10.2326 7.25126C10.1994 7.33099 10.1508 7.40338 10.0895 7.46427Z" fill="#D339C4"/>
+              </svg>
+            </div>
+          </div>`,
+        duration: 6000,
+      });
+
+      setTimeout(() => {
+        const verifyLink = document.getElementById("verify-link");
+        if (verifyLink) {
+          verifyLink.addEventListener("click", () => {
+            router.push("/my");
+          });
+        }
+      }, 100);
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title: t("ElNoti.el35"),
+        duration: 1000,
+      });
+      loading.value = false;
+    }
   } catch (error: any) {
     console.error("Transaction failed:", error);
-
     if (
       error.code === 4001 ||
       error.message.includes("User denied transaction signature")

@@ -67,9 +67,10 @@
 <script setup lang="ts">
 import { displayNFTForSale } from "@/api/nft";
 import router from "@/router";
+import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const loading = ref(false);
 
 // 类型
@@ -88,11 +89,32 @@ interface NFT {
 const list = ref<NFT[]>([]);
 const getList = async () => {
   loading.value = true;
-  const res = await displayNFTForSale();
-  if (res.data.code === 0) {
-    list.value = res.data.json;
+
+  try {
+    const res = await displayNFTForSale();
+    if (res.data.code === 0) {
+      list.value = res.data.json;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
-  loading.value = false;
 };
 
 onMounted(() => {

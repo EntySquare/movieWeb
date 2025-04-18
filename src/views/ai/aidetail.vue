@@ -1,6 +1,7 @@
 <script setup lang='ts' name="HomeView">
 import { CSSProperties, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 const videos = ref([
   {
     imageSrc: "/src/assets/images/Producing.png",
@@ -127,15 +128,14 @@ const onSliderInput1 = () => {
         <div class="topleft">
           <div class="Box">
             <div class="BoxOffice">
-              <div class="BoxTitle">Box Office Guessing</div>
+              <div class="BoxTitle">{{ t("ai.ai50") }}</div>
               <div class="BoxText">
-                Drag the film tickets on the left to the corresponding box
-                office.
+                {{ t("ai.ai51") }}
               </div>
             </div>
             <div class="ticket">
               <img src="@/assets/svgs/ticket.svg" alt="" />
-              <div class="box">Box office is...？</div>
+              <div class="box">{{ t("ai.ai52") }}</div>
             </div>
           </div>
           <div class="B15">
@@ -207,33 +207,35 @@ const onSliderInput1 = () => {
             </div>
           </div>
           <div class="LinkText">
-            Lord Su Hu of
+            {{ t("ai.ai53") }}
             <a href="https://en.wikipedia.org/wiki/Jizhou_(ancient_China)"
               >Jizhou</a
             >
-            rebels against the
+            {{ t("ai.ai54") }}
             <a href="https://en.wikipedia.org/wiki/Shang_dynasty"
               >Shang dynasty</a
-            >. The Shang army, led by Prince
+            >
+            {{ t("ai.ai55") }}
             <a href="https://en.wikipedia.org/wiki/King_Zhou_of_Shang"
               >Yin Shou</a
-            >, defeats the rebels. Shou and his
+            >
+            {{ t("ai.ai56") }}
             <a href="https://en.wikipedia.org/wiki/Hostage_diplomacy#China"
               >hostage-sons</a
             >
-            break through rebel defenses and kill Su.
-            <a href="https://en.wikipedia.org/wiki/Daji">Su Daji</a>, the
-            daughter of Su Hu, commits suicide but then emerges alive and is
-            captured, with the Shang army returning home.
+            {{ t("ai.ai57") }}
+            <a href="https://en.wikipedia.org/wiki/Daji">Su Daji</a>
+            {{ t("ai.ai58") }}
           </div>
         </div>
         <div class="leftCenter">
           <div class="CDIMG">
             <img src="@/assets/images/movie.png" alt="" />
           </div>
-          <div class="CenterTitle">Creation of The Gods: Kingdom of Storms</div>
+          <div class="CenterTitle">{{ t("ai.ai59") }}</div>
           <div class="Fantasy">
-            Fantasy<svg
+            {{ t("ai.ai60")
+            }}<svg
               xmlns="http://www.w3.org/2000/svg"
               width="5"
               height="5"
@@ -252,23 +254,23 @@ const onSliderInput1 = () => {
                 "
               />
             </svg>
-            Action
+            {{ t("ai.ai61") }}
           </div>
           <div class="time">
             <div class="itemTime">
-              <div class="text">Days</div>
+              <div class="text">{{ t("ai.ai62") }}</div>
               <div class="num">56</div>
             </div>
             <div class="itemTime">
-              <div class="text">Hours</div>
+              <div class="text">{{ t("ai.ai63") }}</div>
               <div class="num">16</div>
             </div>
             <div class="itemTime">
-              <div class="text">Mins</div>
+              <div class="text">{{ t("ai.ai64") }}</div>
               <div class="num">56</div>
             </div>
             <div class="itemTime">
-              <div class="text">Mins</div>
+              <div class="text">{{ t("ai.ai64") }}</div>
               <div class="num">23</div>
             </div>
           </div>
@@ -576,10 +578,9 @@ const onSliderInput1 = () => {
 
         <div class="bottomRight">
           <div class="Producing">
-            <div class="ProducingTitle">Producing Roadmap</div>
+            <div class="ProducingTitle">{{ t("ai.ai65") }}</div>
             <div class="ProducingText">
-              Placeholder: this is a description of the current shooting stage,
-              this is a description of the current shooting stage
+              {{ t("ai.ai66") }}
             </div>
           </div>
           <div class="ruler-container">

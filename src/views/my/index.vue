@@ -8,7 +8,7 @@ import { showAllMyActivity } from "@/api/my";
 import { OrderInfo } from "@/api/type";
 const walletStore = useWalletStore();
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 // 复制数据到剪贴板
 const copyToClipboard = async (data: string) => {
   try {
@@ -37,7 +37,10 @@ const getActivityList = async () => {
       ElNotification({
         showClose: false,
         customClass: "message-logout",
-        title: res.data.json.message_zh,
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
         duration: 2000,
       });
     }
@@ -112,7 +115,7 @@ onMounted(() => {
           </svg>
         </div>
         <div class="LAUNCHBtn" @click="login" v-if="!walletStore.isWallet">
-          Connect wallet
+          {{ t("nav.connect") }}
         </div>
         <div
           v-else
@@ -138,9 +141,10 @@ onMounted(() => {
         </div>
         <div class="Activities">
           <div class="ActivitiesTitle" @click="router.push('/my/Activities')">
-            <div class="title">Activities attended</div>
+            <div class="title">{{ t("my.my1") }}</div>
             <div class="all">
-              All<svg
+              {{ t("shop.shop6")
+              }}<svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="14"
                 height="15"
@@ -241,7 +245,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="order" @click="router.push('/my/order')">
-          <div class="title">Order History</div>
+          <div class="title">{{ t("my.my2") }}</div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"

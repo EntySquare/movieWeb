@@ -85,17 +85,38 @@ import { showAllHotEvent } from "@/api/activity";
 import { onMounted, ref } from "vue";
 import router from "@/router";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+import { ElNotification } from "element-plus";
+const { t, locale } = useI18n();
 
 const loading = ref(false);
 const hotHotEvent = ref();
 const gethotHotEventData = async () => {
   loading.value = true;
-  const res = await showAllHotEvent();
-  if (res.data.code === 0) {
-    hotHotEvent.value = res.data.json;
+  try {
+    const res = await showAllHotEvent();
+    if (res.data.code === 0) {
+      hotHotEvent.value = res.data.json;
+    } else {
+      ElNotification({
+        showClose: false,
+        customClass: "message-logout",
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
+        duration: 2000,
+      });
+    }
+    loading.value = false;
+  } catch (error) {
+    loading.value = false;
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: t("ElNoti.el35"),
+      duration: 2000,
+    });
   }
-  loading.value = false;
 };
 onMounted(() => {
   gethotHotEventData();

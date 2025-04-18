@@ -4,7 +4,7 @@ import { OrderInfo } from "@/api/type";
 import { ElNotification } from "element-plus";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const loading = ref(false);
 
 const ActivityList = ref<OrderInfo[]>([]);
@@ -19,7 +19,10 @@ const getActivityList = async () => {
       ElNotification({
         showClose: false,
         customClass: "message-logout",
-        title: res.data.json.message_zh,
+        title:
+          locale.value === "zh"
+            ? res.data.json.message_zh
+            : res.data.json.message,
         duration: 2000,
       });
     }
@@ -68,10 +71,10 @@ onMounted(() => {
                 style="fill: white; fill-opacity: 0.8"
               />
             </svg>
-            Back
+            {{ t("back") }}
           </div>
         </div>
-        <div class="Order">Activities attended</div>
+        <div class="Order">{{ t("my.my1") }}</div>
         <div class="ActivitiesList" v-if="ActivityList.length > 0">
           <div
             class="ActivitiesItem"
