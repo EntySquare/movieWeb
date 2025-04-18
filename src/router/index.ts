@@ -68,10 +68,7 @@ let router = createRouter({
           path: "/my/Activities",
           component: () => import("@/views/my/Activities.vue"),
         },
-        {
-          path: "/test",
-          component: () => import("@/views/ai/test.vue"),
-        },
+       
         {
           path: "/collection",
           component: () => import("@/views/collection/index.vue"),
