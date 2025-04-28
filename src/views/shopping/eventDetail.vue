@@ -235,7 +235,6 @@ const sendUsdtTransaction = async () => {
 
   // **BSC USDT 合约地址**
   const usdtContractAddress = "0x55d398326f99059fF775485246999027B3197955"; // BSC 主网 USDT 地址
-  // const recipientAddress = "0x55d398326f99059fF775485246999027B3197955"; // 电影票收款地址
   const recipientAddress = useTokenStore().toAddress;
 
   // **创建 USDT 合约实例**

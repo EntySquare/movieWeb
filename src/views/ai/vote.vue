@@ -488,11 +488,14 @@ interface PoolT {
 }
 
 // **合约信息**
-const contractAddress = "0x4AA23BA3ECC62770bA4Ef83B551d8FD0C923Bcc9"; // 你的投票合约地址
+// const contractAddress = useTokenStore().voteAddress; // 你的投票合约地址
 
 // **初始化 Web3**
 const web3 = new Web3(window.ethereum);
-const contract = new web3.eth.Contract(contractABI, contractAddress);
+const contract = new web3.eth.Contract(
+  contractABI,
+  useTokenStore().voteAddress
+);
 
 const firstRecommender = ref("0x0000000000000000000000000000000000000000"); // 推荐人地址1
 const firstRecommendVotes = ref(0); // 推荐人票数1

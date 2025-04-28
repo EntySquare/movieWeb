@@ -68,6 +68,7 @@ import Web3 from "web3";
 import { useI18n } from "vue-i18n";
 import { buyUserMint, displayNFTForSale } from "@/api/nft";
 import router from "@/router";
+import { useTokenStore } from "@/store/modules/my";
 const { t, locale } = useI18n();
 const route = useRoute();
 const itemId = route.query.id; // 获取 id
@@ -127,7 +128,7 @@ onMounted(async () => {
 const walletStore = useWalletStore(); // 导入钱包状态
 
 const web3 = new Web3(window.ethereum);
-const contractAddress = "0xC45a6408C1DA7db5BbFF5BC7c6Ef003D22474B74"; // NFT合约地址   授权合约地址
+// const contractAddress = useTokenStore().contractAddress; // NFT合约地址   授权合约地址
 // BSC 主网 USDT 地址
 const USDTAddress = "0x55d398326f99059fF775485246999027B3197955";
 
@@ -142,7 +143,7 @@ async function approveUSDT(): Promise<boolean> {
 
     // 获取当前授权额度
     const allowanceRaw = (await tokenContract.methods
-      .allowance(userAddress, contractAddress)
+      .allowance(userAddress, useTokenStore().contractAddress)
       .call()) as any;
     const amountToApprove = web3.utils.toWei(authorizedAmount.value, "ether"); // 授权金额
 
@@ -152,7 +153,7 @@ async function approveUSDT(): Promise<boolean> {
     }
     // 发送授权交易
     const tx = await tokenContract.methods
-      .approve(contractAddress, amountToApprove)
+      .approve(useTokenStore().contractAddress, amountToApprove)
       .send({ from: userAddress });
     ElNotification({
       showClose: false,
@@ -206,7 +207,7 @@ const submitForm = async () => {
   }
   try {
     // 实例化合约
-    const contract = new web3.eth.Contract(nftAbi, contractAddress);
+    const contract = new web3.eth.Contract(nftAbi, useTokenStore().contractAddress);
     // 购买 NFT
     const tx = await contract.methods
       .buyNFT(parseInt(list.value!.tokenId))
