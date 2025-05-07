@@ -14,6 +14,7 @@ const { windowWidth } = useWindowSize();
   // background: rgb(0, 0, 0);
   // height: 100%;
   // overflow: hidden;
+  flex: 1;
   .container {
     padding: 60px 0 40px 25px;
     display: flex;
