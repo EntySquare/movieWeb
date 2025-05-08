@@ -5,8 +5,9 @@ const { windowWidth } = useWindowSize();
 </script>
 <template>
   <div class="home_view">
-    <OpenScreen v-if="windowWidth > 824" />
-    <OpenScreenPhone v-else />
+    <OpenScreen />
+    <!-- <OpenScreen v-if="windowWidth > 824" />
+    <OpenScreenPhone v-else /> -->
   </div>
 </template>
 <style scoped lang="less">
