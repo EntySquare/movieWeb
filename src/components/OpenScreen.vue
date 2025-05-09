@@ -775,7 +775,7 @@ const handleScroll = (e: any) => {
 };
 
 const handleAnchorChange = (link: any) => {
-  checkFixed.value = true;
+  handleResize();
   anchorLink.value = link;
   if (link === "") {
     anchorLink.value = "#part1";
