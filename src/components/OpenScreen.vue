@@ -3090,6 +3090,7 @@ const handleClick = (e: MouseEvent) => {
         overflow: hidden;
         .part11_title {
           align-items: flex-start !important;
+          padding-left: 20px;
           div {
             font-size: 22px !important;
             img {
