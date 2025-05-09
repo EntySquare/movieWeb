@@ -2813,6 +2813,7 @@ const handleClick = (e: MouseEvent) => {
       #part8 {
         max-width: 100% !important;
         min-height: 724px;
+        margin-top: 0px !important;
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
         overflow-x: hidden;
