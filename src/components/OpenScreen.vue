@@ -2401,7 +2401,6 @@ const handleClick = (e: MouseEvent) => {
       #part3 {
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
-        overflow: hidden;
         .part3_title {
           align-items: flex-start !important;
           div {
@@ -2452,6 +2451,7 @@ const handleClick = (e: MouseEvent) => {
             }
             .pli_text {
               width: 207px !important;
+              max-width: 190px !important;
               margin: 10px 0 16px !important;
               font-size: 15px !important;
               text-align: end !important;
@@ -2506,6 +2506,7 @@ const handleClick = (e: MouseEvent) => {
             }
             .pli_text {
               width: 201px !important;
+              max-width: 184px;
               margin: 10px 0 16px !important;
               font-size: 15px !important;
             }
@@ -2565,7 +2566,7 @@ const handleClick = (e: MouseEvent) => {
               span {
                 display: inline-block;
                 &:first-child {
-                  max-width: 207px;
+                  max-width: 190px;
                 }
               }
             }
@@ -2613,7 +2614,7 @@ const handleClick = (e: MouseEvent) => {
               span {
                 display: inline-block;
                 &:first-child {
-                  max-width: 201px;
+                  max-width: 184px;
                 }
               }
             }
@@ -3102,23 +3103,14 @@ const handleClick = (e: MouseEvent) => {
         }
         .part11_section {
           width: 100%;
-          height: 666px !important;
-          // background: url("@/assets/images/home/img50.png") no-repeat;
-          background: white;
+          background: url("@/assets/images/home/img61.png") no-repeat;
           background-size: cover;
           position: relative;
           .part11_section_img1 {
-            width: 157px !important;
-            height: 249px !important;
-            flex-shrink: 0;
-            aspect-ratio: 157/249;
-            position: absolute;
-            top: auto;
-            bottom: 0px !important;
-            left: -19px;
+            display: none !important;
           }
           .part11_section_absolute {
-            max-width: 200px;
+            max-width: 205px;
             position: absolute;
             div {
               &:first-child {
@@ -3130,31 +3122,24 @@ const handleClick = (e: MouseEvent) => {
             }
           }
           .absolute1 {
-            top: 80px !important;
+            top: 108px !important;
             left: auto;
             right: 0px !important;
           }
           .absolute2 {
-            top: 172px !important;
+            top: 195px !important;
             left: 20px !important;
           }
           .absolute3 {
-            max-width: 312px !important;
-            top: 301px !important;
+            max-width: 280px !important;
+            top: 328px !important;
             left: 20px !important;
           }
           .part11_section_img2 {
-            display: none;
+            display: none !important;
           }
           .part11_section_img3 {
-            display: block;
-            width: 175px !important;
-            height: 338px !important;
-            flex-shrink: 0;
-            aspect-ratio: 175/338;
-            position: absolute;
-            top: 155px !important;
-            right: -0px !important;
+            display: none !important;
           }
         }
       }
