@@ -1,6 +1,6 @@
 <template>
   <div class="Homeview">
-    <div ref="containerRef" class="Homeview_content">
+    <div ref="containerRef" class="Homeview_content" @scroll="handleScroll">
       <div id="part1">
         <div class="scroll_content_y">
           <img class="part1_img1" src="@/assets/images/home/img1.png" alt="" />
@@ -556,52 +556,45 @@
       v-if="checkFixed"
       @click="checkFixed = false"
     >
-      <el-anchor
-        :container="containerRef"
-        direction="vertical"
-        type="default"
-        :offset="0"
-        @click="handleClick"
-      >
-        <el-anchor-link href="#part1" title="-" />
-        <el-anchor-link href="#part2" title="-" />
-        <el-anchor-link href="#part4" title="" />
-        <el-anchor-link href="#part7" title="" />
-        <el-anchor-link href="#part8" title="" />
-        <el-anchor-link href="#part9" title="" />
-        <el-anchor-link href="#part10" title="" />
-        <el-anchor-link href="#part11" title="" />
-        <el-anchor-link href="#part12" title="" />
-      </el-anchor>
+      <div
+        v-for="(item, index) in anchorList"
+        :key="index"
+        :class="anchorLink === item.href ? 'active' : ''"
+      ></div>
     </div>
-    <div class="fixed_content" v-else>
+    <div
+      class="fixed_content"
+      :style="
+        !checkFixed ? 'right: 16px !important;' : 'right: -99999px !important;'
+      "
+    >
       <el-anchor
         :container="containerRef"
         direction="vertical"
         type="default"
         :offset="0"
         @click="handleClick"
+        @change="handleAnchorChange"
       >
-        <el-anchor-link href="#part1" title="Home" />
-        <el-anchor-link href="#part2" title="Project introduction" />
-        <el-anchor-link href="#part4" title="Product features" />
-        <el-anchor-link href="#part7" title="RWA benefits" />
-        <el-anchor-link href="#part8" title="MEME token" />
         <el-anchor-link
-          href="#part9"
-          title="Business segment film promotion cases"
+          v-for="(item, index) in anchorList"
+          :key="index"
+          :href="item.href"
+          :title="item.title"
         />
-        <el-anchor-link href="#part10" title="AI KOL" />
-        <el-anchor-link href="#part11" title="Operation rhythm" />
-        <el-anchor-link href="#part12" title="Market opportunities" />
       </el-anchor>
     </div>
+    <div
+      class="fixed_content_mask"
+      v-if="!checkFixed"
+      @click="checkFixed = true"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useWindowSize } from "@/utils/useWindowSize";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import Image22 from "@/assets/images/home/img22.png";
 import Image23 from "@/assets/images/home/img23.png";
@@ -623,7 +616,45 @@ const { windowWidth } = useWindowSize();
 const { t } = useI18n();
 const containerRef = ref<HTMLElement | null>(null);
 const checkFixed = ref(false);
-// 默认选中第一个锚点
+const anchorLink = ref("#part1");
+const anchorList = [
+  {
+    href: "#part1",
+    title: "Home",
+  },
+  {
+    href: "#part2",
+    title: "Project introduction",
+  },
+  {
+    href: "#part4",
+    title: "Product features",
+  },
+  {
+    href: "#part7",
+    title: "RWA benefits",
+  },
+  {
+    href: "#part8",
+    title: "MEME token",
+  },
+  {
+    href: "#part9",
+    title: "Business segment film promotion cases",
+  },
+  {
+    href: "#part10",
+    title: "AI KOL",
+  },
+  {
+    href: "#part11",
+    title: "Operation rhythm",
+  },
+  {
+    href: "#part12",
+    title: "Market opportunities",
+  },
+];
 const hoverIndex = ref(0);
 const web2ImagesList = [
   {
@@ -717,7 +748,13 @@ const businessImageList = [
 ];
 
 onMounted(() => {
+  handleResize();
   window.addEventListener("resize", handleResize);
+  // window.addEventListener("scroll", handleScroll);
+});
+
+onUnmounted(() => {
+  // window.removeEventListener("scroll", handleScroll);
 });
 
 const handleResize = () => {
@@ -725,6 +762,23 @@ const handleResize = () => {
     checkFixed.value = false;
   } else {
     checkFixed.value = true;
+  }
+};
+
+const handleScroll = (e: any) => {
+  if (e.target.getAttribute("href") === "") {
+    anchorLink.value = "#part1";
+  }
+  if (e.target.getAttribute("href") != null) {
+    anchorLink.value = e.target.getAttribute("href");
+  }
+};
+
+const handleAnchorChange = (link: any) => {
+  checkFixed.value = true;
+  anchorLink.value = link;
+  if (link === "") {
+    anchorLink.value = "#part1";
   }
 };
 
@@ -2077,6 +2131,7 @@ const handleClick = (e: MouseEvent) => {
       background-repeat: no-repeat;
       background-position: left bottom;
       background-size: 100%;
+      overflow: hidden;
       .part12_title {
         display: flex;
         flex-direction: column;
@@ -2189,17 +2244,32 @@ const handleClick = (e: MouseEvent) => {
     top: 150px;
     right: 0px;
     z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    div {
+      width: 8px !important;
+      height: 2px !important;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 8px;
+    }
+    .active {
+      width: 12px !important;
+      background-color: rgba(211, 57, 196, 1);
+    }
   }
   .fixed_content {
     max-width: 164px;
     position: fixed;
     top: 333px;
-    right: 16px;
     border: 1px solid rgba(173, 104, 185, 1);
     background-color: rgba(22, 0, 24, 1);
     border-radius: 4px;
     padding: 12px;
     z-index: 10;
+  }
+  .fixed_content_mask {
+    display: none;
   }
 }
 @media (max-width: 824px) {
@@ -2212,6 +2282,7 @@ const handleClick = (e: MouseEvent) => {
       #part1 {
         height: max-content;
         box-sizing: border-box;
+        overflow: hidden;
         .scroll_content_y {
           display: none !important;
         }
@@ -2270,6 +2341,7 @@ const handleClick = (e: MouseEvent) => {
       #part2 {
         padding: 60px 20px 0 !important;
         box-sizing: border-box !important;
+        overflow: hidden;
         .part2_title {
           align-items: flex-start !important;
           div {
@@ -2329,6 +2401,7 @@ const handleClick = (e: MouseEvent) => {
       #part3 {
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
+        overflow: hidden;
         .part3_title {
           align-items: flex-start !important;
           div {
@@ -2550,6 +2623,7 @@ const handleClick = (e: MouseEvent) => {
       #part4 {
         padding: 145px 20px 0 !important;
         box-sizing: border-box;
+        overflow: hidden;
         .part4_title {
           align-items: flex-start !important;
           div {
@@ -2606,6 +2680,7 @@ const handleClick = (e: MouseEvent) => {
         max-width: 100% !important;
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
+        overflow: hidden;
         .part5_title {
           font-size: 20px !important;
         }
@@ -2635,6 +2710,7 @@ const handleClick = (e: MouseEvent) => {
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
         flex-wrap: wrap;
+        overflow: hidden;
         .part6_mobile_title {
           display: block;
           color: #ad68b9;
@@ -2688,6 +2764,7 @@ const handleClick = (e: MouseEvent) => {
         box-sizing: border-box;
         background: url("@/assets/images/home/img57.png") no-repeat !important;
         background-size: cover !important;
+        overflow: hidden;
         .part7_content {
           max-width: 100% !important;
           .part7_content_head {
@@ -2734,8 +2811,11 @@ const handleClick = (e: MouseEvent) => {
       }
       #part8 {
         max-width: 100% !important;
+        min-height: 724px;
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
+        overflow-x: hidden;
+        overflow-y: initial;
         .part8_title {
           align-items: flex-start !important;
           margin-bottom: 33px !important;
@@ -2824,8 +2904,8 @@ const handleClick = (e: MouseEvent) => {
               }
             }
             .statistical_chart_absolute3 {
-              min-width: 96px !important;
-              max-width: 96px !important;
+              min-width: 110px !important;
+              max-width: 110px !important;
               position: absolute;
               top: 56px !important;
               left: 230px !important;
@@ -2879,8 +2959,9 @@ const handleClick = (e: MouseEvent) => {
         width: 100%;
         max-width: 100% !important;
         box-sizing: border-box;
-        margin-top: 268px !important;
+        margin-top: 50px !important;
         padding: 0 20px !important;
+        overflow: hidden;
         .part9_title {
           align-items: flex-start !important;
           div {
@@ -2964,6 +3045,7 @@ const handleClick = (e: MouseEvent) => {
         margin: auto;
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
+        overflow: hidden;
         .part10_title {
           align-items: flex-start !important;
           div {
@@ -3004,6 +3086,7 @@ const handleClick = (e: MouseEvent) => {
         max-width: 100% !important;
         margin-top: 60px !important;
         box-sizing: border-box;
+        overflow: hidden;
         .part11_title {
           align-items: flex-start !important;
           div {
@@ -3083,6 +3166,7 @@ const handleClick = (e: MouseEvent) => {
         background-size: cover !important;
         padding: 60px 20px 0 !important;
         box-sizing: border-box;
+        overflow: hidden;
         .part12_title {
           align-items: flex-start !important;
           div {
@@ -3146,6 +3230,7 @@ const handleClick = (e: MouseEvent) => {
         margin-top: 120px;
         padding: 0 20px 20px;
         box-sizing: border-box;
+        overflow: hidden;
         .part13_title {
           display: block;
           display: flex;
@@ -3184,6 +3269,15 @@ const handleClick = (e: MouseEvent) => {
     .fixed_content {
       top: 150px !important;
       // display: none;
+    }
+    .fixed_content_mask {
+      display: block;
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9;
     }
   }
 }
