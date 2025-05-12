@@ -3,11 +3,23 @@
     <div ref="containerRef" class="Homeview_content" @scroll="handleScroll">
       <div id="part1">
         <div class="scroll_content_y">
-          <img class="part1_img1" src="@/assets/images/home/img1.png" alt="" />
-          <img class="part1_img1" src="@/assets/images/home/img1.png" alt="" />
+          <img
+            class="part1_img1"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img1.png"
+            alt=""
+          />
+          <img
+            class="part1_img1"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img1.png"
+            alt=""
+          />
         </div>
         <div class="part1_section">
-          <img class="part1_img2" src="@/assets/images/home/img2.png" alt="" />
+          <img
+            class="part1_img2"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img2.png"
+            alt=""
+          />
           <div class="part1_section_content">
             <div class="psc_head">
               <div class="psc_head_text">
@@ -16,32 +28,46 @@
                 <div>for the Web3</div>
                 <div>Entertainment Economy</div>
               </div>
-              <img src="@/assets/images/home/img4.png" alt="" />
+              <img
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img4.png"
+                alt=""
+              />
             </div>
             <div class="scroll_content_x">
               <img
                 class="part1_img5"
-                src="@/assets/images/home/img5.png"
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img5.png"
                 alt=""
               />
               <img
                 class="part1_img5"
-                src="@/assets/images/home/img5.png"
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img5.png"
                 alt=""
               />
             </div>
           </div>
         </div>
         <div class="scroll_content_ry">
-          <img class="part1_img6" src="@/assets/images/home/img6.png" alt="" />
-          <img class="part1_img6" src="@/assets/images/home/img6.png" alt="" />
+          <img
+            class="part1_img6"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img6.png"
+            alt=""
+          />
+          <img
+            class="part1_img6"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img6.png"
+            alt=""
+          />
         </div>
       </div>
       <div id="part2">
         <div class="part2_title">
           <div>
             Project Introduction
-            <img src="@/assets/images/home/img7.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img7.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part2_section">
@@ -55,7 +81,10 @@
               and interaction.
             </div>
           </div>
-          <img src="@/assets/images/home/img9.png" alt="" />
+          <img
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img9.png"
+            alt=""
+          />
           <div class="part2_section_text">
             <div>Core VALUEs<br />and Vision</div>
             <div></div>
@@ -71,14 +100,20 @@
         <div class="part3_title">
           <div>
             Team Introduction
-            <img src="@/assets/images/home/img7.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img7.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part3_list">
           <div class="part3_list_item1">
             <div class="pli_top">
               <div class="plit_tip">YAO Meng</div>
-              <img src="@/assets/images/home/img12.png" alt="" />
+              <img
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img12.png"
+                alt=""
+              />
             </div>
             <div class="pli_alltext">
               <div class="pli_text">
@@ -105,7 +140,10 @@
           <div class="part3_list_item2">
             <div class="pli_top">
               <div class="plit_tip">ANna wu</div>
-              <img src="@/assets/images/home/img14.png" alt="" />
+              <img
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img14.png"
+                alt=""
+              />
             </div>
             <div class="pli_alltext">
               <div class="pli_text">
@@ -128,7 +166,10 @@
           <div class="part3_list_item3">
             <div class="pli_top">
               <div class="plit_tip">LEAN YU</div>
-              <img src="@/assets/images/home/img16.png" alt="" />
+              <img
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img16.png"
+                alt=""
+              />
             </div>
             <div class="pli_alltext">
               <div class="pli_text">CEO</div>
@@ -148,7 +189,10 @@
           <div class="part3_list_item4">
             <div class="pli_top">
               <div class="plit_tip">Gaaiwing Wong</div>
-              <img src="@/assets/images/home/img18.png" alt="" />
+              <img
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img18.png"
+                alt=""
+              />
             </div>
             <div class="pli_alltext">
               <div class="pli_text">CTO</div>
@@ -172,7 +216,10 @@
         <div class="part4_title">
           <div>
             PRODUCT FEATURES
-            <img src="@/assets/images/home/img19.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img19.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part4_card">
@@ -225,7 +272,11 @@
       </div>
       <div id="part6">
         <div class="part6_mobile_title">WEB3 Features</div>
-        <img src="@/assets/images/home/img28.png" alt="" class="part6_image" />
+        <img
+          src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img28.png"
+          alt=""
+          class="part6_image"
+        />
         <div class="part6_section">
           <div class="part6_section_title">WEB3 Features</div>
           <div class="part6_section_line"></div>
@@ -254,7 +305,10 @@
           <div class="part7_content_head">
             <div class="p7ch_left">
               RWA BENEFITS
-              <img src="@/assets/images/home/img34.png" alt="" />
+              <img
+                src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img34.png"
+                alt=""
+              />
             </div>
             <div class="p7ch_right">
               Tokenizes movie box office revenue rights on the blockchain,
@@ -299,7 +353,10 @@
         <div class="part8_title">
           <div>
             MEME TOken
-            <img src="@/assets/images/home/img35.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img35.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part8_text">PUMP Explanation</div>
@@ -310,8 +367,16 @@
         </div>
         <div class="statistical_chart">
           <div class="statistical_chart_relative">
-            <img class="scr_img1" src="@/assets/images/home/img37.png" alt="" />
-            <img class="scr_img2" src="@/assets/images/home/img58.png" alt="" />
+            <img
+              class="scr_img1"
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img37.png"
+              alt=""
+            />
+            <img
+              class="scr_img2"
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img58.png"
+              alt=""
+            />
             <div class="statistical_chart_absolute1">
               <div>50%</div>
               <div>Lock-up Period Includes</div>
@@ -375,7 +440,11 @@
               </div>
             </div>
           </div>
-          <img class="sca_img" src="@/assets/images/home/img38.png" alt="" />
+          <img
+            class="sca_img"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img38.png"
+            alt=""
+          />
         </div>
       </div>
       <div id="part9">
@@ -383,7 +452,10 @@
           <div>
             BUSINESS SEGMENT<br />
             FILM PROMOTION CASES
-            <img src="@/assets/images/home/img39.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img39.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part9_section">
@@ -398,7 +470,10 @@
             </div>
           </div>
           <div class="part9_section_card card1">
-            <img src="@/assets/images/home/img45.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img45.png"
+              alt=""
+            />
             <div class="p9sc_title1">Spider-Man: No Way Home</div>
             <div class="p9sc_subtitle">
               Releases exclusive trailers and behind-the-scenes content on
@@ -407,7 +482,10 @@
             </div>
           </div>
           <div class="part9_section_card card2">
-            <img src="@/assets/images/home/img46.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img46.png"
+              alt=""
+            />
             <div class="p9sc_title2">Spider-Man: No Way Home</div>
             <div class="p9sc_subtitle">
               Releases exclusive trailers and behind-the-scenes content on
@@ -434,11 +512,17 @@
         <div class="part10_title">
           <div>
             AI KOL
-            <img src="@/assets/images/home/img47.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img47.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part10_section">
-          <img src="@/assets/images/home/img48.png" alt="" />
+          <img
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img48.png"
+            alt=""
+          />
           <div class="part10_section_content">
             <div>MovieAI is powered by Multi-AI Agent technology.</div>
             <div>
@@ -459,13 +543,16 @@
         <div class="part11_title">
           <div>
             OPERATION RHYTHM
-            <img src="@/assets/images/home/img49.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img49.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part11_section">
           <img
             class="part11_section_img1"
-            src="@/assets/images/home/img51.png"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img51.png"
             alt=""
           />
           <div class="part11_section_absolute absolute1">
@@ -487,12 +574,12 @@
           </div>
           <img
             class="part11_section_img2"
-            src="@/assets/images/home/img52.png"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img52.png"
             alt=""
           />
           <img
             class="part11_section_img3"
-            src="@/assets/images/home/img59.png"
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img59.png"
             alt=""
           />
         </div>
@@ -501,7 +588,10 @@
         <div class="part12_title">
           <div>
             MARKET OPPORTUNITIES
-            <img src="@/assets/images/home/img53.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img53.png"
+              alt=""
+            />
           </div>
         </div>
         <div class="part12_section">
@@ -524,7 +614,10 @@
               high startup costs.
             </div>
           </div>
-          <img src="@/assets/images/home/img55.png" alt="" />
+          <img
+            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img55.png"
+            alt=""
+          />
           <div class="part12_section_text text2">
             <div class="title2">Solutions</div>
             <div class="line line2"></div>
@@ -544,11 +637,22 @@
         <div class="part13_title">
           <div>
             THANKS
-            <img src="@/assets/images/home/img7.png" alt="" />
+            <img
+              src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img7.png"
+              alt=""
+            />
           </div>
         </div>
-        <img class="img1" src="@/assets/images/home/img56.png" alt="" />
-        <img class="img2" src="@/assets/images/home/img60.png" alt="" />
+        <img
+          class="img1"
+          src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img56.png"
+          alt=""
+        />
+        <img
+          class="img2"
+          src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img60.png"
+          alt=""
+        />
       </div>
     </div>
     <div
@@ -596,21 +700,6 @@
 import { useWindowSize } from "@/utils/useWindowSize";
 import { onMounted, ref, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import Image22 from "@/assets/images/home/img22.png";
-import Image23 from "@/assets/images/home/img23.png";
-import Image24 from "@/assets/images/home/img24.png";
-import Image25 from "@/assets/images/home/img25.png";
-import Image26 from "@/assets/images/home/img26.png";
-import Image27 from "@/assets/images/home/img27.png";
-import Image29 from "@/assets/images/home/img29.png";
-import Image30 from "@/assets/images/home/img30.png";
-import Image31 from "@/assets/images/home/img31.png";
-import Image32 from "@/assets/images/home/img32.png";
-import Image40 from "@/assets/images/home/img40.png";
-import Image41 from "@/assets/images/home/img41.png";
-import Image42 from "@/assets/images/home/img42.png";
-import Image43 from "@/assets/images/home/img43.png";
-import Image44 from "@/assets/images/home/img44.png";
 
 const { windowWidth } = useWindowSize();
 const { t } = useI18n();
@@ -658,36 +747,42 @@ const anchorList = [
 const hoverIndex = ref(0);
 const web2ImagesList = [
   {
-    image: Image22,
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img22.png",
     title: "Movie Event Ticket Sales",
     subTitle:
       "Sells movie event tickets online, with integrated raffles to enhance user participation.",
   },
   {
-    image: Image23,
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img23.png",
     title: "Movie Premiere",
     subTitle:
       "Hosts offline premieres with fan-star interactions to boost film buzz and visibility.",
   },
   {
-    image: Image24,
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img24.png",
     title: "Fan Meet-and-Greet",
     subTitle: "Hosts regular fan meet-and-greets to strengthen fan loyalty.",
   },
   {
-    image: Image25,
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img25.png",
     title: "Movie Merchandise Sales",
     subTitle:
       "Launches limited-edition movie merchandise, boosted by co-branded collaborations to enhance product value.",
   },
   {
-    image: Image26,
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img26.png",
     title: "Movie Character & Star Voting",
     subTitle:
       "Conducts online voting for top movie characters, followed by star meet-and-greet events.",
   },
   {
-    image: Image27,
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img27.png",
     title: "AI KOL",
     subTitle:
       "Creates AI agents for the two most popular characters of each film to participate in marketing campaigns, including international promotions.",
@@ -695,25 +790,25 @@ const web2ImagesList = [
 ];
 const web3ImagesList = [
   {
-    image: Image29,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img29.png',
     title: "Priority Access to RWA Subscriptions",
     subTitle:
       "OG Pass PFP holders have priority access to subscribe to movie box office revenue rights (RWA).",
   },
   {
-    image: Image30,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img30.png',
     title: "Token Airdrop",
     subTitle:
       "OG Pass holders will receive priority access to movie-related token airdrops.",
   },
   {
-    image: Image31,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img31.png',
     title: "Priority Access to Limited-Edition Merchandise",
     subTitle:
       "Holders enjoy priority purchase rights for movie merchandise releases.",
   },
   {
-    image: Image32,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img32.png',
     title: "Exclusive VIP Events",
     subTitle:
       "With an OG Pass PFP, fans can join exclusive online and offline movie events.",
@@ -722,26 +817,26 @@ const web3ImagesList = [
 
 const businessImageList = [
   {
-    image: Image40,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img40.png',
     title:
       "Promotes the film through X (formerly Twitter) for marketing and audience outreach.",
   },
   {
-    image: Image41,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img41.png',
     title:
       "Leverages KOLs and influencers to build film hype by sharing trailers and behind-the-scenes content.",
   },
   {
-    image: Image42,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img42.png',
     title:
       "Launches hashtag challenges to encourage user engagement and interaction.",
   },
   {
-    image: Image43,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img43.png',
     title: "Attracts fan attention through NFT airdrops and raffle events.",
   },
   {
-    image: Image44,
+    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img44.png',
     title:
       "Boosts film visibility through offline events like premieres and fan meet-and-greets.",
   },
@@ -872,7 +967,8 @@ const handleClick = (e: MouseEvent) => {
             width: 100%;
             height: 737px;
             margin-top: 32px;
-            background: url("@/assets/images/home/img3.png") no-repeat;
+            background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img3.png")
+              no-repeat;
             background-size: cover;
             display: flex;
             align-items: flex-end;
@@ -943,7 +1039,7 @@ const handleClick = (e: MouseEvent) => {
     #part2 {
       width: 100%;
       padding-top: 157px;
-      background-image: url("@/assets/images/home/img8.png");
+      background-image: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img8.png");
       background-repeat: no-repeat;
       background-position: left bottom;
       background-size: 100%;
@@ -1058,7 +1154,8 @@ const handleClick = (e: MouseEvent) => {
             width: 200px;
             height: 200px;
             position: relative;
-            background: url("@/assets/images/home/img11.png") no-repeat;
+            background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img11.png")
+              no-repeat;
             background-size: cover;
             .plit_tip {
               width: max-content;
@@ -1071,7 +1168,8 @@ const handleClick = (e: MouseEvent) => {
               text-transform: uppercase;
               color: rgba(255, 255, 255, 1);
               padding: 8px;
-              background: url("@/assets/images/home/img10.png") no-repeat;
+              background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img10.png")
+                no-repeat;
               background-size: cover;
               position: absolute;
               top: 4px;
@@ -1113,7 +1211,8 @@ const handleClick = (e: MouseEvent) => {
             width: 200px;
             height: 200px;
             position: relative;
-            background: url("@/assets/images/home/img13.png") no-repeat;
+            background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img13.png")
+              no-repeat;
             background-size: cover;
             left: -14px;
             .plit_tip {
@@ -1127,7 +1226,8 @@ const handleClick = (e: MouseEvent) => {
               text-transform: uppercase;
               color: rgba(255, 255, 255, 1);
               padding: 8px;
-              background: url("@/assets/images/home/img10.png") no-repeat;
+              background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img10.png")
+                no-repeat;
               background-size: cover;
               position: absolute;
               top: 4px;
@@ -1169,7 +1269,8 @@ const handleClick = (e: MouseEvent) => {
             width: 200px;
             height: 200px;
             position: relative;
-            background: url("@/assets/images/home/img15.png") no-repeat;
+            background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img15.png")
+              no-repeat;
             background-size: cover;
             left: -14px;
             .plit_tip {
@@ -1183,7 +1284,8 @@ const handleClick = (e: MouseEvent) => {
               text-transform: uppercase;
               color: rgba(255, 255, 255, 1);
               padding: 8px;
-              background: url("@/assets/images/home/img10.png") no-repeat;
+              background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img10.png")
+                no-repeat;
               background-size: cover;
               position: absolute;
               top: 4px;
@@ -1225,7 +1327,8 @@ const handleClick = (e: MouseEvent) => {
             width: 200px;
             height: 200px;
             position: relative;
-            background: url("@/assets/images/home/img17.png") no-repeat;
+            background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img17.png")
+              no-repeat;
             background-size: cover;
             left: -14px;
             .plit_tip {
@@ -1239,7 +1342,8 @@ const handleClick = (e: MouseEvent) => {
               text-transform: uppercase;
               color: rgba(255, 255, 255, 1);
               padding: 8px;
-              background: url("@/assets/images/home/img10.png") no-repeat;
+              background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img10.png")
+                no-repeat;
               background-size: cover;
               position: absolute;
               top: 4px;
@@ -1313,7 +1417,8 @@ const handleClick = (e: MouseEvent) => {
           width: 640px;
           height: 480px;
           border: 1px solid rgba(60, 59, 59, 1);
-          background: url("@/assets/images/home/img20.png") no-repeat;
+          background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img20.png")
+            no-repeat;
           background-size: cover;
           display: flex;
           align-items: center;
@@ -1323,7 +1428,8 @@ const handleClick = (e: MouseEvent) => {
           width: 640px;
           height: 480px;
           border: 1px solid rgba(60, 59, 59, 1);
-          background: url("@/assets/images/home/img21.png") no-repeat;
+          background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img21.png")
+            no-repeat;
           background-size: cover;
           display: flex;
           align-items: center;
@@ -1500,7 +1606,8 @@ const handleClick = (e: MouseEvent) => {
     #part7 {
       width: 100%;
       height: max-content;
-      background: url("@/assets/images/home/img33.png") no-repeat;
+      background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img33.png")
+        no-repeat;
       background-size: cover;
       margin-top: 120px;
       .part7_content {
@@ -2062,7 +2169,8 @@ const handleClick = (e: MouseEvent) => {
       .part11_section {
         width: 100%;
         height: 690px;
-        background: url("@/assets/images/home/img50.png") no-repeat;
+        background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img50.png")
+          no-repeat;
         background-size: cover;
         position: relative;
         .part11_section_img1 {
@@ -2127,7 +2235,7 @@ const handleClick = (e: MouseEvent) => {
     #part12 {
       width: 100%;
       padding-top: 157px;
-      background-image: url("@/assets/images/home/img54.png");
+      background-image: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img54.png");
       background-repeat: no-repeat;
       background-position: left bottom;
       background-size: 100%;
@@ -2480,7 +2588,8 @@ const handleClick = (e: MouseEvent) => {
               .plit_tip {
                 font-size: 8px !important;
                 padding: 4px !important;
-                background: url("@/assets/images/home/img10.png") no-repeat;
+                background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img10.png")
+                  no-repeat;
                 background-size: cover;
                 position: absolute;
                 top: 2px !important;
@@ -2763,7 +2872,8 @@ const handleClick = (e: MouseEvent) => {
         width: 100%;
         padding: 20px 20px 0 !important;
         box-sizing: border-box;
-        background: url("@/assets/images/home/img57.png") no-repeat !important;
+        background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img57.png")
+          no-repeat !important;
         background-size: cover !important;
         overflow: hidden;
         .part7_content {
@@ -3104,7 +3214,8 @@ const handleClick = (e: MouseEvent) => {
         }
         .part11_section {
           width: 100%;
-          background: url("@/assets/images/home/img61.png") no-repeat;
+          background: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img61.png")
+            no-repeat;
           background-size: cover;
           position: relative;
           .part11_section_img1 {
@@ -3146,7 +3257,7 @@ const handleClick = (e: MouseEvent) => {
       }
       #part12 {
         width: 100%;
-        background-image: url("@/assets/images/home/img54.png");
+        background-image: url("https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img54.png");
         background-repeat: no-repeat;
         background-position: center !important;
         background-size: cover !important;
