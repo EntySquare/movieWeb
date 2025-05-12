@@ -1884,7 +1884,7 @@ const handleClick = (e: MouseEvent) => {
           img {
             min-width: 352px;
             max-width: 352px;
-            height: 528px;
+            height: auto;
             border-radius: 8px;
           }
           .p9sc_title1 {
@@ -2992,7 +2992,6 @@ const handleClick = (e: MouseEvent) => {
             img {
               min-width: 100% !important;
               max-width: 100% !important;
-              height: max-content;
               border-radius: 8px !important;
             }
             .p9sc_title1 {
