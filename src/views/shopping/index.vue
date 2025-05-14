@@ -104,72 +104,6 @@ onMounted(() => {
       </div>
       <div class="shopbottom">
         <div class="bottomLeft">
-          <!-- New Product Section -->
-          <div class="New">
-            <div class="NewTitle">
-              <div class="title">{{ t("shop.shop3") }}</div>
-              <div class="more" @click="router.push('/new')">
-                {{ t("shop.shop4") }}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="6"
-                  height="10"
-                  viewBox="0 0 6 10"
-                  fill="none"
-                >
-                  <path
-                    d="M1 9L5 5L1 1"
-                    stroke="white"
-                    stroke-opacity="0.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div class="newList">
-              <template v-if="newProduct && newProduct.length">
-                <div
-                  class="newsItem"
-                  v-for="item in newProduct.slice(0, 4)"
-                  :key="item.goodsId"
-                  @click="
-                    router.push({
-                      path: '/newDetail',
-                      query: { id: item.goodsId, search: 'Hot' },
-                    })
-                  "
-                >
-                  <div
-                    class="newsImg"
-                    :style="{
-                      backgroundImage: `url(${item.cover})`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: 'contain',
-                      backgroundPosition: 'center',
-                    }"
-                  ></div>
-                  <div class="newsTitle">{{ item.name }}</div>
-                  <div class="Preview">
-                    <div class="Price">${{ item.price }}</div>
-                    <div class="Sold">
-                      {{ t("shop.shop5") }} {{ item.sold }}
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-              <template v-else>
-                <div class="row">
-                  <el-skeleton :rows="6" animated> </el-skeleton>
-                  <el-skeleton :rows="6" animated> </el-skeleton>
-                  <el-skeleton :rows="6" animated> </el-skeleton>
-                  <el-skeleton :rows="6" animated> </el-skeleton>
-                </div>
-              </template>
-            </div>
-          </div>
-
           <!-- Hot Movie Section -->
           <div class="Hotmovie">
             <div class="HotmovieTitle">
@@ -235,6 +169,71 @@ onMounted(() => {
                   <el-skeleton :rows="9" animated> </el-skeleton>
                   <el-skeleton :rows="9" animated> </el-skeleton>
                   <el-skeleton :rows="9" animated> </el-skeleton>
+                </div>
+              </template>
+            </div>
+          </div>
+          <!-- New Product Section -->
+          <div class="New">
+            <div class="NewTitle">
+              <div class="title">{{ t("shop.shop3") }}</div>
+              <div class="more" @click="router.push('/new')">
+                {{ t("shop.shop6") }}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="6"
+                  height="10"
+                  viewBox="0 0 6 10"
+                  fill="none"
+                >
+                  <path
+                    d="M1 9L5 5L1 1"
+                    stroke="white"
+                    stroke-opacity="0.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="newList">
+              <template v-if="newProduct && newProduct.length">
+                <div
+                  class="newsItem"
+                  v-for="item in newProduct.slice(0, 4)"
+                  :key="item.goodsId"
+                  @click="
+                    router.push({
+                      path: '/newDetail',
+                      query: { id: item.goodsId, search: 'Hot' },
+                    })
+                  "
+                >
+                  <div
+                    class="newsImg"
+                    :style="{
+                      backgroundImage: `url(${item.cover})`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: 'contain',
+                      backgroundPosition: 'center',
+                    }"
+                  ></div>
+                  <div class="newsTitle">{{ item.name }}</div>
+                  <div class="Preview">
+                    <div class="Price">${{ item.price }}</div>
+                    <div class="Sold">
+                      {{ t("shop.shop5") }} {{ item.sold }}
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <template v-else>
+                <div class="row">
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                  <el-skeleton :rows="6" animated> </el-skeleton>
+                  <el-skeleton :rows="6" animated> </el-skeleton>
                 </div>
               </template>
             </div>
