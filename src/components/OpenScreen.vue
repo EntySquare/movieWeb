@@ -2,18 +2,6 @@
   <div class="Homeview">
     <div ref="containerRef" class="Homeview_content" @scroll="handleScroll">
       <div id="part1">
-        <div class="scroll_content_y">
-          <img
-            class="part1_img1"
-            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img1.png"
-            alt=""
-          />
-          <img
-            class="part1_img1"
-            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img1.png"
-            alt=""
-          />
-        </div>
         <div class="part1_section">
           <img
             class="part1_img2"
@@ -46,18 +34,6 @@
               />
             </div>
           </div>
-        </div>
-        <div class="scroll_content_ry">
-          <img
-            class="part1_img6"
-            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img6.png"
-            alt=""
-          />
-          <img
-            class="part1_img6"
-            src="https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img6.png"
-            alt=""
-          />
         </div>
       </div>
       <div id="part2">
@@ -790,25 +766,29 @@ const web2ImagesList = [
 ];
 const web3ImagesList = [
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img29.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img29.png",
     title: "Priority Access to RWA Subscriptions",
     subTitle:
       "OG Pass PFP holders have priority access to subscribe to movie box office revenue rights (RWA).",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img30.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img30.png",
     title: "Token Airdrop",
     subTitle:
       "OG Pass holders will receive priority access to movie-related token airdrops.",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img31.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img31.png",
     title: "Priority Access to Limited-Edition Merchandise",
     subTitle:
       "Holders enjoy priority purchase rights for movie merchandise releases.",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img32.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img32.png",
     title: "Exclusive VIP Events",
     subTitle:
       "With an OG Pass PFP, fans can join exclusive online and offline movie events.",
@@ -817,26 +797,31 @@ const web3ImagesList = [
 
 const businessImageList = [
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img40.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img40.png",
     title:
       "Promotes the film through X (formerly Twitter) for marketing and audience outreach.",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img41.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img41.png",
     title:
       "Leverages KOLs and influencers to build film hype by sharing trailers and behind-the-scenes content.",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img42.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img42.png",
     title:
       "Launches hashtag challenges to encourage user engagement and interaction.",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img43.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img43.png",
     title: "Attracts fan attention through NFT airdrops and raffle events.",
   },
   {
-    image: 'https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img44.png',
+    image:
+      "https://dapp-file-oss.oss-cn-beijing.aliyuncs.com/movie-ai/home/img44.png",
     title:
       "Boosts film visibility through offline events like premieres and fan meet-and-greets.",
   },
@@ -926,31 +911,11 @@ const handleClick = (e: MouseEvent) => {
       width: 100%;
       height: 878px;
       display: flex;
+      justify-content: center;
       overflow: hidden;
-      .scroll_content_y {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        animation: scrollDown 20s linear infinite;
-      }
-      .scroll_content_ry {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        animation: scrollTop 20s linear infinite;
-      }
-      .part1_img1 {
-        width: 47px;
-        margin-left: 80px;
-        margin-right: 89px;
-      }
-      .part1_img6 {
-        width: 47px;
-        margin-left: 126px;
-        margin-right: 80px;
-      }
+
       .part1_section {
-        flex: 1;
+        width: calc(100% - 340px);
         height: 100%;
         display: flex;
         .part1_img2 {
@@ -2391,13 +2356,8 @@ const handleClick = (e: MouseEvent) => {
         height: max-content;
         box-sizing: border-box;
         overflow: hidden;
-        .scroll_content_y {
-          display: none !important;
-        }
-        .scroll_content_ry {
-          display: none !important;
-        }
         .part1_section {
+          width: 100%;
           padding: 40px 20px 0 0 !important;
           box-sizing: border-box !important;
           .part1_img2 {
@@ -2979,7 +2939,7 @@ const handleClick = (e: MouseEvent) => {
                 max-width: 101px !important;
               }
               .sca_card {
-                max-width: calc(100% - 40px) !important;
+                max-width: 100% !important;
                 padding: 0 5px 5px !important;
                 box-sizing: border-box;
                 margin-top: 18px !important;
@@ -3376,23 +3336,6 @@ const handleClick = (e: MouseEvent) => {
       left: 0;
       z-index: 9;
     }
-  }
-}
-/* 动画关键帧 */
-@keyframes scrollDown {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(0%);
-  }
-}
-@keyframes scrollTop {
-  0% {
-    transform: translateY(0%);
-  }
-  100% {
-    transform: translateY(-100%);
   }
 }
 /* 动画关键帧 */
