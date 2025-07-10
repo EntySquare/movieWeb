@@ -44,15 +44,10 @@ const { windowWidth } = useWindowSize();
         />
       </div>
     </div>
-    <!-- <OpenScreen v-if="windowWidth > 824" />
-    <OpenScreenPhone v-else /> -->
   </div>
 </template>
 <style scoped lang="less">
 .home_view {
-  // background: rgb(0, 0, 0);
-  // height: 100%;
-  // overflow: hidden;
   flex: 1;
   display: flex;
   .container {
@@ -66,7 +61,6 @@ const { windowWidth } = useWindowSize();
   .scroll_content_y_fixed {
     width: 170px;
     height: 100vh;
-    // background-color: #000000;
     position: fixed;
     top: 0;
     left: 0;
