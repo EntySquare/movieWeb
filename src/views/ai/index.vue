@@ -102,6 +102,64 @@
           }"
         ></div>
       </div>
+      <div class="count_down">{{ formatTime(defaultTime) }}</div>
+    </div>
+    <div class="container_section">
+      <img src="@/assets/images/ai/img13.png" alt="" class="pedestal_img" />
+      <div class="container_section_content">
+        <div class="container_section_red">
+          <img
+            src="@/assets/images/ai/img7.png"
+            alt=""
+            class="container_section_redbackimg"
+          />
+          <img
+            src="@/assets/images/ai/img9.png"
+            alt=""
+            class="container_section_avatar"
+          />
+        </div>
+        <div class="container_section_btn">
+          <div
+            class="csb_blue_block"
+            :style="{
+              clipPath:
+                'polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 calc(100% - 195px))',
+            }"
+          >
+            <div class="csb_blue_block_mask">
+              <div class="vote_btn">VOTE BLUE</div>
+              <div class="share_btn">SPEED UP VOTING</div>
+              <div class="text_btn">BLUE</div>
+            </div>
+          </div>
+          <div
+            class="csb_red_block"
+            :style="{
+              clipPath:
+                'polygon(0 0, 100% 195px, 100% 100%, 100% 100%, 0 100%)',
+            }"
+          >
+            <div class="csb_red_block_mask">
+              <div class="text_btn">RED</div>
+              <div class="share_btn">SPEED UP VOTING</div>
+              <div class="vote_btn">VOTE BLUE</div>
+            </div>
+          </div>
+        </div>
+        <div class="container_section_blue">
+          <img
+            src="@/assets/images/ai/img11.png"
+            alt=""
+            class="container_section_avatar"
+          />
+          <img
+            src="@/assets/images/ai/img12.png"
+            alt=""
+            class="container_section_redbackimg"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -111,14 +169,28 @@ import { ref, onMounted } from "vue";
 
 const redWidth = ref(50);
 const blueWidth = ref(50);
+const startTime = ref(1752483533000);
+const endTime = ref(1752656333000);
+const differenceTime = ref(0);
 
 onMounted(() => {
+  differenceTime.value = endTime.value - startTime.value;
   setInterval(() => {
     const red = Math.floor(Math.random() * 100);
     redWidth.value = red;
     blueWidth.value = 100 - red;
+    differenceTime.value -= 1000;
   }, 1000);
 });
+
+const formatTime = () => {
+  const minuteTime = differenceTime.value / 1000;
+  const day = Math.floor(minuteTime / 60 / 60 / 24);
+  const hours = Math.floor((minuteTime / 60 / 60) % 24);
+  const minute = Math.floor((minuteTime / 60) % 60);
+  const second = Math.floor(minuteTime % 60);
+  return day + "days " + hours + "h " + minute + "min " + second + "sec";
+};
 </script>
 
 <style scoped lang="less">
@@ -353,6 +425,246 @@ onMounted(() => {
         bottom: 32px;
         z-index: 5;
         transition: 1s;
+      }
+    }
+    .count_down {
+      color: #ff54f6;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+      text-transform: capitalize;
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      top: -20px;
+    }
+  }
+  .container_section {
+    width: 100%;
+    position: relative;
+    .pedestal_img {
+      width: 1280px;
+      height: auto;
+      margin: auto;
+      position: absolute;
+      left: calc(50% - 640px);
+      bottom: 0;
+      z-index: 1;
+    }
+    .container_section_content {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      padding-bottom: 150px;
+      .container_section_red {
+        flex: 1;
+        height: 560px;
+        position: relative;
+        left: -35px;
+        top: -24px;
+
+        .container_section_redbackimg {
+          width: 100%;
+          height: 100%;
+        }
+        .container_section_avatar {
+          width: 420px;
+          height: 609px;
+          position: absolute;
+          top: 0;
+          right: -35px;
+        }
+      }
+      .container_section_btn {
+        width: 326px;
+        height: 498px;
+        margin: 0 32px;
+        background: url("@/assets/images/ai/img10.png") no-repeat;
+        background-size: 100% 100%;
+        .csb_blue_block {
+          width: 319px;
+          height: 337px;
+          background: url("@/assets/images/ai/img2.png") no-repeat;
+          background-size: cover;
+          background-position: center;
+          overflow: hidden;
+          position: relative;
+          left: 20px;
+          top: 26px;
+          box-shadow: 0px 0px 40px 0px rgba(42, 46, 241, 0.28) inset;
+          box-shadow: 0px 1px 6px 0px rgba(42, 46, 241, 0.46) inset;
+          .csb_blue_block_mask {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(22, 6, 2, 0.25);
+            .vote_btn {
+              width: 280px;
+              height: 48px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(42, 46, 241, 1);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 20px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-top: 20px;
+              cursor: pointer;
+            }
+            .share_btn {
+              width: 280px;
+              height: 35px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(33, 34, 105, 0.95);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-top: 16px;
+              cursor: pointer;
+            }
+            .text_btn {
+              margin-top: 45px;
+              text-align: right;
+              -webkit-text-stroke-width: 0.83px;
+              -webkit-text-stroke-color: #000;
+              font-family: Montserrat;
+              font-size: 54px;
+              font-style: normal;
+              font-weight: 800;
+              line-height: normal;
+              text-transform: uppercase;
+              transform: rotate(30deg);
+              background: linear-gradient(
+                0deg,
+                rgba(101, 104, 228, 1) 0%,
+                rgba(127, 130, 255, 0.23) 100%
+              );
+              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+            }
+          }
+        }
+        .csb_red_block {
+          width: 319px;
+          height: 312px;
+          background: url("@/assets/images/ai/img1.png") no-repeat;
+          background-size: cover;
+          background-position: center;
+          overflow: hidden;
+          position: relative;
+          left: -10px;
+          top: -150px;
+          box-shadow: 0px 0px 40px 0px rgba(210, 57, 58, 0.28) inset;
+          box-shadow: 0px 1px 6px 0px rgba(210, 57, 58, 0.46) inset;
+          .csb_red_block_mask {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(22, 6, 2, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            .vote_btn {
+              width: 280px;
+              height: 48px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(211, 57, 57, 1);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 20px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-bottom: 12px;
+              cursor: pointer;
+            }
+            .share_btn {
+              width: 280px;
+              height: 35px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(72, 16, 16, 1);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-bottom: 11px;
+              cursor: pointer;
+            }
+            .text_btn {
+              text-align: right;
+              -webkit-text-stroke-width: 0.83px;
+              -webkit-text-stroke-color: #000;
+              font-family: Montserrat;
+              font-size: 54px;
+              font-style: normal;
+              font-weight: 800;
+              line-height: normal;
+              text-transform: uppercase;
+              transform: rotate(30deg);
+              background: linear-gradient(
+                0deg,
+                rgba(255, 114, 114, 1) 0%,
+                rgba(255, 114, 114, 0.08) 100%
+              );
+              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+              position: relative;
+              top: -35px;
+            }
+          }
+        }
+      }
+      .container_section_blue {
+        flex: 1;
+        height: 560px;
+        position: relative;
+        right: -35px;
+        top: -24px;
+
+        .container_section_redbackimg {
+          width: 100%;
+          height: 100%;
+        }
+        .container_section_avatar {
+          width: 420px;
+          height: 609px;
+          position: absolute;
+          top: 0;
+          left: -35px;
+        }
       }
     }
   }
