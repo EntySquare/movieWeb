@@ -143,7 +143,7 @@
             <div class="csb_red_block_mask">
               <div class="text_btn">RED</div>
               <div class="share_btn">SPEED UP VOTING</div>
-              <div class="vote_btn">VOTE BLUE</div>
+              <div class="vote_btn">VOTE RED</div>
             </div>
           </div>
         </div>
