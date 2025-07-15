@@ -128,7 +128,9 @@
             }"
           >
             <div class="csb_blue_block_mask">
-              <div class="vote_btn">VOTE BLUE</div>
+              <div class="vote_btn" @click="showVoteDifference('blue')">
+                VOTE BLUE
+              </div>
               <div class="share_btn">SPEED UP VOTING</div>
               <div class="text_btn">BLUE</div>
             </div>
@@ -143,7 +145,9 @@
             <div class="csb_red_block_mask">
               <div class="text_btn">RED</div>
               <div class="share_btn">SPEED UP VOTING</div>
-              <div class="vote_btn">VOTE RED</div>
+              <div class="vote_btn" @click="showVoteDifference('red')">
+                VOTE RED
+              </div>
             </div>
           </div>
         </div>
@@ -161,6 +165,81 @@
         </div>
       </div>
     </div>
+    <!-- 投票票数相差弹窗 -->
+    <div
+      v-if="voteDifferenceVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+      @click="voteDifferenceVisible = false"
+    >
+      <div class="vote_dv_content" @click.stop="">
+        <div class="vote_dvc_red">
+          <img src="@/assets/images/ai/img9.png" alt="" />
+          <div v-if="blueWidth > redWidth"></div>
+        </div>
+        <div
+          class="vote_dvc_content"
+          :class="redWidth > blueWidth ? 'red' : 'blue'"
+        >
+          <div class="vote_dvc_content_head">
+            <div class="red_text red_text_lead" v-if="redWidth > blueWidth">
+              {{ voteDifferenceType === "red" ? "NEZHA" : "AO BING" }}
+              TAKES<br />THE LEAD!
+            </div>
+            <div class="red_text red_text_backward" v-else>
+              {{ voteDifferenceType === "red" ? "NEZHA" : "AO BING" }}
+              IS<br />BEHIND!
+            </div>
+          </div>
+          <div class="">Stake 450 votes for enhanced yield</div>
+          <div>
+            Keep voting to maintain the lead! Get 1 free vote daily, and earn
+            bonus votes by inviting friends.
+          </div>
+          <div @click="showVoteVisible">Vote More</div>
+        </div>
+        <div class="vote_dvc_blue">
+          <img src="@/assets/images/ai/img11.png" alt="" />
+          <div v-if="redWidth > blueWidth"></div>
+        </div>
+      </div>
+    </div>
+    <!-- 投票弹窗 -->
+    <div
+      v-if="voteVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+      @click="voteVisible = false"
+    >
+      <div class="vote_num_content">
+        <img src="@/assets/images/ai/img3.png" alt="" />
+        <div>VOTE NEZHA</div>
+        <div>
+          Vote for NEZHA with 1 vote per submission! Earn extra votes by
+          inviting friends.
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -172,6 +251,9 @@ const blueWidth = ref(50);
 const startTime = ref(1752483533000);
 const endTime = ref(1752656333000);
 const differenceTime = ref(0);
+const voteDifferenceVisible = ref(false);
+const voteVisible = ref(false);
+const voteDifferenceType = ref("");
 
 onMounted(() => {
   differenceTime.value = endTime.value - startTime.value;
@@ -190,6 +272,16 @@ const formatTime = () => {
   const minute = Math.floor((minuteTime / 60) % 60);
   const second = Math.floor(minuteTime % 60);
   return day + "days " + hours + "h " + minute + "min " + second + "sec";
+};
+
+const showVoteDifference = (type) => {
+  voteDifferenceType.value = type;
+  voteDifferenceVisible.value = true;
+};
+
+const showVoteVisible = () => {
+  voteDifferenceVisible.value = false;
+  voteVisible.value = true;
 };
 </script>
 
@@ -666,6 +758,154 @@ const formatTime = () => {
           left: -35px;
         }
       }
+    }
+  }
+  .vote_dv_content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .vote_dvc_red {
+      min-width: 220px;
+      max-width: 220px;
+      height: 320px;
+      position: relative;
+      right: -30px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      div {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.56);
+        z-index: 2;
+      }
+    }
+    .vote_dvc_content {
+      min-width: 409px;
+      max-width: 409px;
+      height: 325px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .vote_dvc_content_head {
+        .red_text {
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 32px;
+          font-style: normal;
+          font-weight: 900;
+          line-height: 150%; /* 48px */
+          text-transform: uppercase;
+        }
+        .red_text_lead {
+          color: #d33939;
+        }
+        .red_text_backward {
+          color: #2a2ef1;
+        }
+      }
+
+      & > div {
+        max-width: 329px;
+        &:nth-child(2) {
+          color: #fff;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 150%; /* 21px */
+          text-transform: uppercase;
+        }
+        &:nth-child(3) {
+          color: rgba(255, 255, 255, 0.8);
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%; /* 21px */
+        }
+        &:last-child {
+          margin-top: 24px;
+          display: flex;
+          padding: 8px 16px;
+          justify-content: center;
+          align-items: center;
+          border-radius: 8px;
+          background: #fff;
+          color: #d33939;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: normal;
+          text-transform: uppercase;
+          cursor: pointer;
+        }
+      }
+    }
+    .red {
+      border: 1px solid #d33939;
+      background: #1e0803;
+      box-shadow: 0px 1px 6px 0px rgba(211, 57, 57, 0.54) inset,
+        0px 0px 40px 0px rgba(211, 57, 57, 0.28) inset;
+    }
+    .blue {
+      border: 1px solid #2a2ef1;
+      background: #03051e;
+      box-shadow: 0px 1px 6px 0px rgba(42, 46, 241, 0.54) inset,
+        0px 0px 40px 0px rgba(42, 46, 241, 0.28) inset;
+    }
+    .vote_dvc_blue {
+      min-width: 220px;
+      max-width: 220px;
+      height: 320px;
+      position: relative;
+      left: -30px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      div {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.56);
+        z-index: 2;
+      }
+    }
+  }
+  .vote_num_content {
+    border-radius: 16px;
+    border: 1px solid #d33939;
+    background: #1e0803;
+    box-shadow: 0px 1px 6px 0px rgba(211, 57, 57, 0.54) inset,
+      0px 0px 40px 0px rgba(211, 57, 57, 0.28) inset;
+    padding: 0 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    & > div {
+      width: 272px;
+      max-width: 272px;
+    }
+    & > img {
+      width: 80px;
+      height: 80px;
+      position: relative;
+      top: -40px;
+      z-index: 2;
     }
   }
 }
