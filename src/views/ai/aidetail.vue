@@ -1,1300 +1,912 @@
-<script setup lang='ts' name="HomeView">
-import { CSSProperties, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
-const { t } = useI18n();
-const videos = ref([
-  {
-    imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video1.mp4",
-  },
-  {
-    imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video1.mp4",
-  },
-  {
-    imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video1.mp4",
-  },
-  {
-    imageSrc: "/src/assets/images/Producing.png",
-    videoSrc: "/src/assets/video1.mp4",
-  },
-]);
-
-const currentIndex = ref(0);
-const videoPlayer = ref<HTMLVideoElement | null>(null);
-const isPlaying = ref(false);
-
-const togglePlay = () => {
-  if (!videoPlayer.value) return;
-
-  if (isPlaying.value) {
-    videoPlayer.value.pause();
-  } else {
-    videoPlayer.value.play();
-  }
-
-  isPlaying.value = !isPlaying.value;
-};
-
-const nextSlide = () => {
-  currentIndex.value = (currentIndex.value + 1) % videos.value.length;
-  resetVideo();
-};
-const goToSlide = (index: number) => {
-  currentIndex.value = index;
-  resetVideo();
-};
-const prevSlide = () => {
-  currentIndex.value =
-    (currentIndex.value - 1 + videos.value.length) % videos.value.length;
-  resetVideo();
-};
-
-const showPauseButton = ref(false);
-// 监听播放状态，更新 UI
-watch(isPlaying, (playing) => {
-  if (!playing) {
-    showPauseButton.value = false; // 暂停时隐藏暂停按钮
-  }
-});
-
-const resetVideo = () => {
-  if (videoPlayer.value) {
-    videoPlayer.value.pause();
-    videoPlayer.value.load();
-    isPlaying.value = false;
-  }
-};
-
-// 生成 0 到 39 的刻度线
-const scaleMarks = ref<number[]>([]);
-for (let i = 0; i <= 39; i++) {
-  scaleMarks.value.push(i);
-}
-
-// 根据索引计算每个刻度线的位置
-const getScaleMarkStyle = (index: number): CSSProperties => {
-  const scaleWidth = 915; // 刻度条的总宽度
-  const step = scaleWidth / 39; // 计算每个刻度的间距
-  return {
-    left: `${index * step}px`, // 每个刻度的水平位置
-    height: "8px", // 刻度线的高度
-    width: "1px", // 刻度线的宽度
-    position: "absolute",
-    bottom: "0",
-    backgroundColor: "#2c2c2c",
-  };
-};
-
-// 根据索引计算每个数字标签的位置
-const getScaleLabelStyle = (index: number): CSSProperties => {
-  const step = 915 / 39; // 每个刻度之间的间隔
-  return {
-    left: `0px`, // 使数字与刻度线对齐
-    bottom: "12px", // 将数字标签放置在刻度线的上方
-    position: "absolute",
-    fontSize: "12px",
-    textAlign: "center",
-    transform: "translateX(-50%)", // 使数字居中显示
-    color: "rgba(255, 255, 255, 0.40)",
-  };
-};
-
-const sliderValue = ref(0);
-const sliderValue1 = ref(0);
-
-const onSliderInput = () => {
-  // 更新滑动条的颜色
-  const slider = document.querySelector(".slider") as HTMLInputElement;
-  if (slider) {
-    // 根据滑动的值，动态改变背景颜色
-    slider.style.background = `linear-gradient(to right, #D339C4 ${sliderValue.value}%, #371b36 ${sliderValue.value}%, #371b36 100%)`;
-  }
-};
-const onSliderInput1 = () => {
-  // 更新滑动条的颜色
-  const slider = document.querySelector(".slider1") as HTMLInputElement;
-  if (slider) {
-    // 根据滑动的值，动态改变背景颜色
-    slider.style.background = `linear-gradient(to right, #D339C4 ${sliderValue1.value}%, #371b36 ${sliderValue1.value}%, #371b36 100%)`;
-  }
-};
-</script>
 <template>
-  <div class="home_view">
-    <div class="container">
-      <div class="deskTop">
-        <div class="topleft">
-          <div class="Box">
-            <div class="BoxOffice">
-              <div class="BoxTitle">{{ t("ai.ai50") }}</div>
-              <div class="BoxText">
-                {{ t("ai.ai51") }}
-              </div>
-            </div>
-            <div class="ticket">
-              <img src="@/assets/svgs/ticket.svg" alt="" />
-              <div class="box">{{ t("ai.ai52") }}</div>
-            </div>
-          </div>
-          <div class="B15">
-            <div class="B15Item">
-              <div class="img">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="52"
-                  height="52"
-                  viewBox="0 0 52 52"
-                  fill="none"
-                >
-                  <path
-                    d="M7.08232 15.5044L22.1113 4.98086C22.9182 4.41617 23.9164 4.19511 24.8863 4.36628C25.8563 4.53745 26.7185 5.08685 27.2834 5.89365L29.654 9.27736C29.6884 9.32751 29.7218 9.37858 29.7534 9.42965L7.08232 15.5044ZM1.99375 27.7104L0.965824 23.8726C0.839603 23.4014 0.807454 22.9099 0.871213 22.4262C0.934972 21.9426 1.09339 21.4762 1.33742 21.0538C1.58145 20.6313 1.90631 20.2611 2.29344 19.9642C2.68058 19.6674 3.1224 19.4497 3.59368 19.3236L41.263 9.23001C41.7342 9.10361 42.2257 9.07128 42.7094 9.13485C43.1931 9.19843 43.6595 9.35666 44.082 9.60051C44.5045 9.84437 44.8749 10.1691 45.1719 10.5561C45.4689 10.9431 45.6868 11.3848 45.813 11.856L46.8818 15.847C47.0327 16.4105 47.0144 17.006 46.8291 17.5592C46.6438 18.1123 46.2998 18.5987 45.84 18.9577C45.1175 19.5212 44.5779 20.2858 44.2891 21.1553C44.0002 22.0248 43.975 22.9603 44.2166 23.844C44.4582 24.7278 44.9559 25.5203 45.6469 26.1219C46.3379 26.7235 47.1915 27.1072 48.1001 27.2248C48.6612 27.2978 49.188 27.5358 49.6137 27.9086C50.0393 28.2814 50.3448 28.7722 50.4912 29.3187L51.5804 33.3821C51.7068 33.8533 51.7391 34.3448 51.6755 34.8285C51.612 35.3122 51.4537 35.7786 51.2099 36.2011C50.966 36.6236 50.6413 36.994 50.2543 37.291C49.8673 37.588 49.4256 37.8059 48.9544 37.9321L11.2823 48.0257C10.3308 48.2804 9.31712 48.1467 8.4642 47.6541C7.61129 47.1614 6.98897 46.3502 6.73411 45.3988L5.7099 41.5759C5.54849 40.9741 5.56427 40.3385 5.75535 39.7455C5.94643 39.1525 6.30467 38.6273 6.78704 38.233C7.48069 37.6668 7.99586 36.9121 8.27049 36.0599C8.54512 35.2076 8.56751 34.2941 8.33495 33.4295C8.1024 32.5648 7.62481 31.7858 6.95973 31.1863C6.29464 30.5868 5.47042 30.1923 4.58632 30.0504C3.97472 29.9518 3.40469 29.6784 2.94487 29.2632C2.48506 28.8481 2.15508 28.3088 1.99468 27.7104H1.99375ZM34.9376 21.4992C35.291 21.4045 35.6223 21.2412 35.9125 21.0185C36.2028 20.7957 36.4463 20.518 36.6292 20.2012C36.8122 19.8844 36.9309 19.5346 36.9787 19.1719C37.0264 18.8091 37.0023 18.4406 36.9076 18.0872C36.8129 17.7338 36.6495 17.4025 36.4268 17.1123C36.2041 16.822 35.9264 16.5785 35.6096 16.3955C35.2927 16.2126 34.9429 16.0939 34.5802 16.0461C34.2175 15.9984 33.8489 16.0225 33.4955 16.1172C32.7818 16.3084 32.1733 16.7754 31.8039 17.4152C31.4345 18.0551 31.3343 18.8156 31.5256 19.5293C31.7168 20.243 32.1837 20.8515 32.8236 21.2209C33.4635 21.5903 34.2239 21.6905 34.9376 21.4992ZM36.8598 28.6743C37.2182 28.5844 37.5553 28.4241 37.8512 28.2027C38.1471 27.9813 38.396 27.7032 38.5834 27.3847C38.7708 27.0661 38.893 26.7134 38.9427 26.3472C38.9925 25.981 38.9689 25.6085 38.8732 25.2515C38.7776 24.8945 38.6119 24.5601 38.3858 24.2678C38.1597 23.9754 37.8776 23.731 37.5561 23.5488C37.2346 23.3665 36.88 23.25 36.513 23.2062C36.1461 23.1623 35.774 23.1919 35.4186 23.2932C34.7136 23.4921 34.1153 23.9606 33.7533 24.5974C33.3912 25.2341 33.2945 25.9879 33.4841 26.6954C33.6737 27.403 34.1344 28.0073 34.7663 28.3777C35.3983 28.7481 36.1507 28.8546 36.8607 28.6743H36.8598ZM38.7828 35.8503C39.4965 35.6591 40.105 35.1921 40.4745 34.5523C40.8439 33.9124 40.944 33.152 40.7528 32.4383C40.5616 31.7246 40.0946 31.1161 39.4548 30.7466C38.8149 30.3772 38.0545 30.2771 37.3408 30.4683C36.6271 30.6595 36.0186 31.1264 35.6491 31.7663C35.2797 32.4062 35.1796 33.1666 35.3708 33.8803C35.562 34.594 36.0289 35.2025 36.6688 35.572C37.3087 35.9414 38.0691 36.0415 38.7828 35.8503Z"
-                    fill="#3C3C3C"
-                    style="
-                      fill: #3c3c3c;
-                      fill: color(display-p3 0.2333 0.2333 0.2333);
-                      fill-opacity: 1;
-                    "
-                  />
-                </svg>
-              </div>
-              <div class="B15Title">15B</div>
-            </div>
-            <div class="B15Item">
-              <div class="img">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="52"
-                  height="52"
-                  viewBox="0 0 52 52"
-                  fill="none"
-                >
-                  <path
-                    d="M7.08232 15.5044L22.1113 4.98086C22.9182 4.41617 23.9164 4.19511 24.8863 4.36628C25.8563 4.53745 26.7185 5.08685 27.2834 5.89365L29.654 9.27736C29.6884 9.32751 29.7218 9.37858 29.7534 9.42965L7.08232 15.5044ZM1.99375 27.7104L0.965824 23.8726C0.839603 23.4014 0.807454 22.9099 0.871213 22.4262C0.934972 21.9426 1.09339 21.4762 1.33742 21.0538C1.58145 20.6313 1.90631 20.2611 2.29344 19.9642C2.68058 19.6674 3.1224 19.4497 3.59368 19.3236L41.263 9.23001C41.7342 9.10361 42.2257 9.07128 42.7094 9.13485C43.1931 9.19843 43.6595 9.35666 44.082 9.60051C44.5045 9.84437 44.8749 10.1691 45.1719 10.5561C45.4689 10.9431 45.6868 11.3848 45.813 11.856L46.8818 15.847C47.0327 16.4105 47.0144 17.006 46.8291 17.5592C46.6438 18.1123 46.2998 18.5987 45.84 18.9577C45.1175 19.5212 44.5779 20.2858 44.2891 21.1553C44.0002 22.0248 43.975 22.9603 44.2166 23.844C44.4582 24.7278 44.9559 25.5203 45.6469 26.1219C46.3379 26.7235 47.1915 27.1072 48.1001 27.2248C48.6612 27.2978 49.188 27.5358 49.6137 27.9086C50.0393 28.2814 50.3448 28.7722 50.4912 29.3187L51.5804 33.3821C51.7068 33.8533 51.7391 34.3448 51.6755 34.8285C51.612 35.3122 51.4537 35.7786 51.2099 36.2011C50.966 36.6236 50.6413 36.994 50.2543 37.291C49.8673 37.588 49.4256 37.8059 48.9544 37.9321L11.2823 48.0257C10.3308 48.2804 9.31712 48.1467 8.4642 47.6541C7.61129 47.1614 6.98897 46.3502 6.73411 45.3988L5.7099 41.5759C5.54849 40.9741 5.56427 40.3385 5.75535 39.7455C5.94643 39.1525 6.30467 38.6273 6.78704 38.233C7.48069 37.6668 7.99586 36.9121 8.27049 36.0599C8.54512 35.2076 8.56751 34.2941 8.33495 33.4295C8.1024 32.5648 7.62481 31.7858 6.95973 31.1863C6.29464 30.5868 5.47042 30.1923 4.58632 30.0504C3.97472 29.9518 3.40469 29.6784 2.94487 29.2632C2.48506 28.8481 2.15508 28.3088 1.99468 27.7104H1.99375ZM34.9376 21.4992C35.291 21.4045 35.6223 21.2412 35.9125 21.0185C36.2028 20.7957 36.4463 20.518 36.6292 20.2012C36.8122 19.8844 36.9309 19.5346 36.9787 19.1719C37.0264 18.8091 37.0023 18.4406 36.9076 18.0872C36.8129 17.7338 36.6495 17.4025 36.4268 17.1123C36.2041 16.822 35.9264 16.5785 35.6096 16.3955C35.2927 16.2126 34.9429 16.0939 34.5802 16.0461C34.2175 15.9984 33.8489 16.0225 33.4955 16.1172C32.7818 16.3084 32.1733 16.7754 31.8039 17.4152C31.4345 18.0551 31.3343 18.8156 31.5256 19.5293C31.7168 20.243 32.1837 20.8515 32.8236 21.2209C33.4635 21.5903 34.2239 21.6905 34.9376 21.4992ZM36.8598 28.6743C37.2182 28.5844 37.5553 28.4241 37.8512 28.2027C38.1471 27.9813 38.396 27.7032 38.5834 27.3847C38.7708 27.0661 38.893 26.7134 38.9427 26.3472C38.9925 25.981 38.9689 25.6085 38.8732 25.2515C38.7776 24.8945 38.6119 24.5601 38.3858 24.2678C38.1597 23.9754 37.8776 23.731 37.5561 23.5488C37.2346 23.3665 36.88 23.25 36.513 23.2062C36.1461 23.1623 35.774 23.1919 35.4186 23.2932C34.7136 23.4921 34.1153 23.9606 33.7533 24.5974C33.3912 25.2341 33.2945 25.9879 33.4841 26.6954C33.6737 27.403 34.1344 28.0073 34.7663 28.3777C35.3983 28.7481 36.1507 28.8546 36.8607 28.6743H36.8598ZM38.7828 35.8503C39.4965 35.6591 40.105 35.1921 40.4745 34.5523C40.8439 33.9124 40.944 33.152 40.7528 32.4383C40.5616 31.7246 40.0946 31.1161 39.4548 30.7466C38.8149 30.3772 38.0545 30.2771 37.3408 30.4683C36.6271 30.6595 36.0186 31.1264 35.6491 31.7663C35.2797 32.4062 35.1796 33.1666 35.3708 33.8803C35.562 34.594 36.0289 35.2025 36.6688 35.572C37.3087 35.9414 38.0691 36.0415 38.7828 35.8503Z"
-                    fill="#3C3C3C"
-                    style="
-                      fill: #3c3c3c;
-                      fill: color(display-p3 0.2333 0.2333 0.2333);
-                      fill-opacity: 1;
-                    "
-                  />
-                </svg>
-              </div>
-              <div class="B15Title">10B</div>
-            </div>
-            <div class="B15Item">
-              <div class="img">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="52"
-                  height="52"
-                  viewBox="0 0 52 52"
-                  fill="none"
-                >
-                  <path
-                    d="M7.08232 15.5044L22.1113 4.98086C22.9182 4.41617 23.9164 4.19511 24.8863 4.36628C25.8563 4.53745 26.7185 5.08685 27.2834 5.89365L29.654 9.27736C29.6884 9.32751 29.7218 9.37858 29.7534 9.42965L7.08232 15.5044ZM1.99375 27.7104L0.965824 23.8726C0.839603 23.4014 0.807454 22.9099 0.871213 22.4262C0.934972 21.9426 1.09339 21.4762 1.33742 21.0538C1.58145 20.6313 1.90631 20.2611 2.29344 19.9642C2.68058 19.6674 3.1224 19.4497 3.59368 19.3236L41.263 9.23001C41.7342 9.10361 42.2257 9.07128 42.7094 9.13485C43.1931 9.19843 43.6595 9.35666 44.082 9.60051C44.5045 9.84437 44.8749 10.1691 45.1719 10.5561C45.4689 10.9431 45.6868 11.3848 45.813 11.856L46.8818 15.847C47.0327 16.4105 47.0144 17.006 46.8291 17.5592C46.6438 18.1123 46.2998 18.5987 45.84 18.9577C45.1175 19.5212 44.5779 20.2858 44.2891 21.1553C44.0002 22.0248 43.975 22.9603 44.2166 23.844C44.4582 24.7278 44.9559 25.5203 45.6469 26.1219C46.3379 26.7235 47.1915 27.1072 48.1001 27.2248C48.6612 27.2978 49.188 27.5358 49.6137 27.9086C50.0393 28.2814 50.3448 28.7722 50.4912 29.3187L51.5804 33.3821C51.7068 33.8533 51.7391 34.3448 51.6755 34.8285C51.612 35.3122 51.4537 35.7786 51.2099 36.2011C50.966 36.6236 50.6413 36.994 50.2543 37.291C49.8673 37.588 49.4256 37.8059 48.9544 37.9321L11.2823 48.0257C10.3308 48.2804 9.31712 48.1467 8.4642 47.6541C7.61129 47.1614 6.98897 46.3502 6.73411 45.3988L5.7099 41.5759C5.54849 40.9741 5.56427 40.3385 5.75535 39.7455C5.94643 39.1525 6.30467 38.6273 6.78704 38.233C7.48069 37.6668 7.99586 36.9121 8.27049 36.0599C8.54512 35.2076 8.56751 34.2941 8.33495 33.4295C8.1024 32.5648 7.62481 31.7858 6.95973 31.1863C6.29464 30.5868 5.47042 30.1923 4.58632 30.0504C3.97472 29.9518 3.40469 29.6784 2.94487 29.2632C2.48506 28.8481 2.15508 28.3088 1.99468 27.7104H1.99375ZM34.9376 21.4992C35.291 21.4045 35.6223 21.2412 35.9125 21.0185C36.2028 20.7957 36.4463 20.518 36.6292 20.2012C36.8122 19.8844 36.9309 19.5346 36.9787 19.1719C37.0264 18.8091 37.0023 18.4406 36.9076 18.0872C36.8129 17.7338 36.6495 17.4025 36.4268 17.1123C36.2041 16.822 35.9264 16.5785 35.6096 16.3955C35.2927 16.2126 34.9429 16.0939 34.5802 16.0461C34.2175 15.9984 33.8489 16.0225 33.4955 16.1172C32.7818 16.3084 32.1733 16.7754 31.8039 17.4152C31.4345 18.0551 31.3343 18.8156 31.5256 19.5293C31.7168 20.243 32.1837 20.8515 32.8236 21.2209C33.4635 21.5903 34.2239 21.6905 34.9376 21.4992ZM36.8598 28.6743C37.2182 28.5844 37.5553 28.4241 37.8512 28.2027C38.1471 27.9813 38.396 27.7032 38.5834 27.3847C38.7708 27.0661 38.893 26.7134 38.9427 26.3472C38.9925 25.981 38.9689 25.6085 38.8732 25.2515C38.7776 24.8945 38.6119 24.5601 38.3858 24.2678C38.1597 23.9754 37.8776 23.731 37.5561 23.5488C37.2346 23.3665 36.88 23.25 36.513 23.2062C36.1461 23.1623 35.774 23.1919 35.4186 23.2932C34.7136 23.4921 34.1153 23.9606 33.7533 24.5974C33.3912 25.2341 33.2945 25.9879 33.4841 26.6954C33.6737 27.403 34.1344 28.0073 34.7663 28.3777C35.3983 28.7481 36.1507 28.8546 36.8607 28.6743H36.8598ZM38.7828 35.8503C39.4965 35.6591 40.105 35.1921 40.4745 34.5523C40.8439 33.9124 40.944 33.152 40.7528 32.4383C40.5616 31.7246 40.0946 31.1161 39.4548 30.7466C38.8149 30.3772 38.0545 30.2771 37.3408 30.4683C36.6271 30.6595 36.0186 31.1264 35.6491 31.7663C35.2797 32.4062 35.1796 33.1666 35.3708 33.8803C35.562 34.594 36.0289 35.2025 36.6688 35.572C37.3087 35.9414 38.0691 36.0415 38.7828 35.8503Z"
-                    fill="#3C3C3C"
-                    style="
-                      fill: #3c3c3c;
-                      fill: color(display-p3 0.2333 0.2333 0.2333);
-                      fill-opacity: 1;
-                    "
-                  />
-                </svg>
-              </div>
-              <div class="B15Title">5B</div>
-            </div>
-          </div>
-          <div class="LinkText">
-            {{ t("ai.ai53") }}
-            <a href="https://en.wikipedia.org/wiki/Jizhou_(ancient_China)"
-              >Jizhou</a
-            >
-            {{ t("ai.ai54") }}
-            <a href="https://en.wikipedia.org/wiki/Shang_dynasty"
-              >Shang dynasty</a
-            >
-            {{ t("ai.ai55") }}
-            <a href="https://en.wikipedia.org/wiki/King_Zhou_of_Shang"
-              >Yin Shou</a
-            >
-            {{ t("ai.ai56") }}
-            <a href="https://en.wikipedia.org/wiki/Hostage_diplomacy#China"
-              >hostage-sons</a
-            >
-            {{ t("ai.ai57") }}
-            <a href="https://en.wikipedia.org/wiki/Daji">Su Daji</a>
-            {{ t("ai.ai58") }}
+  <div class="ai_container">
+    <div class="container_head">
+      <img src="@/assets/images/ai/img1.png" alt="" class="red_back_img" />
+      <img src="@/assets/images/ai/img2.png" alt="" class="blue_back_img" />
+      <div class="head_content">
+        <div class="red_avatar">
+          <img src="@/assets/images/ai/img3.png" alt="" />
+          <div class="red_avatar_name">
+            <div>RED</div>
+            <div>Nezha</div>
           </div>
         </div>
-        <div class="leftCenter">
-          <div class="CDIMG">
-            <img src="@/assets/images/movie.png" alt="" />
+        <img
+          src="@/assets/images/ai/img4.png"
+          alt=""
+          class="head_content_img"
+        />
+        <div class="blue_avatar">
+          <div class="blue_avatar_name">
+            <div>BLUE</div>
+            <div>Ao Bing</div>
           </div>
-          <div class="CenterTitle">{{ t("ai.ai59") }}</div>
-          <div class="Fantasy">
-            {{ t("ai.ai60")
-            }}<svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="5"
-              height="5"
-              viewBox="0 0 5 5"
-              fill="none"
-            >
-              <circle
-                cx="2.5"
-                cy="2.5"
-                r="2"
-                fill="#C2C2C2"
-                style="
-                  fill: #c2c2c2;
-                  fill: color(display-p3 0.7625 0.7625 0.7625);
-                  fill-opacity: 1;
-                "
-              />
-            </svg>
-            {{ t("ai.ai61") }}
-          </div>
-          <div class="time">
-            <div class="itemTime">
-              <div class="text">{{ t("ai.ai62") }}</div>
-              <div class="num">56</div>
-            </div>
-            <div class="itemTime">
-              <div class="text">{{ t("ai.ai63") }}</div>
-              <div class="num">16</div>
-            </div>
-            <div class="itemTime">
-              <div class="text">{{ t("ai.ai64") }}</div>
-              <div class="num">56</div>
-            </div>
-            <div class="itemTime">
-              <div class="text">{{ t("ai.ai64") }}</div>
-              <div class="num">23</div>
-            </div>
-          </div>
-        </div>
-        <div class="leftRight">
-          <div class="PersonalProfile">
-            <div style="display: flex">
-              <div class="avater"></div>
-              <div class="">
-                <div class="name">Huang Bo</div>
-                <div class="JiangZiya">Jiang Ziya</div>
-              </div>
-            </div>
-            <div class="aixin">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
-                <path
-                  d="M18.75 7.96875C18.75 13.4375 10.6414 17.8641 10.2961 18.0469C10.2051 18.0958 10.1033 18.1215 10 18.1215C9.89665 18.1215 9.79492 18.0958 9.70391 18.0469C9.35859 17.8641 1.25 13.4375 1.25 7.96875C1.25145 6.68455 1.76223 5.45337 2.6703 4.5453C3.57837 3.63723 4.80955 3.12645 6.09375 3.125C7.70703 3.125 9.11953 3.81875 10 4.99141C10.8805 3.81875 12.293 3.125 13.9062 3.125C15.1904 3.12645 16.4216 3.63723 17.3297 4.5453C18.2378 5.45337 18.7486 6.68455 18.75 7.96875Z"
-                  fill="#D339C4"
-                  style="
-                    fill: #d339c4;
-                    fill: color(display-p3 0.8292 0.2246 0.7687);
-                    fill-opacity: 1;
-                  "
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="cast">
-            <div class="castTitle">CAST <span>(in credits order)</span></div>
-            <div class="MultiplePeople">
-              <div class="MultiplePeopleitem">
-                <div class="PeopleImg">
-                  <img src="@/assets/images/cast1.png" alt="" />
-                </div>
-                <div class="castName">
-                  <div class="Peoplename">Huang Bo</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="4"
-                    height="5"
-                    viewBox="0 0 4 5"
-                    fill="none"
-                  >
-                    <circle
-                      cx="2"
-                      cy="2.5"
-                      r="2"
-                      fill="#444444"
-                      style="
-                        fill: #444444;
-                        fill: color(display-p3 0.2667 0.2667 0.2667);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                  <div class="smailName">Jiang Ziya</div>
-                </div>
-
-                <div class="box" style="background: #cc44c5">1.3K</div>
-              </div>
-              <div class="MultiplePeopleitem">
-                <div class="PeopleImg">
-                  <img src="@/assets/images/cast2.png" alt="" />
-                </div>
-                <div class="castName">
-                  <div class="Peoplename">Kris Phillips</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="4"
-                    height="5"
-                    viewBox="0 0 4 5"
-                    fill="none"
-                  >
-                    <circle
-                      cx="2"
-                      cy="2.5"
-                      r="2"
-                      fill="#444444"
-                      style="
-                        fill: #444444;
-                        fill: color(display-p3 0.2667 0.2667 0.2667);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                  <div class="smailName">King Zhou (as Hsiang Fei)</div>
-                </div>
-
-                <div class="box" style="background: #862281">960</div>
-              </div>
-              <div class="MultiplePeopleitem">
-                <div class="PeopleImg">
-                  <img src="@/assets/images/cast3.png" alt="" />
-                </div>
-                <div class="castName">
-                  <div class="Peoplename">Xuejian Li</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="4"
-                    height="5"
-                    viewBox="0 0 4 5"
-                    fill="none"
-                  >
-                    <circle
-                      cx="2"
-                      cy="2.5"
-                      r="2"
-                      fill="#444444"
-                      style="
-                        fill: #444444;
-                        fill: color(display-p3 0.2667 0.2667 0.2667);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                  <div class="smailName">Ji Chang</div>
-                </div>
-                <div class="box" style="background: #40093e">850</div>
-              </div>
-              <div class="MultiplePeopleitem">
-                <div class="PeopleImg"></div>
-                <div class="castName">
-                  <div class="Peoplename">Yu Xia</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="4"
-                    height="5"
-                    viewBox="0 0 4 5"
-                    fill="none"
-                  >
-                    <circle
-                      cx="2"
-                      cy="2.5"
-                      r="2"
-                      fill="#444444"
-                      style="
-                        fill: #444444;
-                        fill: color(display-p3 0.2667 0.2667 0.2667);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                  <div class="smailName">Shen Gongbao</div>
-                </div>
-
-                <div class="box" style="background: #2c2c2c">326</div>
-              </div>
-              <div class="MultiplePeopleitem">
-                <div class="PeopleImg"></div>
-                <div class="castName">
-                  <div class="Peoplename">Kun Chen</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="4"
-                    height="5"
-                    viewBox="0 0 4 5"
-                    fill="none"
-                  >
-                    <circle
-                      cx="2"
-                      cy="2.5"
-                      r="2"
-                      fill="#444444"
-                      style="
-                        fill: #444444;
-                        fill: color(display-p3 0.2667 0.2667 0.2667);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                  <div class="smailName">Yuan Shi Tian Zun</div>
-                </div>
-
-                <div class="box" style="background: #2c2c2c">87</div>
-              </div>
-              <div class="MultiplePeopleitem">
-                <div class="PeopleImg"></div>
-                <div class="castName">
-                  <div class="Peoplename">Quan Yuan</div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="4"
-                    height="5"
-                    viewBox="0 0 4 5"
-                    fill="none"
-                  >
-                    <circle
-                      cx="2"
-                      cy="2.5"
-                      r="2"
-                      fill="#444444"
-                      style="
-                        fill: #444444;
-                        fill: color(display-p3 0.2667 0.2667 0.2667);
-                        fill-opacity: 1;
-                      "
-                    />
-                  </svg>
-                  <div class="smailName">Queen Jiang</div>
-                </div>
-
-                <div class="box" style="background: #2c2c2c">12</div>
-              </div>
-            </div>
-          </div>
+          <img src="@/assets/images/ai/img5.png" alt="" />
         </div>
       </div>
-      <div class="deskbottom">
-        <div class="video-carousel">
-          <div class="arrow">
-            <div class="back-button" @click="prevSlide">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-              >
-                <path
-                  d="M11.8468 14.028C12.0053 14.1866 12.0944 14.4015 12.0944 14.6257C12.0944 14.8499 12.0053 15.0648 11.8468 15.2234C11.6883 15.3819 11.4733 15.4709 11.2491 15.4709C11.025 15.4709 10.81 15.3819 10.6515 15.2234L5.02649 9.59836C4.94783 9.51997 4.88541 9.42683 4.84283 9.32427C4.80024 9.22171 4.77832 9.11175 4.77832 9.0007C4.77832 8.88965 4.80024 8.77969 4.84283 8.67713C4.88541 8.57458 4.94783 8.48143 5.02649 8.40304L10.6515 2.77804C10.81 2.61954 11.025 2.53049 11.2491 2.53049C11.4733 2.53049 11.6883 2.61954 11.8468 2.77804C12.0053 2.93655 12.0944 3.15154 12.0944 3.3757C12.0944 3.59987 12.0053 3.81485 11.8468 3.97336L6.82016 9L11.8468 14.028Z"
-                  fill="white"
-                  fill-opacity="0.2"
-                  style="fill: white; fill-opacity: 0.2"
-                />
-              </svg>
-            </div>
-            <div class="next-button" @click="nextSlide">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-              >
-                <path
-                  d="M12.9722 9.59695L7.34717 15.222C7.18866 15.3805 6.97367 15.4695 6.74951 15.4695C6.52535 15.4695 6.31036 15.3805 6.15185 15.222C5.99335 15.0634 5.9043 14.8485 5.9043 14.6243C5.9043 14.4001 5.99335 14.1851 6.15185 14.0266L11.1799 9L6.15326 3.97195C6.07478 3.89347 6.01252 3.80029 5.97004 3.69775C5.92757 3.5952 5.9057 3.48529 5.9057 3.3743C5.9057 3.2633 5.92757 3.15339 5.97004 3.05085C6.01252 2.9483 6.07478 2.85513 6.15326 2.77664C6.23175 2.69816 6.32492 2.6359 6.42747 2.59342C6.53001 2.55095 6.63992 2.52908 6.75092 2.52908C6.86191 2.52908 6.97182 2.55095 7.07437 2.59342C7.17691 2.6359 7.27009 2.69816 7.34857 2.77664L12.9736 8.40164C13.0521 8.48012 13.1144 8.57334 13.1569 8.67595C13.1994 8.77856 13.2212 8.88854 13.221 8.99959C13.2209 9.11064 13.1989 9.22057 13.1561 9.32308C13.1134 9.42559 13.0509 9.51866 12.9722 9.59695Z"
-                  fill="white"
-                  style="fill: white; fill-opacity: 1"
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="dots-container">
-            <span
-              v-for="(video, index) in videos"
-              :key="index"
-              class="dot"
-              :class="{ active: index === currentIndex }"
-              @click="goToSlide(index)"
-            ></span>
-          </div>
-          <!-- 播放按钮（默认显示，播放后隐藏） -->
-
-          <div v-if="!isPlaying" class="play-button" @click="togglePlay">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path
-                d="M22.5 12C22.5006 12.2546 22.4353 12.5051 22.3105 12.727C22.1856 12.949 22.0055 13.1348 21.7875 13.2665L8.28 21.5297C8.05227 21.6691 7.79144 21.7452 7.52445 21.7502C7.25746 21.7551 6.99399 21.6887 6.76125 21.5578C6.53073 21.4289 6.3387 21.2409 6.2049 21.0132C6.07111 20.7855 6.00039 20.5263 6 20.2622V3.73779C6.00039 3.47368 6.07111 3.21445 6.2049 2.98673C6.3387 2.75902 6.53073 2.57106 6.76125 2.44217C6.99399 2.31124 7.25746 2.24482 7.52445 2.24977C7.79144 2.25471 8.05227 2.33084 8.28 2.47029L21.7875 10.7334C22.0055 10.8651 22.1856 11.051 22.3105 11.2729C22.4353 11.4949 22.5006 11.7453 22.5 12Z"
-                fill="white"
-                style="fill: white; fill-opacity: 1"
-              />
-            </svg>
-          </div>
-
-          <!-- 暂停按钮（播放时，鼠标悬停显示） -->
+      <div class="progress_container">
+        <div
+          class="red_line"
+          :style="{
+            width: 'calc(' + redWidth + '% + 12px)',
+          }"
+        ></div>
+        <img
+          src="@/assets/images/ai/img6.png"
+          alt=""
+          class="progress_container_topline"
+        />
+        <div
+          class="progress red"
+          :style="{
+            width: 'calc(' + redWidth + '% + 10px)',
+            clipPath:
+              'polygon(0 0, 100% 0, calc(100% - 20px) 100%, 100% 100%, 0 100%)',
+          }"
+        >
           <div
-            v-if="isPlaying && showPauseButton"
-            class="pause-button"
-            @click="togglePlay"
-            @mouseenter="showPauseButton = true"
-            @mouseleave="showPauseButton = false"
+            class="red_white_line"
+            :style="{
+              clipPath:
+                'polygon(0 0, 100% 0, calc(100% - 15px) 100%, 100% 100%, 0 100%)',
+            }"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path d="M8 4H10V20H8V4ZM14 4H16V20H14V4Z" fill="white" />
-            </svg>
+            <div
+              class="rwl_content"
+              :style="{
+                clipPath:
+                  'polygon(0 0, 100% 0, calc(100% - 13px) 100%, 100% 100%, 0 100%)',
+              }"
+            ></div>
           </div>
-          <video
-            ref="videoPlayer"
-            class="video-player"
-            :poster="videos[currentIndex].imageSrc"
-            @mouseenter="showPauseButton = true"
-            @mouseleave="showPauseButton = false"
-            @ended="isPlaying = false"
-          >
-            <source :src="videos[currentIndex].videoSrc" type="video/mp4" />
-          </video>
         </div>
-
-        <div class="bottomRight">
-          <div class="Producing">
-            <div class="ProducingTitle">{{ t("ai.ai65") }}</div>
-            <div class="ProducingText">
-              {{ t("ai.ai66") }}
+        <img
+          src="@/assets/images/ai/img8.png"
+          alt=""
+          class="progress_bar_divider"
+          :style="{
+            left: 'calc(' + redWidth + '% - 25px)',
+          }"
+        />
+        <div
+          class="progress blue"
+          :style="{
+            width: 'calc(' + blueWidth + '% + 10px)',
+            clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 20px 0)',
+          }"
+        >
+          <div
+            class="blue_white_line"
+            :style="{
+              clipPath: 'polygon(15px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
+            }"
+          >
+            <div
+              class="bwl_content"
+              :style="{
+                clipPath:
+                  'polygon(13px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
+              }"
+            ></div>
+          </div>
+        </div>
+        <img
+          src="@/assets/images/ai/img6.png"
+          alt=""
+          class="progress_container_bottomline"
+        />
+        <div
+          class="blue_line"
+          :style="{
+            width: 'calc(' + blueWidth + '% + 12px)',
+          }"
+        ></div>
+      </div>
+      <div class="count_down">{{ formatTime(defaultTime) }}</div>
+    </div>
+    <div class="container_section">
+      <img src="@/assets/images/ai/img13.png" alt="" class="pedestal_img" />
+      <div class="container_section_content">
+        <div class="container_section_red">
+          <img
+            src="@/assets/images/ai/img7.png"
+            alt=""
+            class="container_section_redbackimg"
+          />
+          <img
+            src="@/assets/images/ai/img9.png"
+            alt=""
+            class="container_section_avatar"
+          />
+        </div>
+        <div class="container_section_btn">
+          <div
+            class="csb_blue_block"
+            :style="{
+              clipPath:
+                'polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 calc(100% - 195px))',
+            }"
+          >
+            <div class="csb_blue_block_mask">
+              <div class="vote_btn" @click="showVoteDifference('blue')">
+                VOTE BLUE
+              </div>
+              <div class="share_btn">SPEED UP VOTING</div>
+              <div class="text_btn">BLUE</div>
             </div>
           </div>
-          <div class="ruler-container">
-            <div
-              v-for="i in scaleMarks"
-              :key="i"
-              class="scale-mark"
-              :style="getScaleMarkStyle(i)"
-            >
-              <!-- 只显示 5 的倍数和 0 的数字 -->
-              <div
-                v-if="i % 5 === 0"
-                class="scale-label"
-                :style="getScaleLabelStyle(i)"
-              >
-                {{ i }}
+          <div
+            class="csb_red_block"
+            :style="{
+              clipPath:
+                'polygon(0 0, 100% 195px, 100% 100%, 100% 100%, 0 100%)',
+            }"
+          >
+            <div class="csb_red_block_mask">
+              <div class="text_btn">RED</div>
+              <div class="share_btn">SPEED UP VOTING</div>
+              <div class="vote_btn" @click="showVoteDifference('red')">
+                VOTE RED
               </div>
             </div>
           </div>
-          <div class="BarOfScale">
-            <div class="line"></div>
-            <div class="line"></div>
-            <div class="line"></div>
-
-            <div class="slider-wrapper">
-              <input
-                type="range"
-                v-model="sliderValue"
-                min="0"
-                max="100"
-                class="slider"
-                @input="onSliderInput"
-              />
+        </div>
+        <div class="container_section_blue">
+          <img
+            src="@/assets/images/ai/img11.png"
+            alt=""
+            class="container_section_avatar"
+          />
+          <img
+            src="@/assets/images/ai/img12.png"
+            alt=""
+            class="container_section_redbackimg"
+          />
+        </div>
+      </div>
+    </div>
+    <!-- 投票票数相差弹窗 -->
+    <div
+      v-if="voteDifferenceVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+      @click="voteDifferenceVisible = false"
+    >
+      <div class="vote_dv_content" @click.stop="">
+        <div class="vote_dvc_red">
+          <img src="@/assets/images/ai/img9.png" alt="" />
+          <div v-if="blueWidth > redWidth"></div>
+        </div>
+        <div
+          class="vote_dvc_content"
+          :class="redWidth > blueWidth ? 'red' : 'blue'"
+        >
+          <div class="vote_dvc_content_head">
+            <div class="red_text red_text_lead" v-if="redWidth > blueWidth">
+              {{ voteDifferenceType === "red" ? "NEZHA" : "AO BING" }}
+              TAKES<br />THE LEAD!
             </div>
-            <div class="DiamondShape">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
-                <path
-                  d="M6 0L12 6L6 12L0 6L6 0Z"
-                  fill="white"
-                  style="fill: white; fill-opacity: 1"
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="BarOfScale1">
-            <div class="line"></div>
-            <div class="line"></div>
-            <div class="line"></div>
-            <div class="slider-wrapper">
-              <input
-                type="range"
-                v-model="sliderValue1"
-                min="0"
-                max="100"
-                class="slider1"
-                @input="onSliderInput1"
-              />
-            </div>
-            <div class="DiamondShape">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
-                <path
-                  d="M6 0L12 6L6 12L0 6L6 0Z"
-                  fill="white"
-                  style="fill: white; fill-opacity: 1"
-                />
-              </svg>
-            </div>
-            <div class="DiamondShape1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
-                <path
-                  d="M6 0L12 6L6 12L0 6L6 0Z"
-                  fill="white"
-                  style="fill: white; fill-opacity: 1"
-                />
-              </svg>
-            </div>
-            <div class="DiamondShape2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
-                <path
-                  d="M6 0L12 6L6 12L0 6L6 0Z"
-                  fill="white"
-                  style="fill: white; fill-opacity: 1"
-                />
-              </svg>
-            </div>
-            <div class="DiamondShape3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
-                <path
-                  d="M6 0L12 6L6 12L0 6L6 0Z"
-                  fill="white"
-                  style="fill: white; fill-opacity: 1"
-                />
-              </svg>
+            <div class="red_text red_text_backward" v-else>
+              {{ voteDifferenceType === "red" ? "NEZHA" : "AO BING" }}
+              IS<br />BEHIND!
             </div>
           </div>
+          <div class="">Stake 450 votes for enhanced yield</div>
+          <div>
+            Keep voting to maintain the lead! Get 1 free vote daily, and earn
+            bonus votes by inviting friends.
+          </div>
+          <div @click="showVoteVisible">Vote More</div>
+        </div>
+        <div class="vote_dvc_blue">
+          <img src="@/assets/images/ai/img11.png" alt="" />
+          <div v-if="redWidth > blueWidth"></div>
+        </div>
+      </div>
+    </div>
+    <!-- 投票弹窗 -->
+    <div
+      v-if="voteVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+      @click="voteVisible = false"
+    >
+      <div class="vote_num_content">
+        <img src="@/assets/images/ai/img3.png" alt="" />
+        <div>VOTE NEZHA</div>
+        <div>
+          Vote for NEZHA with 1 vote per submission! Earn extra votes by
+          inviting friends.
         </div>
       </div>
     </div>
   </div>
 </template>
-<style scoped lang='less'>
-.home_view {
-  background: #121212;
-  width: 100%;
-  // height: 100%;
-  height: 100vh;
 
-  .container {
+<script setup>
+import { ref, onMounted } from "vue";
+
+const redWidth = ref(50);
+const blueWidth = ref(50);
+const startTime = ref(1752483533000);
+const endTime = ref(1752656333000);
+const differenceTime = ref(0);
+const voteDifferenceVisible = ref(false);
+const voteVisible = ref(false);
+const voteDifferenceType = ref("");
+
+onMounted(() => {
+  differenceTime.value = endTime.value - startTime.value;
+  setInterval(() => {
+    const red = Math.floor(Math.random() * 100);
+    redWidth.value = red;
+    blueWidth.value = 100 - red;
+    differenceTime.value -= 1000;
+  }, 1000);
+});
+
+const formatTime = () => {
+  const minuteTime = differenceTime.value / 1000;
+  const day = Math.floor(minuteTime / 60 / 60 / 24);
+  const hours = Math.floor((minuteTime / 60 / 60) % 24);
+  const minute = Math.floor((minuteTime / 60) % 60);
+  const second = Math.floor(minuteTime % 60);
+  return day + "days " + hours + "h " + minute + "min " + second + "sec";
+};
+
+const showVoteDifference = (type) => {
+  voteDifferenceType.value = type;
+  voteDifferenceVisible.value = true;
+};
+
+const showVoteVisible = () => {
+  voteDifferenceVisible.value = false;
+  voteVisible.value = true;
+};
+</script>
+
+<style scoped lang="less">
+.ai_container {
+  flex: 1;
+  .container_head {
     width: 100%;
-    padding: 15px 30px 95px 30px;
-  }
-}
-.deskTop {
-  display: flex;
-  justify-content: space-between;
-  .topleft {
-    width: 445px;
-    .Box {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 20px;
-      .BoxOffice {
-        .BoxTitle {
-          max-width: 243px;
-          color: #fff;
-          font-family: Rubik;
-          font-size: 24px;
-          font-style: normal;
-          font-weight: 700;
-          line-height: normal;
-          letter-spacing: 0.96px;
-          text-transform: uppercase;
-          margin-bottom: 2px;
-        }
-        .BoxText {
-          max-width: 243px;
-          color: #717171;
-          font-family: Lato;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 400;
-          line-height: normal;
-          letter-spacing: 0.07px;
-        }
-      }
-      .ticket {
-        width: 178px;
-        height: 69px;
-        position: relative;
-        .box {
-          position: absolute;
-          top: 1px;
-          left: 34px;
-          width: 74px;
-        }
-        color: #e621ca;
-        text-align: center;
-        font-family: Rubik;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-        letter-spacing: 0.64px;
-        text-transform: uppercase;
-      }
+    height: 328px;
+    max-width: 1280px;
+    margin: auto;
+    position: relative;
+    z-index: 1;
+    .red_back_img {
+      width: 50%;
+      height: 328px;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
-    .B15 {
+    .blue_back_img {
+      width: 50%;
+      height: 328px;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    .head_content {
       display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      .B15Item {
-        width: 142px;
-        height: 151px;
-        flex-shrink: 0;
-        border-radius: 4px;
-        background: #1a1a1a;
+      align-items: flex-end;
+      justify-content: space-between;
+      position: relative;
+      .red_avatar {
         display: flex;
-        flex-direction: column;
-        gap: 14px;
-        justify-content: center;
         align-items: center;
-        .img {
+        gap: 24px;
+        img {
           width: 120px;
-          height: 87px;
-          flex-shrink: 0;
-          border-radius: 999px;
+          height: 120px;
+          border-radius: 24px;
+          border: 1px solid #ff3503;
+        }
+        .red_avatar_name {
           display: flex;
+          flex-direction: column;
           justify-content: center;
-          align-items: center;
-          border: 1px solid #2e2e2e;
-          background: #1e1e1e;
-          box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.25);
+          gap: 6px;
+          div {
+            &:first-child {
+              font-family: "Douyin Sans";
+              font-size: 24px;
+              font-style: normal;
+              font-weight: 700;
+              line-height: normal;
+              background: linear-gradient(
+                180deg,
+                rgba(255, 53, 3, 1) 0%,
+                rgba(153, 65, 2, 1) 100%
+              );
+              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+            }
+            &:last-child {
+              color: #fff;
+              -webkit-text-stroke-width: 1px;
+              -webkit-text-stroke-color: #200;
+              font-family: "Douyin Sans";
+              font-size: 24px;
+              font-style: normal;
+              font-weight: 700;
+              line-height: normal;
+            }
+          }
         }
-        .B15Title {
-          color: #e1e1e1;
-          font-family: Rubik;
-          font-size: 24px;
-          font-style: italic;
-          font-weight: 700;
-          line-height: normal;
-          letter-spacing: 0.12px;
-        }
       }
-    }
-    .LinkText {
-      max-width: 445px;
-
-      color: #e2e2e2;
-      text-overflow: ellipsis;
-
-      font-family: Inter;
-      font-size: 12px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 24px; /* 200% */
-      letter-spacing: 0.06px;
-      a {
-        color: #e2e2e2;
-        font-family: Inter;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 24px;
-        letter-spacing: 0.06px;
-        text-decoration-line: underline;
-        text-decoration-style: solid;
-        text-decoration-skip-ink: none;
-        text-decoration-thickness: auto;
-        text-underline-offset: auto;
-        text-underline-position: from-font;
+      .head_content_img {
+        width: 244px;
+        height: auto;
       }
-    }
-  }
-  .leftCenter {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
-    margin-left: 20px;
-    .CDIMG {
-      margin-top: -130px;
-      margin-bottom: 8px;
-      img {
-        flex-shrink: 0;
-        width: 261.54px;
-        height: 261.54px;
-      }
-    }
-    .CenterTitle {
-      max-width: 320px;
-      color: #fff;
-      text-align: center;
-      font-family: Rubik;
-      font-size: 24px;
-      font-style: normal;
-      font-weight: 700;
-      line-height: normal;
-      letter-spacing: 0.76px;
-      text-transform: uppercase;
-      margin-bottom: 11px;
-    }
-    .Fantasy {
-      display: flex;
-      align-items: center;
-      color: #e621ca;
-      font-family: Rubik;
-      font-size: 14px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: normal;
-      gap: 8px;
-
-      margin-bottom: 80px;
-    }
-    .time {
-      display: flex;
-      align-items: center;
-      gap: 40px;
-
-      .itemTime {
+      .blue_avatar {
         display: flex;
-        flex-direction: column;
-        gap: 8px;
-        .text {
-          color: #9aa4ac;
-          font-family: Lato;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 400;
-          line-height: normal;
-          letter-spacing: 0.07px;
+        align-items: center;
+        gap: 24px;
+        img {
+          width: 120px;
+          height: 120px;
+          border-radius: 24px;
+          border: 1px solid #3103ff;
         }
-        .num {
-          color: #fff;
-          font-family: Lato;
-          font-size: 24px;
-          font-style: normal;
-          font-weight: 400;
-          line-height: normal;
-          letter-spacing: 0.12px;
+        .blue_avatar_name {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-end;
+          gap: 6px;
+          div {
+            &:first-child {
+              font-family: "Douyin Sans";
+              font-size: 24px;
+              font-style: normal;
+              font-weight: 700;
+              line-height: normal;
+              background: linear-gradient(
+                180deg,
+                rgba(49, 3, 255, 1) 0%,
+                rgba(2, 125, 153, 1) 100%
+              );
+              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+            }
+            &:last-child {
+              color: #fff;
+              -webkit-text-stroke-width: 1px;
+              -webkit-text-stroke-color: #200;
+              font-family: "Douyin Sans";
+              font-size: 24px;
+              font-style: normal;
+              font-weight: 700;
+              line-height: normal;
+            }
+          }
         }
       }
     }
-  }
-  .leftRight {
-    .PersonalProfile {
-      gap: 241px;
+    .progress_container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1280px;
+      margin: auto;
+      height: 126px;
+      top: -10px;
+      .red_line {
+        height: 2px;
+        background: linear-gradient(
+          to left,
+          #ff3a3a 0.39%,
+          rgba(255, 58, 58, 0) 81.18%
+        );
+        position: absolute;
+        top: 32px;
+        left: 0;
+        z-index: 5;
+        transition: 1s;
+      }
+      .progress_container_topline {
+        width: 100%;
+        height: 2px;
+        position: absolute;
+        top: 37px;
+      }
+      .progress {
+        height: 48px;
+        position: absolute;
+        top: 39px;
+        transition: width 1s;
+        box-sizing: border-box;
+        .red_white_line {
+          width: calc(100% - 10px);
+          height: 36px;
+          background-color: rgba(255, 255, 255, 0.49);
+          padding-left: 2px;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          box-sizing: border-box;
+          .rwl_content {
+            width: calc(100% - 4px);
+            height: 32px;
+            background: linear-gradient(to right, #3a0b0b 0%, #c86b7e 100%);
+          }
+        }
+        .blue_white_line {
+          width: calc(100% - 10px);
+          height: 36px;
+          background-color: rgba(255, 255, 255, 0.49);
+          padding-right: 2px;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          box-sizing: border-box;
+          .bwl_content {
+            width: calc(100% - 4px);
+            height: 32px;
+            background: linear-gradient(to right, #4351b3 0%, #233b88 100%);
+          }
+        }
+      }
 
+      .red {
+        background: linear-gradient(to right, #861e1a 0%, #592857 100%);
+        left: 0;
+        z-index: 1;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        box-sizing: border-box;
+        padding-left: 6px;
+      }
+
+      .blue {
+        background: linear-gradient(to right, #37459b 0%, #4650b2 100%);
+        right: 0;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        box-sizing: border-box;
+        padding-right: 6px;
+      }
+      .progress_bar_divider {
+        width: 50px;
+        height: 126px;
+        position: absolute;
+        top: 0;
+        z-index: 10;
+        transition: 1s;
+      }
+      .progress_container_bottomline {
+        width: 100%;
+        height: 2px;
+        position: absolute;
+        bottom: 38px;
+      }
+      .blue_line {
+        height: 2px;
+        background: linear-gradient(
+          to left,
+          rgba(21, 54, 255, 0) 0.39%,
+          #1536ff 100%
+        );
+        position: absolute;
+        right: 0;
+        bottom: 32px;
+        z-index: 5;
+        transition: 1s;
+      }
+    }
+    .count_down {
+      color: #ff54f6;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+      text-transform: capitalize;
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      top: -20px;
+    }
+  }
+  .container_section {
+    width: 100%;
+    position: relative;
+    .pedestal_img {
+      width: 1280px;
+      height: auto;
+      margin: auto;
+      position: absolute;
+      left: calc(50% - 640px);
+      bottom: 0;
+      z-index: 1;
+    }
+    .container_section_content {
       width: 100%;
       display: flex;
-      padding-bottom: 27px;
-      border-bottom: 1px solid #2c2c2c;
-      .avater {
-        width: 88px;
-        height: 88px;
-        flex-shrink: 0;
-        background: #292929;
-        margin-right: 8px;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      padding-bottom: 150px;
+      .container_section_red {
+        flex: 1;
+        height: 560px;
+        position: relative;
+        left: -35px;
+        top: -24px;
+
+        .container_section_redbackimg {
+          width: 100%;
+          height: 100%;
+        }
+        .container_section_avatar {
+          width: 420px;
+          height: 609px;
+          position: absolute;
+          top: 0;
+          right: -35px;
+        }
       }
-      .name {
-        color: #fff;
-        font-family: Lato;
-        font-size: 24px;
-        font-style: normal;
-        font-weight: 800;
-        line-height: normal;
-        letter-spacing: 0.12px;
-        margin-bottom: 2px;
+      .container_section_btn {
+        width: 326px;
+        height: 498px;
+        margin: 0 32px;
+        background: url("@/assets/images/ai/img10.png") no-repeat;
+        background-size: 100% 100%;
+        .csb_blue_block {
+          width: 319px;
+          height: 337px;
+          background: url("@/assets/images/ai/img2.png") no-repeat;
+          background-size: cover;
+          background-position: center;
+          overflow: hidden;
+          position: relative;
+          left: 20px;
+          top: 26px;
+          box-shadow: 0px 0px 40px 0px rgba(42, 46, 241, 0.28) inset;
+          box-shadow: 0px 1px 6px 0px rgba(42, 46, 241, 0.46) inset;
+          .csb_blue_block_mask {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(22, 6, 2, 0.25);
+            .vote_btn {
+              width: 280px;
+              height: 48px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(42, 46, 241, 1);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 20px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-top: 20px;
+              cursor: pointer;
+            }
+            .share_btn {
+              width: 280px;
+              height: 35px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(33, 34, 105, 0.95);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-top: 16px;
+              cursor: pointer;
+            }
+            .text_btn {
+              margin-top: 45px;
+              text-align: right;
+              -webkit-text-stroke-width: 0.83px;
+              -webkit-text-stroke-color: #000;
+              font-family: Montserrat;
+              font-size: 54px;
+              font-style: normal;
+              font-weight: 800;
+              line-height: normal;
+              text-transform: uppercase;
+              transform: rotate(30deg);
+              background: linear-gradient(
+                0deg,
+                rgba(101, 104, 228, 1) 0%,
+                rgba(127, 130, 255, 0.23) 100%
+              );
+              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+            }
+          }
+        }
+        .csb_red_block {
+          width: 319px;
+          height: 312px;
+          background: url("@/assets/images/ai/img1.png") no-repeat;
+          background-size: cover;
+          background-position: center;
+          overflow: hidden;
+          position: relative;
+          left: -10px;
+          top: -150px;
+          box-shadow: 0px 0px 40px 0px rgba(210, 57, 58, 0.28) inset;
+          box-shadow: 0px 1px 6px 0px rgba(210, 57, 58, 0.46) inset;
+          .csb_red_block_mask {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(22, 6, 2, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            .vote_btn {
+              width: 280px;
+              height: 48px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(211, 57, 57, 1);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 20px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-bottom: 12px;
+              cursor: pointer;
+            }
+            .share_btn {
+              width: 280px;
+              height: 35px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: rgba(72, 16, 16, 1);
+              border-radius: 4px;
+              color: #fff;
+              text-align: center;
+              font-family: Montserrat;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-bottom: 11px;
+              cursor: pointer;
+            }
+            .text_btn {
+              text-align: right;
+              -webkit-text-stroke-width: 0.83px;
+              -webkit-text-stroke-color: #000;
+              font-family: Montserrat;
+              font-size: 54px;
+              font-style: normal;
+              font-weight: 800;
+              line-height: normal;
+              text-transform: uppercase;
+              transform: rotate(30deg);
+              background: linear-gradient(
+                0deg,
+                rgba(255, 114, 114, 1) 0%,
+                rgba(255, 114, 114, 0.08) 100%
+              );
+              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+              position: relative;
+              top: -35px;
+            }
+          }
+        }
       }
-      .JiangZiya {
-        color: rgba(255, 255, 255, 0.4);
-        font-family: Lato;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
-        letter-spacing: 0.07px;
-      }
-      .aixin {
-        display: flex;
-        align-items: end;
+      .container_section_blue {
+        flex: 1;
+        height: 560px;
+        position: relative;
+        right: -35px;
+        top: -24px;
+
+        .container_section_redbackimg {
+          width: 100%;
+          height: 100%;
+        }
+        .container_section_avatar {
+          width: 420px;
+          height: 609px;
+          position: absolute;
+          top: 0;
+          left: -35px;
+        }
       }
     }
-    .cast {
-      padding-top: 21px;
-      .castTitle {
-        color: #fff;
-        font-family: Rubik;
-        font-size: 24px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-        letter-spacing: 0.96px;
-        text-transform: uppercase;
-        margin-bottom: 18px;
-        span {
-          color: #646464;
-          font-family: Rubik;
+  }
+  .vote_dv_content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .vote_dvc_red {
+      min-width: 220px;
+      max-width: 220px;
+      height: 320px;
+      position: relative;
+      right: -30px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      div {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.56);
+        z-index: 2;
+      }
+    }
+    .vote_dvc_content {
+      min-width: 409px;
+      max-width: 409px;
+      height: 325px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .vote_dvc_content_head {
+        .red_text {
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 32px;
+          font-style: normal;
+          font-weight: 900;
+          line-height: 150%; /* 48px */
+          text-transform: uppercase;
+        }
+        .red_text_lead {
+          color: #d33939;
+        }
+        .red_text_backward {
+          color: #2a2ef1;
+        }
+      }
+
+      & > div {
+        max-width: 329px;
+        &:nth-child(2) {
+          color: #fff;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 150%; /* 21px */
+          text-transform: uppercase;
+        }
+        &:nth-child(3) {
+          color: rgba(255, 255, 255, 0.8);
+          text-align: center;
+          font-family: Montserrat;
           font-size: 14px;
           font-style: normal;
           font-weight: 500;
-          line-height: normal;
-          letter-spacing: 0.56px;
-          text-transform: uppercase;
+          line-height: 150%; /* 21px */
         }
-      }
-      .MultiplePeople {
-        display: flex;
-        flex-direction: column;
-        gap: 5.5px;
-        .MultiplePeopleitem {
+        &:last-child {
+          margin-top: 24px;
           display: flex;
-          .PeopleImg {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-            background: #292929;
-          }
-          .castName {
-            margin-left: 8px;
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-            width: 375px;
-            gap: 10px;
-            border-bottom: 1px solid #292929;
-          }
-          .smailName {
-            color: rgba(255, 255, 255, 0.4);
-            font-family: Lato;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-            letter-spacing: 0.07px;
-          }
-          .box {
-            margin-top: 6px;
-            color: #fff;
-            text-align: right;
-            font-family: Montserrat;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-            letter-spacing: 0.07px;
-            padding-right: 2px;
-            width: 50px;
-            height: 22px;
-          }
+          padding: 8px 16px;
+          justify-content: center;
+          align-items: center;
+          border-radius: 8px;
+          background: #fff;
+          color: #d33939;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: normal;
+          text-transform: uppercase;
+          cursor: pointer;
         }
       }
     }
-  }
-}
-.deskbottom {
-  display: flex;
-  .video-carousel {
-    display: flex;
-    width: 439px;
-    height: 240px;
-    flex-shrink: 0;
-    position: relative;
-    border-radius: 12px;
-
-    .arrow {
-      z-index: 2;
-      position: absolute;
-      left: 10px;
-      top: 0px;
-      display: flex;
+    .red {
+      border: 1px solid #d33939;
+      background: #1e0803;
+      box-shadow: 0px 1px 6px 0px rgba(211, 57, 57, 0.54) inset,
+        0px 0px 40px 0px rgba(211, 57, 57, 0.28) inset;
     }
-    .back-button {
-      width: 26px;
-      height: 46px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      cursor: pointer;
+    .blue {
+      border: 1px solid #2a2ef1;
+      background: #03051e;
+      box-shadow: 0px 1px 6px 0px rgba(42, 46, 241, 0.54) inset,
+        0px 0px 40px 0px rgba(42, 46, 241, 0.28) inset;
     }
-
-    .next-button {
-      width: 26px;
-      height: 46px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      cursor: pointer;
-    }
-
-    .video-player {
-      width: 100%;
-
-      background: #000;
-
-      flex-shrink: 0;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-
-    .play-button {
-      z-index: 2;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      width: 80px;
-      height: 54px;
-      padding: 15px 28px;
-      justify-content: center;
-      align-items: center;
-      flex-shrink: 0;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(2px);
-    }
-
-    .dots-container {
-      display: flex;
-      position: absolute;
-      right: 25px;
-      top: 21px;
-    }
-
-    .dot {
-      width: 4px;
-      height: 4px;
-      margin-left: 2px;
-      background: rgba(217, 217, 217, 0.2);
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .dot.active {
-      background: #d9d9d9;
-    }
-    .pause-button {
-      z-index: 2;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      width: 80px;
-      height: 54px;
-      padding: 15px 28px;
-      justify-content: center;
-      align-items: center;
-      flex-shrink: 0;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(2px);
+    .vote_dvc_blue {
+      min-width: 220px;
+      max-width: 220px;
+      height: 320px;
+      position: relative;
+      left: -30px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      div {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.56);
+        z-index: 2;
+      }
     }
   }
-
-  .bottomRight {
-    margin-left: 20px;
+  .vote_num_content {
+    border-radius: 16px;
+    border: 1px solid #d33939;
+    background: #1e0803;
+    box-shadow: 0px 1px 6px 0px rgba(211, 57, 57, 0.54) inset,
+      0px 0px 40px 0px rgba(211, 57, 57, 0.28) inset;
+    padding: 0 24px 24px;
     display: flex;
     flex-direction: column;
-    .Producing {
-      .ProducingTitle {
-        color: #fff;
-        font-family: Rubik;
-        font-size: 24px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-        letter-spacing: 0.96px;
-        text-transform: uppercase;
-      }
-      .ProducingText {
-        max-width: 450px;
-        color: #717171;
-        font-family: Lato;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
-        letter-spacing: 0.07px;
-        margin-bottom: 23px;
-      }
+    align-items: center;
+    justify-content: center;
+    & > div {
+      width: 272px;
+      max-width: 272px;
     }
-    .ruler-container {
+    & > img {
+      width: 80px;
+      height: 80px;
       position: relative;
-      width: 917px; /* 刻度条的总宽度 */
-      height: 50px;
-      border-bottom: 1px solid #2c2c2c;
-      margin-bottom: 18px;
-      .scale-mark {
-        position: absolute;
-        bottom: 0;
-        background-color: #2c2c2c;
-      }
-
-      .scale-label {
-        position: absolute;
-        bottom: 20px; /* 将数字标签放置在刻度线的上方 */
-        font-size: 12px;
-        text-align: center;
-        color: #2c2c2c;
-        transform: translateX(-50%); /* 使数字居中显示 */
-      }
-    }
-
-    .BarOfScale,
-    .BarOfScale1 {
-      margin-bottom: 32px;
-      width: 100%;
-      background: #000;
-      position: relative;
-      .line {
-        width: 100%;
-        height: 1px;
-        background: #2c2c2c;
-        margin-bottom: 9px;
-      }
-      .line:last-child,
-      .line:nth-child(3) {
-        margin-bottom: 0;
-      }
-    }
-    :last-child {
-      margin-bottom: 0;
-    }
-    /* 自定义滑动条 */
-    .slider,
-    .slider1 {
-      -webkit-appearance: none;
-      width: 480px;
-      height: 19px;
-      background: linear-gradient(to right, #d339c4 0%, #371b36 0%);
-      border-radius: 0px;
-      outline: none;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .BarOfScale {
-      .slider-wrapper {
-        width: 100%;
-
-        display: flex;
-        justify-content: center;
-        align-items: end;
-        gap: 20px;
-        flex-direction: column;
-        position: absolute;
-        top: 1px;
-      }
-      .DiamondShape {
-        z-index: 2;
-        position: absolute;
-        top: 3px;
-        right: 420px;
-      }
-    }
-    .BarOfScale1 {
-      .slider-wrapper {
-        width: 100%;
-
-        display: flex;
-        justify-content: center;
-        align-items: start;
-        gap: 20px;
-        flex-direction: column;
-        position: absolute;
-        top: 1px;
-      }
-      .DiamondShape {
-        z-index: 2;
-        position: absolute;
-        top: 3px;
-        left: 11px;
-      }
-      .DiamondShape1 {
-        z-index: 2;
-        position: absolute;
-        top: 3px;
-        left: 157px;
-      }
-      .DiamondShape2 {
-        z-index: 2;
-        position: absolute;
-        top: 3px;
-        left: 396px;
-      }
-      .DiamondShape3 {
-        z-index: 2;
-        position: absolute;
-        top: 3px;
-        left: 414px;
-      }
-    }
-
-    /* 滑块形状和样式（使用提供的SVG作为背景） */
-    .slider::-webkit-slider-thumb,
-    .slider1::-webkit-slider-thumb {
-      -webkit-appearance: none;
-
-      width: 20px;
-      height: 85px;
-      background: url("@/assets/images/Frame2027.png") center no-repeat;
-      background-size: contain;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      z-index: 5;
+      top: -40px;
+      z-index: 2;
     }
   }
-}
-
-:deep(.el-loading-mask) {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-:deep(.el-loading-spinner .path) {
-  stroke: #e621ca;
 }
 </style>

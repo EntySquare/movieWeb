@@ -1,6 +1,10 @@
 <template>
   <div class="ai_container">
-    <div class="container_head">
+    <div
+      class="container_head"
+      v-for="(item, index) in reversedPairList"
+      :key="index"
+    >
       <img src="@/assets/images/ai/img1.png" alt="" class="red_back_img" />
       <img src="@/assets/images/ai/img2.png" alt="" class="blue_back_img" />
       <div class="head_content">
@@ -8,7 +12,7 @@
           <img src="@/assets/images/ai/img3.png" alt="" />
           <div class="red_avatar_name">
             <div>RED</div>
-            <div>Nezha</div>
+            <div>{{ reversedVoteList[index]?.character0 || "" }}</div>
           </div>
         </div>
         <img
@@ -19,7 +23,7 @@
         <div class="blue_avatar">
           <div class="blue_avatar_name">
             <div>BLUE</div>
-            <div>Ao Bing</div>
+            <div>{{ reversedVoteList[index]?.character1 || "" }}</div>
           </div>
           <img src="@/assets/images/ai/img5.png" alt="" />
         </div>
@@ -28,7 +32,8 @@
         <div
           class="red_line"
           :style="{
-            width: 'calc(' + redWidth + '% + 12px)',
+            width:
+              'calc(' + reversedVoteList[index]?.votes0Proportion + '% + 12px)',
           }"
         ></div>
         <img
@@ -39,7 +44,8 @@
         <div
           class="progress red"
           :style="{
-            width: 'calc(' + redWidth + '% + 10px)',
+            width:
+              'calc(' + reversedVoteList[index]?.votes0Proportion + '% + 10px)',
             clipPath:
               'polygon(0 0, 100% 0, calc(100% - 20px) 100%, 100% 100%, 0 100%)',
           }"
@@ -65,13 +71,15 @@
           alt=""
           class="progress_bar_divider"
           :style="{
-            left: 'calc(' + redWidth + '% - 25px)',
+            left:
+              'calc(' + reversedVoteList[index]?.votes0Proportion + '% - 25px)',
           }"
         />
         <div
           class="progress blue"
           :style="{
-            width: 'calc(' + blueWidth + '% + 10px)',
+            width:
+              'calc(' + reversedVoteList[index]?.votes1Proportion + '% + 10px)',
             clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 20px 0)',
           }"
         >
@@ -102,186 +110,113 @@
           }"
         ></div>
       </div>
-      <div class="count_down">{{ formatTime(defaultTime) }}</div>
-    </div>
-    <div class="container_section">
-      <img src="@/assets/images/ai/img13.png" alt="" class="pedestal_img" />
-      <div class="container_section_content">
-        <div class="container_section_red">
-          <img
-            src="@/assets/images/ai/img7.png"
-            alt=""
-            class="container_section_redbackimg"
-          />
-          <img
-            src="@/assets/images/ai/img9.png"
-            alt=""
-            class="container_section_avatar"
-          />
-        </div>
-        <div class="container_section_btn">
-          <div
-            class="csb_blue_block"
-            :style="{
-              clipPath:
-                'polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 calc(100% - 195px))',
-            }"
-          >
-            <div class="csb_blue_block_mask">
-              <div class="vote_btn" @click="showVoteDifference('blue')">
-                VOTE BLUE
-              </div>
-              <div class="share_btn">SPEED UP VOTING</div>
-              <div class="text_btn">BLUE</div>
-            </div>
-          </div>
-          <div
-            class="csb_red_block"
-            :style="{
-              clipPath:
-                'polygon(0 0, 100% 195px, 100% 100%, 100% 100%, 0 100%)',
-            }"
-          >
-            <div class="csb_red_block_mask">
-              <div class="text_btn">RED</div>
-              <div class="share_btn">SPEED UP VOTING</div>
-              <div class="vote_btn" @click="showVoteDifference('red')">
-                VOTE RED
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="container_section_blue">
-          <img
-            src="@/assets/images/ai/img11.png"
-            alt=""
-            class="container_section_avatar"
-          />
-          <img
-            src="@/assets/images/ai/img12.png"
-            alt=""
-            class="container_section_redbackimg"
-          />
-        </div>
-      </div>
-    </div>
-    <!-- 投票票数相差弹窗 -->
-    <div
-      v-if="voteDifferenceVisible"
-      style="
-        width: 100%;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 100;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      "
-      @click="voteDifferenceVisible = false"
-    >
-      <div class="vote_dv_content" @click.stop="">
-        <div class="vote_dvc_red">
-          <img src="@/assets/images/ai/img9.png" alt="" />
-          <div v-if="blueWidth > redWidth"></div>
-        </div>
-        <div
-          class="vote_dvc_content"
-          :class="redWidth > blueWidth ? 'red' : 'blue'"
-        >
-          <div class="vote_dvc_content_head">
-            <div class="red_text red_text_lead" v-if="redWidth > blueWidth">
-              {{ voteDifferenceType === "red" ? "NEZHA" : "AO BING" }}
-              TAKES<br />THE LEAD!
-            </div>
-            <div class="red_text red_text_backward" v-else>
-              {{ voteDifferenceType === "red" ? "NEZHA" : "AO BING" }}
-              IS<br />BEHIND!
-            </div>
-          </div>
-          <div class="">Stake 450 votes for enhanced yield</div>
-          <div>
-            Keep voting to maintain the lead! Get 1 free vote daily, and earn
-            bonus votes by inviting friends.
-          </div>
-          <div @click="showVoteVisible">Vote More</div>
-        </div>
-        <div class="vote_dvc_blue">
-          <img src="@/assets/images/ai/img11.png" alt="" />
-          <div v-if="redWidth > blueWidth"></div>
-        </div>
-      </div>
-    </div>
-    <!-- 投票弹窗 -->
-    <div
-      v-if="voteVisible"
-      style="
-        width: 100%;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 100;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      "
-      @click="voteVisible = false"
-    >
-      <div class="vote_num_content">
-        <img src="@/assets/images/ai/img3.png" alt="" />
-        <div>VOTE NEZHA</div>
-        <div>
-          Vote for NEZHA with 1 vote per submission! Earn extra votes by
-          inviting friends.
-        </div>
+      <div class="count_down">
+        {{ reversedVoteList[index]?.remainingTime || "" }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
+import { useMovieVoteFactoryContract } from "@/api/contract/movieVoteFactory";
+import { useMovieVotePairContract } from "@/api/contract/movieVotePair";
 
+const movieVoteFactoryContract = useMovieVoteFactoryContract();
 const redWidth = ref(50);
 const blueWidth = ref(50);
-const startTime = ref(1752483533000);
-const endTime = ref(1752656333000);
-const differenceTime = ref(0);
-const voteDifferenceVisible = ref(false);
-const voteVisible = ref(false);
-const voteDifferenceType = ref("");
+const pairList = ref([]);
+const voteList = ref([]);
+const reversedPairList = computed(() => [...pairList.value].reverse());
+const reversedVoteList = computed(() => [...voteList.value].reverse());
 
-onMounted(() => {
-  differenceTime.value = endTime.value - startTime.value;
-  setInterval(() => {
-    const red = Math.floor(Math.random() * 100);
-    redWidth.value = red;
-    blueWidth.value = 100 - red;
-    differenceTime.value -= 1000;
-  }, 1000);
+onMounted(async () => {
+  for (let i = 1; i < 9999; i++) {
+    clearTimeout(i);
+  }
+  await getAllPair();
+});
+onUnmounted(() => {
+  for (let i = 1; i < 9999; i++) {
+    clearTimeout(i);
+  }
 });
 
-const formatTime = () => {
-  const minuteTime = differenceTime.value / 1000;
+const getAllPair = async () => {
+  try {
+    const list = await movieVoteFactoryContract.allPairs();
+    pairList.value = [...list] || [];
+    const blockNum = await movieVoteFactoryContract.getBlockCount();
+    const nowTime = new Date().getTime();
+    voteList.value = await Promise.all(
+      pairList.value.map(async (item) => {
+        const movieVotePairContract = useMovieVotePairContract(item);
+        const character0 = await movieVotePairContract.getCharacter0();
+        const votes0 = await movieVotePairContract.getVotes0();
+        const character1 = await movieVotePairContract.getCharacter1();
+        const votes1 = await movieVotePairContract.getVotes1();
+        const endBlock = await movieVotePairContract.getEndBlock();
+        const claimBlock = await movieVotePairContract.getClaimBlock();
+        const votes0Proportion =
+          Number(votes0) / (Number(votes0) + Number(votes1) || 1);
+
+        return {
+          contractAddress: item,
+          character0: character0,
+          votes0: votes0,
+          votes0Proportion:
+            Number(votes0) === Number(votes1)
+              ? 50
+              : (votes0Proportion * 100).toFixed(0),
+          character1: character1,
+          votes1: votes1,
+          votes1Proportion:
+            Number(votes0) === Number(votes1) ? 50 : 100 - votes0Proportion,
+          remainingTime: formatBlockToTime(
+            endBlock,
+            blockNum,
+            nowTime,
+            "remaining"
+          ),
+          endBlock: formatBlockToTime(endBlock, blockNum, nowTime, ""),
+          claimBlock: formatBlockToTime(claimBlock, blockNum, nowTime, ""),
+        };
+      })
+    );
+    setTimeout(async () => {
+      await getAllPair();
+    }, 1000);
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
+const countdown = (time) => {};
+
+const formatTime = (time) => {
+  const minuteTime = time / 1000;
   const day = Math.floor(minuteTime / 60 / 60 / 24);
   const hours = Math.floor((minuteTime / 60 / 60) % 24);
   const minute = Math.floor((minuteTime / 60) % 60);
   const second = Math.floor(minuteTime % 60);
   return day + "days " + hours + "h " + minute + "min " + second + "sec";
 };
+// 区块格式化成时间字符串
+const formatBlockToTime = (block, blockNum, nowTime, remaining) => {
+  if (block === "" || Number(block) === 0) {
+    return 0;
+  }
+  if (remaining === "remaining") {
+    if (Number(block) >= Number(blockNum)) {
+      return "Ended";
+    } else {
+      return formatTime((Number(blockNum) - Number(block)) * 3 * 1000);
+    }
+  }
+  const differenceBlockNum = Number(block) - Number(blockNum);
+  const date = new Date(nowTime + differenceBlockNum * 3000);
 
-const showVoteDifference = (type) => {
-  voteDifferenceType.value = type;
-  voteDifferenceVisible.value = true;
-};
-
-const showVoteVisible = () => {
-  voteDifferenceVisible.value = false;
-  voteVisible.value = true;
+  return date.getTime();
 };
 </script>
 
@@ -290,21 +225,22 @@ const showVoteVisible = () => {
   flex: 1;
   .container_head {
     width: 100%;
-    height: 328px;
+    // height: 328px;
     max-width: 1280px;
     margin: auto;
     position: relative;
     z-index: 1;
+    margin-top: 20px;
     .red_back_img {
       width: 50%;
-      height: 328px;
+      height: 250px;
       position: absolute;
       top: 0;
       left: 0;
     }
     .blue_back_img {
       width: 50%;
-      height: 328px;
+      height: 250px;
       position: absolute;
       top: 0;
       right: 0;
@@ -319,8 +255,8 @@ const showVoteVisible = () => {
         align-items: center;
         gap: 24px;
         img {
-          width: 120px;
-          height: 120px;
+          width: 80px;
+          height: 80px;
           border-radius: 24px;
           border: 1px solid #ff3503;
         }
@@ -358,7 +294,7 @@ const showVoteVisible = () => {
         }
       }
       .head_content_img {
-        width: 244px;
+        width: 150px;
         height: auto;
       }
       .blue_avatar {
@@ -366,8 +302,8 @@ const showVoteVisible = () => {
         align-items: center;
         gap: 24px;
         img {
-          width: 120px;
-          height: 120px;
+          width: 80px;
+          height: 80px;
           border-radius: 24px;
           border: 1px solid #3103ff;
         }
