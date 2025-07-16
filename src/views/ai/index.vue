@@ -4,12 +4,35 @@
       class="container_head"
       v-for="(item, index) in reversedPairList"
       :key="index"
+      @click="
+        () => {
+          if (reversedVoteList[index]?.remainingTime === 'Not yet started') {
+            ElMessage({
+              showClose: true,
+              message: 'Voting has not yet begun',
+              type: 'error',
+            });
+            return;
+          }
+          router.push(
+            `/aidetail?pair=${reversedVoteList[index]?.contractAddress}`
+          );
+        }
+      "
     >
-      <img src="@/assets/images/ai/img1.png" alt="" class="red_back_img" />
-      <img src="@/assets/images/ai/img2.png" alt="" class="blue_back_img" />
+      <img
+        :src="reversedVoteList[index]?.character0Image || ''"
+        alt=""
+        class="red_back_img"
+      />
+      <img
+        :src="reversedVoteList[index]?.character1Image || ''"
+        alt=""
+        class="blue_back_img"
+      />
       <div class="head_content">
         <div class="red_avatar">
-          <img src="@/assets/images/ai/img3.png" alt="" />
+          <img :src="reversedVoteList[index]?.character0Image || ''" alt="" />
           <div class="red_avatar_name">
             <div>RED</div>
             <div>{{ reversedVoteList[index]?.character0 || "" }}</div>
@@ -25,7 +48,7 @@
             <div>BLUE</div>
             <div>{{ reversedVoteList[index]?.character1 || "" }}</div>
           </div>
-          <img src="@/assets/images/ai/img5.png" alt="" />
+          <img :src="reversedVoteList[index]?.character1Image || ''" alt="" />
         </div>
       </div>
       <div class="progress_container">
@@ -111,7 +134,8 @@
         ></div>
       </div>
       <div class="count_down">
-        {{ reversedVoteList[index]?.remainingTime || "" }}
+        <div>{{ reversedVoteList[index]?.startBlock || "" }}</div>
+        <div>{{ reversedVoteList[index]?.remainingTime || "" }}</div>
       </div>
     </div>
   </div>
@@ -121,6 +145,9 @@
 import { ref, onMounted, computed, onUnmounted } from "vue";
 import { useMovieVoteFactoryContract } from "@/api/contract/movieVoteFactory";
 import { useMovieVotePairContract } from "@/api/contract/movieVotePair";
+import { getImage } from "@/api/vote";
+import router from "@/router";
+import { ElMessage } from "element-plus";
 
 const movieVoteFactoryContract = useMovieVoteFactoryContract();
 const redWidth = ref(50);
@@ -155,14 +182,19 @@ const getAllPair = async () => {
         const votes0 = await movieVotePairContract.getVotes0();
         const character1 = await movieVotePairContract.getCharacter1();
         const votes1 = await movieVotePairContract.getVotes1();
+        const startBlock = await movieVotePairContract.getStartBlock();
         const endBlock = await movieVotePairContract.getEndBlock();
-        const claimBlock = await movieVotePairContract.getClaimBlock();
+        const imageList = await getImage({
+          pair: item,
+        });
         const votes0Proportion =
           Number(votes0) / (Number(votes0) + Number(votes1) || 1);
 
         return {
           contractAddress: item,
           character0: character0,
+          character0Image: imageList.data?.json?.image_url_0,
+          character1Image: imageList.data?.json?.image_url_1,
           votes0: votes0,
           votes0Proportion:
             Number(votes0) === Number(votes1)
@@ -172,26 +204,28 @@ const getAllPair = async () => {
           votes1: votes1,
           votes1Proportion:
             Number(votes0) === Number(votes1) ? 50 : 100 - votes0Proportion,
-          remainingTime: formatBlockToTime(
+          remainingTime: formatBlockToTimeString(
+            startBlock,
             endBlock,
             blockNum,
-            nowTime,
-            "remaining"
+            nowTime
           ),
-          endBlock: formatBlockToTime(endBlock, blockNum, nowTime, ""),
-          claimBlock: formatBlockToTime(claimBlock, blockNum, nowTime, ""),
+          startBlock: formatBlockToTime(
+            startBlock,
+            endBlock,
+            blockNum,
+            nowTime
+          ),
         };
       })
     );
-    setTimeout(async () => {
-      await getAllPair();
-    }, 1000);
+    // setTimeout(async () => {
+    //   await getAllPair();
+    // }, 1000);
   } catch (error) {
     console.log("error", error);
   }
 };
-
-const countdown = (time) => {};
 
 const formatTime = (time) => {
   const minuteTime = time / 1000;
@@ -202,21 +236,63 @@ const formatTime = (time) => {
   return day + "days " + hours + "h " + minute + "min " + second + "sec";
 };
 // 区块格式化成时间字符串
-const formatBlockToTime = (block, blockNum, nowTime, remaining) => {
-  if (block === "" || Number(block) === 0) {
-    return 0;
-  }
-  if (remaining === "remaining") {
-    if (Number(block) >= Number(blockNum)) {
-      return "Ended";
+const formatBlockToTimeString = (startBlock, endBlock, blockNum, nowTime) => {
+  if (Number(startBlock) > Number(blockNum)) {
+    return "Not yet started";
+  } else {
+    if (Number(endBlock) >= Number(blockNum)) {
+      return formatTime((Number(endBlock) - Number(blockNum)) * 3 * 1000);
     } else {
-      return formatTime((Number(blockNum) - Number(block)) * 3 * 1000);
+      return "Ended";
     }
   }
-  const differenceBlockNum = Number(block) - Number(blockNum);
-  const date = new Date(nowTime + differenceBlockNum * 3000);
-
-  return date.getTime();
+};
+const formatBlockToTime = (startBlock, endBlock, blockNum, nowTime) => {
+  const startDifferenceBlockNum = Number(startBlock) - Number(blockNum);
+  const endDifferenceBlockNum = Number(endBlock) - Number(blockNum);
+  const startDate = new Date(nowTime + startDifferenceBlockNum * 3000);
+  const endDate = new Date(nowTime + endDifferenceBlockNum * 3000);
+  return (
+    startDate.getFullYear() +
+    "-" +
+    (startDate.getMonth() + 1 < 10
+      ? "0" + (startDate.getMonth() + 1)
+      : startDate.getMonth() + 1) +
+    "-" +
+    (startDate.getDate() < 10
+      ? "0" + startDate.getDate()
+      : startDate.getDate()) +
+    " " +
+    (startDate.getHours() < 10
+      ? "0" + startDate.getHours()
+      : startDate.getHours()) +
+    ":" +
+    (startDate.getMinutes() < 10
+      ? "0" + startDate.getMinutes()
+      : startDate.getMinutes()) +
+    ":" +
+    (startDate.getSeconds() < 10
+      ? "0" + startDate.getSeconds()
+      : startDate.getSeconds()) +
+    " ~ " +
+    endDate.getFullYear() +
+    "-" +
+    (endDate.getMonth() + 1 < 10
+      ? "0" + (endDate.getMonth() + 1)
+      : endDate.getMonth() + 1) +
+    "-" +
+    (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()) +
+    " " +
+    (endDate.getHours() < 10 ? "0" + endDate.getHours() : endDate.getHours()) +
+    ":" +
+    (endDate.getMinutes() < 10
+      ? "0" + endDate.getMinutes()
+      : endDate.getMinutes()) +
+    ":" +
+    (endDate.getSeconds() < 10
+      ? "0" + endDate.getSeconds()
+      : endDate.getSeconds())
+  );
 };
 </script>
 
@@ -231,6 +307,7 @@ const formatBlockToTime = (block, blockNum, nowTime, remaining) => {
     position: relative;
     z-index: 1;
     margin-top: 20px;
+    cursor: pointer;
     .red_back_img {
       width: 50%;
       height: 250px;
@@ -467,7 +544,10 @@ const formatBlockToTime = (block, blockNum, nowTime, remaining) => {
       position: relative;
       z-index: 2;
       width: 100%;
-      top: -20px;
+      top: -25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
   }
   .container_section {

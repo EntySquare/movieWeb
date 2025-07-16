@@ -4,7 +4,7 @@ import requestLong from '@/utils/requestLong'
 // /nft/displayNFTForSale
 export const displayNFTForSale = () => {
     return request({
-        url: '/nft/displayNFTForSale',
+        url: '/movieapp/nft/displayNFTForSale',
         method: 'post',
     })
 }
@@ -12,7 +12,7 @@ export const displayNFTForSale = () => {
 // /nft/buyUserMint 授权购买NFT
 export const buyUserMint = (data: any) => {
     return requestLong({
-        url: '/nft/buyUserMint',
+        url: '/movieapp/nft/buyUserMint',
         method: 'post',
         data
     })

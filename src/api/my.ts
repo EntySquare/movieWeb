@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // /order/showAllMyActivity
 export const showAllMyActivity = () => {
     return request({
-        url: '/order/showAllMyActivity',
+        url: '/movieapp/order/showAllMyActivity',
         method: 'post',
 
     })
@@ -12,7 +12,7 @@ export const showAllMyActivity = () => {
 // /order/showAllMyTicket
 export const showAllMyTicket = () => {
     return request({
-        url: '/order/showAllMyTicket',
+        url: '/movieapp/order/showAllMyTicket',
         method: 'post',
 
     })
@@ -21,7 +21,7 @@ export const showAllMyTicket = () => {
 // 入参：hash 哈希，address 收货地址
 export const purchaseAddAddress = (data: any) => {
     return request({
-        url: '/shop/purchaseAddAddress',
+        url: '/movieapp/shop/purchaseAddAddress',
         method: 'post',
         data
     })

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // /activity/showAllHotMovie 展示热门电影
 export const showAllHotMovie = () => {
     return request({
-        url: '/activity/showAllHotMovie',
+        url: '/movieapp/activity/showAllHotMovie',
         method: 'post',
 
     })
@@ -11,7 +11,7 @@ export const showAllHotMovie = () => {
 // /activity/showAllHotEvent 展示热门活动
 export const showAllHotEvent = () => {
     return request({
-        url: '/activity/showAllHotEvent',
+        url: '/movieapp/activity/showAllHotEvent',
         method: 'post',
 
     })

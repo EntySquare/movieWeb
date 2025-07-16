@@ -4,7 +4,7 @@ import requestLong from '@/utils/requestLong'
 // /movieapp/vote/displayWahlPool
 export const displayWahlPool = () => {
     return request({
-        url: '/vote/displayWahlPool',
+        url: '/movieapp/vote/displayWahlPool',
         method: 'post',
 
     })
@@ -13,7 +13,7 @@ export const displayWahlPool = () => {
 // /vote/voteWahlPool 投票的后端接口
 export const voteWahlPool = (data: any) => {
     return requestLong({
-        url: '/vote/voteWahlPool',
+        url: '/movieapp/vote/voteWahlPool',
         method: 'post',
         data: data
     })
@@ -24,7 +24,7 @@ export const voteWahlPool = (data: any) => {
 
 export const distributeBonus = (data: any) => {
     return requestLong({
-        url: '/vote/distributeBonus',
+        url: '/movieapp/vote/distributeBonus',
         method: 'post',
         data: data
     })
@@ -34,7 +34,7 @@ export const distributeBonus = (data: any) => {
 
 export const judgeBonus = (data: any) => {
     return request({
-        url: '/vote/judgeBonus',
+        url: '/movieapp/vote/judgeBonus',
         method: 'post',
         data: data
     })
@@ -43,7 +43,7 @@ export const judgeBonus = (data: any) => {
 // /vote/getInviterInfo 获取邀请者信息 这个就是先去看看 获得转发链接的用户，在后台看看返回他这个上一级和上上级推荐人是谁
 export const getInviterInfo = (data: any) => {
     return request({
-        url: '/vote/getInviterInfo',
+        url: '/movieapp/vote/getInviterInfo',
         method: 'post',
         data: data
     })
@@ -53,7 +53,7 @@ export const getInviterInfo = (data: any) => {
 
 export const inviterVote = (data: any) => {
     return request({
-        url: '/vote/inviterVote',
+        url: '/movieapp/vote/inviterVote',
         method: 'post',
         data: data
     })

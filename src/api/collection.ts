@@ -4,7 +4,7 @@ import requestLong from '@/utils/requestLong'
 // /movieapp//showCollections
 export const showCollections = () => {
     return request({
-        url: '/nft/showCollections',
+        url: '/movieapp/nft/showCollections',
         method: 'post',
 
     })
