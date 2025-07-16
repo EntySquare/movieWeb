@@ -14,9 +14,11 @@
             });
             return;
           }
-          router.push(
-            `/aidetail?pair=${reversedVoteList[index]?.contractAddress}`
-          );
+          if (reversedVoteList[index]?.contractAddress != '') {
+            router.push(
+              `/aidetail?pair=${reversedVoteList[index]?.contractAddress}`
+            );
+          }
         }
       "
     >
