@@ -102,20 +102,20 @@ onMounted(() => {
                         <img src="@/assets/images/shop/img3.png" alt="" />
                         <img src="@/assets/images/shop/img4.png" alt="" />
                       </div>
-                      <!-- <img class="imageUrl" :src="movie.imageUrl" alt="error" /> -->
-                      <img
+                      <img class="imageUrl" :src="movie.imageUrl" alt="error" />
+                      <!-- <img
                         class="imageUrl"
                         src="@/assets/images/shop/img6.png"
                         alt=""
-                      />
+                      /> -->
                     </div>
                   </div>
                   <div class="hotText">
                     {{ movie.title }}
                   </div>
-                  <div class="participate" v-if="width < 824">
+                  <!-- <div class="participate" v-if="width < 824">
                     {{ t("shop.shop7") }}
-                  </div>
+                  </div> -->
                 </div>
               </template>
               <template v-else>
@@ -195,8 +195,8 @@ onMounted(() => {
                 "
               >
                 <div class="HotEventImg">
-                  <!-- <img :src="item.imageUrl" alt="" /> -->
-                  <img src="@/assets/images/shop/img6.png" alt="" />
+                  <img :src="item.imageUrl" alt="" />
+                  <!-- <img src="@/assets/images/shop/img6.png" alt="" /> -->
                 </div>
                 <div class="EventRight">
                   <div class="EventTitle">{{ item.title }}</div>
@@ -445,6 +445,11 @@ onMounted(() => {
       line-height: normal;
       letter-spacing: 0.56px;
       text-transform: uppercase;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* 限制最多两行 */
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
     }
     .participate {
       width: 150px;
@@ -505,16 +510,12 @@ onMounted(() => {
         font-size: 14px;
         font-style: normal;
         font-weight: 700;
-        line-height: 16px; /* 114.286% */
-        word-wrap: break-word; /* 允许单词内换行 */
-        word-break: break-all; /* 允许任何地方换行 */
-        white-space: normal; /* 默认换行 */
         overflow: hidden; /* 超出隐藏 */
         text-overflow: ellipsis; /* 显示省略号 */
         display: -webkit-box;
         -webkit-line-clamp: 2; /* 限制最多 3 行 */
         -webkit-box-orient: vertical;
-        padding: 8px 0;
+        margin: 8px 0;
       }
       .Preview {
         display: flex;
@@ -702,223 +703,89 @@ onMounted(() => {
     }
   }
   .shopbottom {
+    width: 100% !important;
     gap: 40px !important;
 
     .bottomLeft {
-      display: flex;
-      flex-direction: column;
-      gap: 64px;
-      width: 880px;
+      width: 100% !important;
+      gap: 40px !important;
 
       .HotmovieTitle,
       .NewTitle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 24px;
-        .title {
-          color: #fff;
-          font-family: Rubik;
-          font-size: 16px;
-          font-style: normal;
-          font-weight: 700;
-          line-height: normal;
-          letter-spacing: 0.64px;
-          text-transform: uppercase;
-        }
-        .all,
-        .more {
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: #959595;
-          font-family: Rubik;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 500;
-          line-height: normal;
-          letter-spacing: 0.56px;
-          text-transform: uppercase;
-          img {
-            width: 14px;
-            height: 14px;
-          }
-        }
+        padding: 0 20px !important;
       }
       .HotmovieList {
-        display: flex;
-        gap: 80px;
-        // align-items: center;
+        width: 100% !important;
+        overflow-x: scroll !important;
+        gap: 24px !important;
+        padding: 0 20px !important;
         .HotmovieItem {
-          min-width: 240px;
-          max-width: 240px;
-          cursor: pointer;
+          min-width: 120px !important;
+          max-width: 120px !important;
           .hotImgBack {
-            margin-bottom: 15px;
-            flex-shrink: 0;
-            background: rgba(41, 41, 41, 0.75);
-            background-size: cover;
-            width: 240px;
-            height: 344px;
-            flex-shrink: 0;
-            border-radius: 12.8px;
-            overflow: hidden;
+            width: 120px !important;
+            height: 172px !important;
+            border-radius: 6px !important;
           }
         }
       }
       .hotImg {
-        width: 240px;
-        height: 344px;
-        flex-shrink: 0;
-        border-radius: 12.8px;
-        overflow: hidden;
-        background: url("@/assets/images/shop/img5.png") no-repeat;
-        background-size: cover;
+        width: 116px !important;
+        height: 168px !important;
+        border-radius: 6px !important;
         div {
-          width: 100%;
-          height: 32px;
-          padding: 4px 8px 4px 10px;
-          box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+          height: 16px !important;
+          padding: 2px 4px 2px 6px !important;
           img {
             &:first-child {
-              width: 40px;
-              height: auto;
+              width: 20px !important;
             }
             &:last-child {
-              width: 122px;
-              height: auto;
+              width: 60px !important;
             }
           }
         }
         .imageUrl {
-          width: 232px;
-          height: 304px;
-          flex-shrink: 0;
-          border-radius: 1.207px 4.829px 4.829px 1.207px;
-          box-shadow: 1.207px 1.207px 0px 0px #151515,
-            3.621px 0px 3.44px 0px rgba(255, 255, 255, 0.51) inset;
+          width: 161px !important;
+          height: 152px !important;
         }
       }
 
       .hotText {
-        max-width: 210px;
-        margin: auto;
-        color: #fff;
-        text-align: center;
-        font-family: Rubik;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-        letter-spacing: 0.56px;
-        text-transform: uppercase;
-      }
-      .participate {
-        width: 150px;
-        top: 50%;
-        left: 15%;
-        transform: translate(-50%, -50%);
-        z-index: 6;
-        position: absolute;
-        display: flex;
-        padding: 8px 14px;
-        justify-content: center;
-        align-items: center;
-
-        border-radius: 10px;
-        background: rgba(27, 27, 27, 0.6);
-        backdrop-filter: blur(5px);
-        color: #f9f9f9;
-
-        font-family: Rubik;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 22px; /* 157.143% */
-        letter-spacing: 0.07px;
-        cursor: pointer;
-      }
-
-      /* 文字的移动效果 */
-      .textMove {
-        transform: translateY(200vh); /* 向上弹 */
-        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-
-      /* 其他元素向下平移 200px */
-      .moveDown {
-        transform: translateY(200vh);
+        max-width: 120px !important;
+        font-size: 12px !important;
       }
 
       .newList {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 24px;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        overflow-x: scroll !important;
+        padding: 0 20px !important;
         .newsItem {
-          width: 202px;
-          cursor: pointer;
+          width: 169px !important;
           .newsImg {
-            width: 202px;
-            height: 202px;
+            width: 169px !important;
+            height: 169px !important;
             img {
-              width: 202px;
-              height: 202px;
+              width: 169px !important;
+              height: 169px !important;
             }
           }
         }
         .newsTitle {
-          color: #fff;
-          font-family: Rubik;
-          font-size: 14px;
-          font-style: normal;
-          font-weight: 700;
-          line-height: 16px; /* 114.286% */
-          word-wrap: break-word; /* 允许单词内换行 */
-          word-break: break-all; /* 允许任何地方换行 */
-          white-space: normal; /* 默认换行 */
-          overflow: hidden; /* 超出隐藏 */
-          text-overflow: ellipsis; /* 显示省略号 */
-          display: -webkit-box;
-          -webkit-line-clamp: 2; /* 限制最多 3 行 */
-          -webkit-box-orient: vertical;
-          padding: 8px 0;
-        }
-        .Preview {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          .Price {
-            color: #d339c4;
-            font-family: Rubik;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
-            line-height: 15px; /* 107.143% */
-          }
-          .Sold {
-            color: rgba(255, 255, 255, 0.5);
-            font-family: Rubik;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: 14px; /* 116.667% */
-          }
+          margin: 12px 0 8px !important;
         }
       }
     }
     .HotEvent {
       flex: 1;
-
       .HotEventTitle {
         display: flex;
         align-items: center;
         width: 100%;
         justify-content: space-between;
         margin-bottom: 16px;
+        padding: 0 20px !important;
         .title {
           color: #fff;
           font-family: Rubik;
@@ -954,6 +821,7 @@ onMounted(() => {
         display: grid;
         grid-template-columns: repeat(1, 1fr);
         gap: 24px;
+        padding: 0 20px !important;
         overflow-y: auto; /* 允许垂直滚动 */
         -ms-overflow-style: none; /* 兼容IE/Edge 隐藏滚动条 */
         scrollbar-width: none; /* 兼容Firefox 隐藏滚动条 */

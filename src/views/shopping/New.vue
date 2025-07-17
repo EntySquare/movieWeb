@@ -1,6 +1,6 @@
 <template>
-  <div class="home_view">
-    <div class="container" v-loading="loading">
+  <div class="home_view" v-loading="loading">
+    <div class="container">
       <div class="back" @click="$router.back()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -17,6 +17,10 @@
           />
         </svg>
         {{ t("back") }}
+      </div>
+      <div class="container_head">
+        <div>New product</div>
+        <img src="@/assets/images/shop/img12.png" alt="" />
       </div>
       <div class="Sidebar">
         <div class="SidebarSidebar">
@@ -41,19 +45,6 @@
         <div class="SidebarContent">
           <!-- <div v-if="selectedCategory === 'All goods'">All goods 内容</div> -->
           <div class="new">
-            <div class="NewTitle">
-              <div class="title">
-                {{
-                  selectedCategory === "All goods"
-                    ? t("shop.shop10")
-                    : selectedCategory === "New"
-                    ? t("shop.shop11")
-                    : selectedCategory === "Hot"
-                    ? t("shop.shop12")
-                    : ""
-                }}
-              </div>
-            </div>
             <div class="newList" v-if="newProduct">
               <div
                 class="newsItem"
@@ -66,9 +57,14 @@
                   })
                 "
               >
-                <!-- <img class="newsImg" :src="item.image" alt="" />
-                  -->
-                <div
+                <img class="newsImg" :src="item.image" alt="" />
+                <!-- <img
+                  class="newsImg"
+                  src="@/assets/images/shop/img8.png"
+                  alt=""
+                /> -->
+
+                <!-- <div
                   class="newsImg"
                   :style="{
                     backgroundImage: `url(${item.cover}) `,
@@ -76,7 +72,7 @@
                     backgroundSize: 'contain',
                     backgroundPosition: 'center',
                   }"
-                ></div>
+                ></div> -->
                 <div class="newsTitle">{{ item.name }}</div>
                 <div class="Preview">
                   <div class="Price">${{ item.price }}</div>
@@ -116,7 +112,7 @@ const loading = ref(false);
 const categories = ref(["All goods", "New", "Hot"]);
 
 // 选中的分类，默认选中 "All goods"
-const selectedCategory = ref("Hot");
+const selectedCategory = ref("New");
 // all goods 点击的时候 search 是空，new点击的时候 search 是空，  hot 点击的时候 search 是 hot，
 const newProduct = ref();
 const getNewProductData = async (search: string) => {
@@ -161,7 +157,7 @@ const ClickCategory = (item: string) => {
   }
 };
 onMounted(() => {
-  getNewProductData("hot");
+  getNewProductData("");
 });
 </script>
 
@@ -169,10 +165,11 @@ onMounted(() => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
+  flex: 1;
   // height: 100%;
 
   .container {
-    padding: 43px 120px 153px 120px;
+    padding: 30px 80px 10px 80px;
   }
 }
 .back {
@@ -187,18 +184,39 @@ onMounted(() => {
   font-style: normal;
   font-weight: 700;
   line-height: 20px; /* 125% */
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+.container_head {
+  width: max-content;
+  position: relative;
+  color: #efcff6;
+  text-align: right;
+  font-family: Montserrat;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  img {
+    width: 42px;
+    height: auto;
+    position: absolute;
+    right: -20px;
+    bottom: 4.5px;
+    z-index: 2;
+  }
 }
 .Sidebar {
   display: flex;
-  gap: 52px;
+  flex-direction: column;
+  gap: 24px;
   .SidebarSidebar {
-    width: 74px;
     display: flex;
-    flex-direction: column;
+    gap: 24px;
 
     .sidebarItem {
-      padding: 8px 0;
+      text-wrap: nowrap;
       color: #fff;
       font-family: Rubik;
       font-size: 16px;
@@ -217,7 +235,6 @@ onMounted(() => {
   }
 }
 .SidebarContent {
-  padding-top: 8px;
   flex: 1;
 }
 .new {
@@ -243,14 +260,13 @@ onMounted(() => {
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-    gap: 28px;
-    row-gap: 26px;
+    gap: 24px 13.6px;
     .newsItem {
-      width: 274px;
+      width: 202px;
       .newsImg {
         display: flex;
-        width: 274px;
-        height: 274px;
+        width: 202px;
+        height: 202px;
         border-radius: 8px;
         margin-bottom: 12px;
         cursor: pointer;
@@ -265,6 +281,11 @@ onMounted(() => {
       font-weight: 700;
       line-height: 20px; /* 114.286% */
       margin-bottom: 8px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* 限制最多两行 */
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
     }
     .Preview {
       display: flex;
@@ -293,7 +314,7 @@ onMounted(() => {
 @media (max-width: 824px) {
   .home_view {
     .container {
-      padding: 15px !important;
+      padding: 20px !important;
       .Sidebar {
         gap: 15px;
         .SidebarSidebar {
@@ -311,15 +332,18 @@ onMounted(() => {
               }
             }
             .newList {
+              justify-content: space-between;
               .newsItem {
-                width: 100%;
-                padding: 6px;
-                border-radius: 6px;
+                width: 160px !important;
                 box-sizing: border-box;
-                background-color: rgba(18, 18, 18, 1);
+                gap: 0 !important;
                 .newsImg {
-                  width: 100%;
+                  width: 160px !important;
+                  height: 160px !important;
                 }
+              }
+              .newsTitle {
+                -webkit-line-clamp: 1 !important;
               }
             }
           }

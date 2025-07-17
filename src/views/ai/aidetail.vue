@@ -1,19 +1,21 @@
 <template>
-  <div class="ai_container">
+  <div class="ai_container" v-loading="loading">
     <div class="container_head">
-      <img
-        :src="detailData.character0Image || ''"
-        alt=""
+      <div
         class="red_back_img"
-      />
-      <img
-        :src="detailData.character1Image || ''"
-        alt=""
+        :style="`background-image: url(${detailData.character0Image || ''});`"
+      >
+        <div></div>
+      </div>
+      <div
         class="blue_back_img"
-      />
+        :style="`background-image: url(${detailData.character1Image || ''});`"
+      >
+        <div></div>
+      </div>
       <div class="head_content">
         <div class="red_avatar">
-          <img :src="detailData.character0Image || ''" alt="" />
+          <img :src="detailData.character0HeadImage || ''" alt="" />
           <div class="red_avatar_name">
             <div>RED</div>
             <div>{{ detailData.character0 || "" }}</div>
@@ -29,7 +31,7 @@
             <div>BLUE</div>
             <div>{{ detailData.character1 || "" }}</div>
           </div>
-          <img :src="detailData.character1Image || ''" alt="" />
+          <img :src="detailData.character1HeadImage || ''" alt="" />
         </div>
       </div>
       <div class="progress_container">
@@ -49,21 +51,27 @@
           :style="{
             width: 'calc(' + detailData.votes0Proportion + '% + 10px)',
             clipPath:
-              'polygon(0 0, 100% 0, calc(100% - 20px) 100%, 100% 100%, 0 100%)',
+              viewportWidth > 824
+                ? 'polygon(0 0, 100% 0, calc(100% - 20px) 100%, 100% 100%, 0 100%)'
+                : 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 100% 100%, 0 100%)',
           }"
         >
           <div
             class="red_white_line"
             :style="{
               clipPath:
-                'polygon(0 0, 100% 0, calc(100% - 15px) 100%, 100% 100%, 0 100%)',
+                viewportWidth > 824
+                  ? 'polygon(0 0, 100% 0, calc(100% - 15px) 100%, 100% 100%, 0 100%)'
+                  : 'polygon(0 0, 100% 0, calc(100% - 6px) 100%, 100% 100%, 0 100%)',
             }"
           >
             <div
               class="rwl_content"
               :style="{
                 clipPath:
-                  'polygon(0 0, 100% 0, calc(100% - 13px) 100%, 100% 100%, 0 100%)',
+                  viewportWidth > 824
+                    ? 'polygon(0 0, 100% 0, calc(100% - 13px) 100%, 100% 100%, 0 100%)'
+                    : 'polygon(0 0, 100% 0, calc(100% - 5px) 100%, 100% 100%, 0 100%)',
               }"
             ></div>
           </div>
@@ -73,27 +81,37 @@
           alt=""
           class="progress_bar_divider"
           :style="{
-            left: 'calc(' + detailData.votes0Proportion + '% - 25px)',
+            left: `calc(${detailData.votes0Proportion}% - ${
+              viewportWidth > 824 ? '25px' : '5px'
+            })`,
           }"
         />
         <div
           class="progress blue"
           :style="{
             width: 'calc(' + detailData.votes1Proportion + '% + 10px)',
-            clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 20px 0)',
+            clipPath:
+              viewportWidth > 824
+                ? 'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 20px 0)'
+                : 'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 10px 0)',
           }"
         >
           <div
             class="blue_white_line"
             :style="{
-              clipPath: 'polygon(15px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
+              clipPath:
+                viewportWidth > 824
+                  ? 'polygon(15px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)'
+                  : 'polygon(6px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
             }"
           >
             <div
               class="bwl_content"
               :style="{
                 clipPath:
-                  'polygon(13px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
+                  viewportWidth > 824
+                    ? 'polygon(13px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)'
+                    : 'polygon(5px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
               }"
             ></div>
           </div>
@@ -106,7 +124,9 @@
         <div
           class="blue_line"
           :style="{
-            width: 'calc(' + detailData.votes1Proportion + '% + 12px)',
+            width: `calc(${detailData.votes1Proportion}% ${
+              viewportWidth > 824 ? ' + 12px' : ' - 0px'
+            })`,
           }"
         ></div>
       </div>
@@ -125,6 +145,12 @@
             :src="detailData.character0Image || ''"
             alt=""
             class="container_section_avatar"
+            :style="{
+              clipPath:
+                viewportWidth > 824
+                  ? 'polygon(0% 0%, 100% 30px, 100% calc(100% - 30px), 0% 100%)'
+                  : 'polygon(0% 0%, 100% 20px, 100% calc(100% - 20px), 0% 100%)',
+            }"
           />
         </div>
         <div class="container_section_btn">
@@ -133,9 +159,7 @@
             :style="{
               clipPath:
                 'polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 calc(100% - 195px))',
-              background: `url('${
-                detailData.character1Image || ''
-              }') no-repeat`,
+              backgroundImage: `url('${detailData.character1Image || ''}')`,
             }"
           >
             <div class="csb_blue_block_mask">
@@ -153,9 +177,7 @@
             :style="{
               clipPath:
                 'polygon(0 0, 100% 195px, 100% 100%, 100% 100%, 0 100%)',
-              background: `url('${
-                detailData.character0Image || ''
-              }') no-repeat`,
+              backgroundImage: `url('${detailData.character0Image || ''}')`,
             }"
           >
             <div class="csb_red_block_mask">
@@ -174,6 +196,12 @@
             :src="detailData.character1Image || ''"
             alt=""
             class="container_section_avatar"
+            :style="{
+              clipPath:
+                viewportWidth > 824
+                  ? 'polygon(0% 30px, 100% 0%, 100% 100%, 0% calc(100% - 30px))'
+                  : 'polygon(0% 20px, 100% 0%, 100% 100%, 0% calc(100% - 20px))',
+            }"
           />
           <img
             src="@/assets/images/ai/img12.png"
@@ -374,9 +402,13 @@
         <div class="vncr_num_votes">
           balance <span>{{ balanceAmount || 0 }} USDT</span>
         </div>
-        <div class="vncr_vote_btn vncr_vote_btn_red" @click="voteTicket('0')">
-          VOTE
-        </div>
+        <el-button
+          type="primary"
+          :loading="voteTicketLoading"
+          @click="voteTicket(0)"
+          class="vncr_vote_btn vncr_vote_btn_red"
+          >VOTE</el-button
+        >
       </div>
       <div
         class="vote_num_content_blue"
@@ -462,9 +494,13 @@
         <div class="vncr_num_votes">
           balance <span>{{ balanceAmount || 0 }} USDT</span>
         </div>
-        <div class="vncr_vote_btn vncr_vote_btn_blue" @click="voteTicket('1')">
-          VOTE
-        </div>
+        <el-button
+          type="primary"
+          :loading="voteTicketLoading"
+          @click="voteTicket(1)"
+          class="vncr_vote_btn vncr_vote_btn_blue"
+          >VOTE</el-button
+        >
       </div>
     </div>
     <!-- 分享弹窗 -->
@@ -498,13 +534,13 @@
             alt=""
             @click="
               copyTextToClipboard(
-                'https://www.figma.com/design/E7rxc8q37pBGBIQ3zd8ndk/Movie--%E9%A1%B9%E7%9B%AE%E8%AE%BE%E8%AE%A1?node-id=5129-2626&t=sLFn30masH4YaTS8-1'
+                `https://twitter.com/intent/tweet?url=${roterLink}`
               )
             "
           />
         </div>
         <div>
-          https://www.figma.com/design/E7rxc8q37pBGBIQ3zd8ndk/Movie--%E9%A1%B9%E7%9B%AE%E8%AE%BE%E8%AE%A1?node-id=5129-2626&t=sLFn30masH4YaTS8-1
+          {{ `https://twitter.com/intent/tweet?url=${roterLink}` }}
         </div>
         <div @click="shareVisible = false">CLose</div>
       </div>
@@ -524,6 +560,7 @@ import useWalletStore from "@/store/modules/wallet";
 import Web3 from "web3";
 import Decimal from "decimal.js";
 
+const loading = ref(false);
 const web3 = new Web3(window.ethereum);
 const walletStore = useWalletStore();
 const route = useRoute();
@@ -534,11 +571,14 @@ const voteDifferenceVisible = ref(false);
 const voteVisible = ref(false);
 const shareVisible = ref(false);
 const voteDifferenceType = ref("");
+const voteTicketLoading = ref(false);
 const detailData = ref({
   contractAddress: "",
   character0: "",
   character0Image: "",
   character1Image: "",
+  character0HeadImage: "",
+  character1HeadImage: "",
   votes0: "",
   votes0Proportion: 50,
   character1: "",
@@ -551,10 +591,25 @@ const voteAmount = ref("0");
 const voteUsdtAmount = ref("0");
 const userFreeTickets = ref(0);
 const balanceAmount = ref(0);
+const roterLink = ref("");
+const viewportWidth = ref(0);
 
 onMounted(async () => {
+  viewportWidth.value = window.innerWidth;
+  window.addEventListener("resize", () => {
+    viewportWidth.value = window.innerWidth;
+  });
+  loading.value = true;
   await getDetailState();
   setInterval(() => {
+    if (Number(detailData.value.countdown) === 0) {
+      for (let i = 1; i < 9999; i++) {
+        detailData.value.countdown = 0;
+        detailData.value.remainingTime = "Ended";
+        clearInterval(i);
+      }
+      return;
+    }
     detailData.value.countdown -= 1;
     detailData.value.remainingTime = formatBlockToTimeString(
       detailData.value.countdown
@@ -567,23 +622,29 @@ const getDetailState = async () => {
   try {
     const blockNum = await movieVoteFactoryContract.getBlockCount();
     const movieVotePairContract = useMovieVotePairContract(pair);
-    const character0 = await movieVotePairContract.getCharacter0();
-    const character1 = await movieVotePairContract.getCharacter1();
-    const endBlock = await movieVotePairContract.getEndBlock();
+    const baseInfo = await movieVotePairContract.getBaseInfo();
     const imageList = await getImage({
       pair: pair,
     });
     detailData.value.contractAddress = pair;
-    detailData.value.character0 = character0;
+    detailData.value.character0 = baseInfo[0];
     detailData.value.character0Image = imageList.data?.json?.image_url_0;
     detailData.value.character1Image = imageList.data?.json?.image_url_1;
-    detailData.value.character1 = character1;
-    detailData.value.countdown = (Number(endBlock) - Number(blockNum)) * 3;
+    detailData.value.character0HeadImage = imageList.data?.json?.image_url_2;
+    detailData.value.character1HeadImage = imageList.data?.json?.image_url_3;
+    detailData.value.character1 = baseInfo[1];
+    detailData.value.countdown = (Number(baseInfo[7]) - Number(blockNum)) * 3;
     detailData.value.remainingTime = formatBlockToTimeString(
       detailData.value.countdown
     );
   } catch (error) {
-    console.log("error", error);
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -604,7 +665,13 @@ const getDetail = async () => {
       Number(votes0) === Number(votes1) ? 50 : 100 - votes0Proportion;
     await getDetail();
   } catch (error) {
-    console.log("error", error);
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -627,6 +694,8 @@ const showShareVisible = async () => {
       });
       return;
     }
+    roterLink.value =
+      window.location.href + `&address=${walletStore.walletAddress}`;
     shareVisible.value = true;
   } catch (error) {}
 };
@@ -655,7 +724,6 @@ const showVoteDifference = async (type) => {
       walletStore.walletAddress
     );
     balanceAmount.value = formatBalance18(balance);
-
     if (detailData.votes0 === detailData.votes1) {
       voteVisible.value = true;
     } else {
@@ -669,7 +737,87 @@ const showVoteVisible = () => {
   voteVisible.value = true;
 };
 
-const voteTicket = (type) => {};
+//查询usdt的授权额度
+const usdtAuthorizationAmount = async () => {
+  try {
+    const amount = await usdtTokenContract.getAllowance(
+      walletStore.walletAddress,
+      pair
+    );
+    //没有授权额度去授权
+    if (BigInt(amount) < BigInt(formatBalanceBigInt18(voteUsdtAmount.value))) {
+      await usdtTokenContract.approve(
+        pair,
+        formatBalanceBigInt18(voteUsdtAmount.value)
+      );
+      await usdtAuthorizationAmount();
+    }
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+const voteTicket = async (type) => {
+  if (Number(voteAmount.value) > Number(userFreeTickets.value)) {
+    ElMessage({
+      showClose: true,
+      message: "免费票不足",
+      type: "error",
+    });
+    return;
+  }
+
+  if (Number(voteUsdtAmount.value) === 0) {
+    ElMessage({
+      showClose: true,
+      message: "请输入USDT数量",
+      type: "error",
+    });
+    return;
+  }
+  if (Number(voteUsdtAmount.value) > Number(balanceAmount.value)) {
+    ElMessage({
+      showClose: true,
+      message: "余额不足",
+      type: "error",
+    });
+    return;
+  }
+  if (voteTicketLoading.value) {
+    return;
+  }
+  try {
+    voteTicketLoading.value = true;
+    await usdtAuthorizationAmount();
+    const movieVotePairContract = useMovieVotePairContract(pair);
+    await movieVotePairContract.voteWithUSDT(
+      type,
+      Number(voteUsdtAmount.value)
+    );
+    if (Number(voteAmount.value) > 0) {
+      await movieVotePairContract.voteWithFreeTicket(
+        type,
+        Number(voteAmount.value)
+      );
+    }
+    voteVisible.value = false;
+    ElMessage({
+      showClose: true,
+      message: "Vote Success",
+      type: "success",
+    });
+  } catch (error) {
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
+    console.error("error", error);
+  } finally {
+    voteTicketLoading.value = false;
+  }
+};
 
 const copyTextToClipboard = (text) => {
   const textarea = document.createElement("textarea");
@@ -735,6 +883,25 @@ const formatBalance18 = (balance, fixedNum) => {
     console.log("error", error);
   }
 };
+const formatBalanceBigInt18 = (balance) => {
+  if (balance == null || balance.toString() == null) {
+    return 0;
+  }
+  if (balance === "") {
+    return 0;
+  }
+  const parsedBalance =
+    typeof balance === "string" ? balance : balance.toString();
+  // 拆分整数部分和小数部分
+  const [integerPart, decimalPart = ""] = parsedBalance.split(".");
+  // 计算整数部分的 10^6 倍
+  const intResult = integerPart + "0".repeat(6);
+  // 计算小数部分的贡献（最多保留 6 位小数）
+  const decimalProcessed = (decimalPart + "0".repeat(6)).slice(0, 6);
+  // 结果拼接
+  const finalResult = intResult.slice(0, -6) + decimalProcessed;
+  return finalResult.replace(/^0+/, "") || "0"; // 去掉前导 0
+};
 </script>
 
 <style scoped lang="less">
@@ -753,6 +920,14 @@ const formatBalance18 = (balance, fixedNum) => {
       position: absolute;
       top: 0;
       left: 0;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      div {
+        width: 100%;
+        height: 100%;
+        background-color: #000000c7;
+      }
     }
     .blue_back_img {
       width: 50%;
@@ -760,6 +935,14 @@ const formatBalance18 = (balance, fixedNum) => {
       position: absolute;
       top: 0;
       right: 0;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      div {
+        width: 100%;
+        height: 100%;
+        background-color: #000000c7;
+      }
     }
     .head_content {
       display: flex;
@@ -1018,10 +1201,11 @@ const formatBalance18 = (balance, fixedNum) => {
         }
         .container_section_avatar {
           width: 420px;
-          height: 609px;
+          height: 600px;
           position: absolute;
-          top: 0;
+          top: 5px;
           right: -35px;
+          transform: rotateY(35deg);
         }
       }
       .container_section_btn {
@@ -1047,7 +1231,7 @@ const formatBalance18 = (balance, fixedNum) => {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(22, 6, 2, 0.25);
+            background-color: #000000a4;
             .vote_btn {
               width: 280px;
               height: 48px;
@@ -1111,7 +1295,7 @@ const formatBalance18 = (balance, fixedNum) => {
         .csb_red_block {
           width: 319px;
           height: 312px;
-          background: url("@/assets/images/ai/img1.png") no-repeat;
+          // background: url("@/assets/images/ai/img1.png") no-repeat;
           background-size: cover;
           background-position: center;
           overflow: hidden;
@@ -1123,7 +1307,7 @@ const formatBalance18 = (balance, fixedNum) => {
           .csb_red_block_mask {
             width: 100%;
             height: 100%;
-            background-color: rgba(22, 6, 2, 0.5);
+            background-color: #000000a4;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1203,10 +1387,11 @@ const formatBalance18 = (balance, fixedNum) => {
         }
         .container_section_avatar {
           width: 420px;
-          height: 609px;
+          height: 600px;
           position: absolute;
-          top: 0;
+          top: 5px;
           left: -35px;
+          transform: rotateY(-35deg);
         }
       }
     }
@@ -1494,6 +1679,7 @@ const formatBalance18 = (balance, fixedNum) => {
     text-transform: uppercase;
     cursor: pointer;
     margin-top: 24px;
+    border: none !important;
   }
   .vncr_vote_btn_red {
     background: #d33939;
@@ -1608,12 +1794,612 @@ const formatBalance18 = (balance, fixedNum) => {
     /* 去除上下箭头 - Firefox */
     -moz-appearance: textfield;
   }
+}
+@media (max-width: 824px) {
+  .ai_container {
+    .container_head {
+      max-width: 100% !important;
+      padding: 0 16px !important;
+      .head_content {
+        .red_avatar {
+          gap: 7px !important;
+          img {
+            width: 36.5px !important;
+            height: 36.5px !important;
+            border-radius: 8px !important;
+          }
+          .red_avatar_name {
+            gap: 4px !important;
+            div {
+              &:first-child {
+                font-size: 14px !important;
+              }
+              &:last-child {
+                font-size: 13px !important;
+              }
+            }
+          }
+        }
+        .head_content_img {
+          width: 100px !important;
+        }
+        .blue_avatar {
+          gap: 7px !important;
+          img {
+            width: 36.5px !important;
+            height: 36.5px !important;
+            border-radius: 8px !important;
+          }
+          .blue_avatar_name {
+            gap: 4px !important;
+            div {
+              &:first-child {
+                font-size: 14px !important;
+              }
+              &:last-child {
+                font-size: 13px !important;
+              }
+            }
+          }
+        }
+      }
+      .progress_container {
+        max-width: 100% !important;
+        height: 35px !important;
+        top: 10px !important;
+        .red_line {
+          height: 1px;
+          top: 6px !important;
+        }
+        .progress_container_topline {
+          top: 8px !important;
+        }
+        .progress {
+          height: 15px !important;
+          top: 10px !important;
+          .red_white_line {
+            width: calc(100% - 6px);
+            height: 10px !important;
+            background-color: rgba(255, 255, 255, 0.49);
+            padding-left: 2px;
+            .rwl_content {
+              width: calc(100% - 3px);
+              height: 8px !important;
+            }
+          }
+          .blue_white_line {
+            width: calc(100% - 16px);
+            height: 10px !important;
+            padding-right: 2px;
+            .bwl_content {
+              width: calc(100% - 3px);
+              height: 8px !important;
+            }
+          }
+        }
 
-  /* 去除 Chrome/Safari 的 spin buttons */
-  .custom_input::-webkit-inner-spin-button,
-  .custom_input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+        .red {
+          padding-left: 2px !important;
+        }
+
+        .blue {
+          padding-right: 2px !important;
+        }
+        .progress_bar_divider {
+          width: 20px !important;
+          height: 40px !important;
+          position: absolute;
+          top: 0;
+          z-index: 10;
+          transition: 1s;
+        }
+        .progress_container_bottomline {
+          width: 100%;
+          height: 2px;
+          position: absolute;
+          bottom: 9px;
+        }
+        .blue_line {
+          height: 2px;
+          background: linear-gradient(
+            to left,
+            rgba(21, 54, 255, 0) 0.39%,
+            #1536ff 100%
+          );
+          position: absolute;
+          right: 0;
+          bottom: 6px;
+          z-index: 5;
+          transition: 1s;
+        }
+      }
+      .count_down {
+        color: #ff54f6;
+        text-align: center;
+        font-family: Montserrat;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        text-transform: capitalize;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        top: 10px;
+      }
+    }
+    .container_section {
+      width: 100%;
+      position: relative;
+      .pedestal_img {
+        width: 1280px;
+        height: auto;
+        margin: auto;
+        position: absolute;
+        left: calc(50% - 640px);
+        bottom: 0;
+        z-index: 1;
+      }
+      .container_section_content {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        padding-bottom: 150px;
+        top: -100px;
+        .container_section_red {
+          flex: 1;
+          height: 290px;
+          position: relative;
+          left: -35px;
+          top: -24px;
+
+          .container_section_redbackimg {
+            width: 100%;
+            height: 100%;
+          }
+          .container_section_avatar {
+            width: 420px;
+            height: 609px;
+            position: absolute;
+            top: 0;
+            right: -35px;
+          }
+        }
+        .container_section_btn {
+          display: none;
+        }
+        .container_section_blue {
+          flex: 1;
+          height: 290px;
+          position: relative;
+          right: -35px;
+          top: -24px;
+
+          .container_section_redbackimg {
+            width: 100%;
+            height: 100%;
+          }
+          .container_section_avatar {
+            width: 420px;
+            height: 609px;
+            position: absolute;
+            top: 0;
+            left: -35px;
+          }
+        }
+      }
+    }
+    .vote_dv_content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .vote_dvc_red {
+        min-width: 220px;
+        max-width: 220px;
+        height: 320px;
+        position: relative;
+        right: -30px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+        div {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background-color: rgba(0, 0, 0, 0.56);
+          z-index: 2;
+        }
+      }
+      .vote_dvc_content {
+        min-width: 409px;
+        max-width: 409px;
+        height: 325px;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        .vote_dvc_content_head {
+          .red_text {
+            text-align: center;
+            font-family: Montserrat;
+            font-size: 32px;
+            font-style: normal;
+            font-weight: 900;
+            line-height: 150%; /* 48px */
+            text-transform: uppercase;
+          }
+          .red_text_lead {
+            color: #d33939;
+          }
+          .red_text_backward {
+            color: #2a2ef1;
+          }
+        }
+
+        & > div {
+          max-width: 329px;
+          &:nth-child(2) {
+            color: #fff;
+            text-align: center;
+            font-family: Montserrat;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 150%; /* 21px */
+            text-transform: uppercase;
+          }
+          &:nth-child(3) {
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            font-family: Montserrat;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 150%; /* 21px */
+          }
+          &:last-child {
+            margin-top: 24px;
+            display: flex;
+            padding: 8px 16px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            background: #fff;
+            color: #d33939;
+            text-align: center;
+            font-family: Montserrat;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            text-transform: uppercase;
+            cursor: pointer;
+          }
+        }
+      }
+      .red {
+        border: 1px solid #d33939;
+        background: #1e0803;
+        box-shadow: 0px 1px 6px 0px rgba(211, 57, 57, 0.54) inset,
+          0px 0px 40px 0px rgba(211, 57, 57, 0.28) inset;
+      }
+      .blue {
+        border: 1px solid #2a2ef1;
+        background: #03051e;
+        box-shadow: 0px 1px 6px 0px rgba(42, 46, 241, 0.54) inset,
+          0px 0px 40px 0px rgba(42, 46, 241, 0.28) inset;
+      }
+      .vote_dvc_blue {
+        min-width: 220px;
+        max-width: 220px;
+        height: 320px;
+        position: relative;
+        left: -30px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+        div {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background-color: rgba(0, 0, 0, 0.56);
+          z-index: 2;
+        }
+      }
+    }
+    .vote_num_content_red {
+      border-radius: 16px;
+      background: #1e0803;
+      border: 1px solid #d33939;
+      box-shadow: 0px 1px 6px 0px rgba(211, 57, 57, 0.54) inset,
+        0px 0px 40px 0px rgba(211, 57, 57, 0.28) inset;
+      padding: 0 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      & > div {
+        width: 272px;
+        max-width: 272px;
+      }
+      & > img {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        top: -40px;
+        z-index: 2;
+      }
+      .vncr_title {
+        color: #d33939;
+        font-family: Montserrat;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 150%; /* 36px */
+        text-transform: uppercase;
+        text-align: center;
+        margin-top: -20px;
+      }
+    }
+    .vote_num_content_blue {
+      border-radius: 16px;
+      background: #03051e;
+      border: 1px solid #2a2ef1;
+      box-shadow: 0px 1px 6px 0px rgba(42, 46, 241, 0.54) inset,
+        0px 0px 40px 0px rgba(42, 46, 241, 0.28) inset;
+      padding: 0 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      & > div {
+        width: 272px;
+        max-width: 272px;
+      }
+      & > img {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        top: -40px;
+        z-index: 2;
+      }
+      .vncr_title {
+        color: #2a2ef1;
+        text-align: center;
+        font-family: Montserrat;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 150%; /* 36px */
+        text-transform: uppercase;
+        text-align: center;
+        margin-top: -20px;
+      }
+    }
+    .vncr_subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 150%; /* 21px */
+      text-align: center;
+    }
+    .vncr_line {
+      width: 100%;
+      height: 1px;
+      background-color: rgba(222, 158, 215, 0.2);
+      margin: 24px 0;
+    }
+    .vncr_num_tip {
+      color: #fff;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 150%; /* 21px */
+    }
+    .vncr_num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+      img {
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+      }
+      div {
+        flex: 1;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(23, 25, 48, 0.56);
+        color: rgba(255, 255, 255, 0.9);
+        /* 14/CN-Regular */
+        font-family: "PingFang SC";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px; /* 157.143% */
+      }
+    }
+    .vncr_num_votes {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 150%; /* 21px */
+      span {
+        display: inline-block;
+        margin-left: 8px;
+        color: #fff;
+        font-family: Montserrat;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 150%; /* 21px */
+      }
+    }
+    .vncr_vote_btn {
+      width: 100%;
+      height: 33px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: #fff;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 24px;
+      border: none !important;
+    }
+    .vncr_vote_btn_red {
+      background: #d33939;
+    }
+    .vncr_vote_btn_blue {
+      background: #2a2ef1;
+    }
+    .share_content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      border: 1px solid #c166b8;
+      background: #1a0014;
+      box-shadow: 0px 1px 6px 0px rgba(255, 120, 219, 0.54) inset,
+        0px 0px 40px 0px rgba(211, 57, 196, 0.28) inset;
+      padding: 40px 27px;
+      & > div {
+        &:first-child {
+          color: #d339c4;
+          font-family: Montserrat;
+          font-size: 24px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 150%; /* 36px */
+          text-transform: uppercase;
+        }
+        &:nth-child(2) {
+          max-width: 240px;
+          margin-top: 4px;
+          color: rgba(255, 255, 255, 0.8);
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%; /* 21px */
+        }
+        &:nth-child(3) {
+          width: 266px;
+          height: 1px;
+          background-color: rgba(222, 158, 215, 0.2);
+          margin: 32px 0;
+        }
+        &:nth-child(4) {
+          width: 240px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #fff;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%; /* 21px */
+          img {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+          }
+        }
+        &:nth-child(5) {
+          max-width: 240px;
+          overflow: hidden;
+          color: rgba(255, 255, 255, 0.5);
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          font-family: Montserrat;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%; /* 18px */
+          margin: 8px 0 32px;
+        }
+        &:last-child {
+          width: 79px;
+          height: 33px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(255, 255, 255, 1);
+          border-radius: 8px;
+          color: #d339c4;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: normal;
+          text-transform: uppercase;
+          cursor: pointer;
+        }
+      }
+    }
+    .custom_input {
+      flex: 1;
+      height: 34px;
+      line-height: 34px;
+      background-color: rgba(23, 25, 48, 0.56); /* 背景透明 */
+      border: none; /* 去除边框 */
+      outline: none; /* 取消点击时的外轮廓 */
+      color: #fff; /* 字体颜色（按需） */
+      font-size: 14px; /* 字体大小（可调） */
+      text-align: center;
+
+      /* 去除上下箭头 - Chrome/Safari */
+      -webkit-appearance: none;
+      appearance: none;
+
+      /* 去除上下箭头 - Firefox */
+      -moz-appearance: textfield;
+    }
   }
+}
+.custom_input::-webkit-inner-spin-button,
+.custom_input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+:deep(.el-loading-mask) {
+  background: #000000c7;
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>

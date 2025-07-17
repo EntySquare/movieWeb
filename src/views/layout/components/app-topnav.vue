@@ -644,7 +644,7 @@ const toggleSelection = (item: any) => {
   justify-content: space-between;
   align-items: center;
   position: relative;
-  z-index: 1000000;
+  z-index: 999;
 }
 
 .topLeft {

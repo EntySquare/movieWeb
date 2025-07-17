@@ -1,5 +1,5 @@
 <template>
-  <div class="ai_container">
+  <div class="ai_container" v-loading="loading">
     <div
       class="container_head"
       v-for="(item, index) in reversedPairList"
@@ -22,19 +22,28 @@
         }
       "
     >
-      <img
-        :src="reversedVoteList[index]?.character0Image || ''"
-        alt=""
+      <div
         class="red_back_img"
-      />
-      <img
-        :src="reversedVoteList[index]?.character1Image || ''"
-        alt=""
+        :style="`background-image: url(${
+          reversedVoteList[index]?.character0Image || ''
+        });`"
+      >
+        <div></div>
+      </div>
+      <div
         class="blue_back_img"
-      />
+        :style="`background-image: url(${
+          reversedVoteList[index]?.character1Image || ''
+        });`"
+      >
+        <div></div>
+      </div>
       <div class="head_content">
         <div class="red_avatar">
-          <img :src="reversedVoteList[index]?.character0Image || ''" alt="" />
+          <img
+            :src="reversedVoteList[index]?.character0HeadImage || ''"
+            alt=""
+          />
           <div class="red_avatar_name">
             <div>RED</div>
             <div>{{ reversedVoteList[index]?.character0 || "" }}</div>
@@ -50,7 +59,10 @@
             <div>BLUE</div>
             <div>{{ reversedVoteList[index]?.character1 || "" }}</div>
           </div>
-          <img :src="reversedVoteList[index]?.character1Image || ''" alt="" />
+          <img
+            :src="reversedVoteList[index]?.character1HeadImage || ''"
+            alt=""
+          />
         </div>
       </div>
       <div class="progress_container">
@@ -151,6 +163,7 @@ import { getImage } from "@/api/vote";
 import router from "@/router";
 import { ElMessage } from "element-plus";
 
+const loading = ref(false);
 const movieVoteFactoryContract = useMovieVoteFactoryContract();
 const redWidth = ref(50);
 const blueWidth = ref(50);
@@ -163,6 +176,7 @@ onMounted(async () => {
   for (let i = 1; i < 9999; i++) {
     clearTimeout(i);
   }
+  loading.value = true;
   await getAllPair();
 });
 onUnmounted(() => {
@@ -180,41 +194,41 @@ const getAllPair = async () => {
     voteList.value = await Promise.all(
       pairList.value.map(async (item) => {
         const movieVotePairContract = useMovieVotePairContract(item);
-        const character0 = await movieVotePairContract.getCharacter0();
-        const votes0 = await movieVotePairContract.getVotes0();
-        const character1 = await movieVotePairContract.getCharacter1();
-        const votes1 = await movieVotePairContract.getVotes1();
-        const startBlock = await movieVotePairContract.getStartBlock();
-        const endBlock = await movieVotePairContract.getEndBlock();
+        const baseInfo = await movieVotePairContract.getBaseInfo();
         const imageList = await getImage({
           pair: item,
         });
         const votes0Proportion =
-          Number(votes0) / (Number(votes0) + Number(votes1) || 1);
+          Number(baseInfo[2]) /
+          (Number(baseInfo[2]) + Number(baseInfo[3]) || 1);
 
         return {
           contractAddress: item,
-          character0: character0,
+          character0: baseInfo[0],
           character0Image: imageList.data?.json?.image_url_0,
           character1Image: imageList.data?.json?.image_url_1,
-          votes0: votes0,
+          character0HeadImage: imageList.data?.json?.image_url_2,
+          character1HeadImage: imageList.data?.json?.image_url_3,
+          votes0: baseInfo[2],
           votes0Proportion:
-            Number(votes0) === Number(votes1)
+            Number(baseInfo[2]) === Number(baseInfo[3])
               ? 50
               : (votes0Proportion * 100).toFixed(0),
-          character1: character1,
-          votes1: votes1,
+          character1: baseInfo[1],
+          votes1: baseInfo[3],
           votes1Proportion:
-            Number(votes0) === Number(votes1) ? 50 : 100 - votes0Proportion,
+            Number(baseInfo[2]) === Number(baseInfo[3])
+              ? 50
+              : 100 - votes0Proportion,
           remainingTime: formatBlockToTimeString(
-            startBlock,
-            endBlock,
+            baseInfo[6],
+            baseInfo[7],
             blockNum,
             nowTime
           ),
           startBlock: formatBlockToTime(
-            startBlock,
-            endBlock,
+            baseInfo[6],
+            baseInfo[7],
             blockNum,
             nowTime
           ),
@@ -225,7 +239,14 @@ const getAllPair = async () => {
     //   await getAllPair();
     // }, 1000);
   } catch (error) {
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
     console.log("error", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -316,6 +337,14 @@ const formatBlockToTime = (startBlock, endBlock, blockNum, nowTime) => {
       position: absolute;
       top: 0;
       left: 0;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      div {
+        width: 100%;
+        height: 100%;
+        background-color: #000000c7;
+      }
     }
     .blue_back_img {
       width: 50%;
@@ -323,6 +352,14 @@ const formatBlockToTime = (startBlock, endBlock, blockNum, nowTime) => {
       position: absolute;
       top: 0;
       right: 0;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      div {
+        width: 100%;
+        height: 100%;
+        background-color: #000000c7;
+      }
     }
     .head_content {
       display: flex;
@@ -926,5 +963,11 @@ const formatBlockToTime = (startBlock, endBlock, blockNum, nowTime) => {
       z-index: 2;
     }
   }
+}
+:deep(.el-loading-mask) {
+  background: #000000c7;
+}
+:deep(.el-loading-spinner .path) {
+  stroke: #e621ca;
 }
 </style>

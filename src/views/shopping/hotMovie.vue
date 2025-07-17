@@ -5,8 +5,6 @@ import { useWindowSize } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { ElNotification } from "element-plus";
 const { t, locale } = useI18n();
-const activeIndex = ref<number | null>(null);
-const { width, height } = useWindowSize();
 const HotMoviesdata = ref<any>([]);
 const getHotMoviesData = async () => {
   loading.value = true;
@@ -39,129 +37,52 @@ const getHotMoviesData = async () => {
 onMounted(() => {
   getHotMoviesData();
 });
-// 当前轮播起始索引
-const currentIndex = ref(0);
-const visibleCount = 5; // 一次展示 5 张
 const loading = ref(false);
-// 计算可见的轮播项
-const visibleItems = computed(() =>
-  HotMoviesdata.value.slice(
-    currentIndex.value,
-    currentIndex.value + visibleCount
-  )
-);
-
-// 是否是第一张
-const isFirst = computed(() => currentIndex.value === 0);
-
-// 是否是最后一张
-const isLast = computed(
-  () => currentIndex.value + visibleCount > HotMoviesdata.value.length
-);
-
-// 事件：鼠标悬停
-const hoverItem = (index: number) => {
-  activeIndex.value = index;
-};
-
-// 事件：鼠标移出
-const resetItems = () => {
-  activeIndex.value = null;
-};
-
-// 事件：下一张
-const next = () => {
-  if (!isLast.value) currentIndex.value++;
-};
-
-// 事件：上一张
-const prev = () => {
-  if (!isFirst.value) currentIndex.value--;
-};
 </script>
 
 <template>
   <div class="home_view">
     <div class="container" v-loading="loading">
-      <div class="HotmovieTitle">
-        <div class="title">{{ t("shop.shop9") }}</div>
-        <!-- <div class="all">
-          All
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="15"
-            viewBox="0 0 14 15"
-          >
-            <path
-              d="M10.0893 7.9643L5.71427 12.3393C5.59099 12.4626 5.42378 12.5318 5.24943 12.5318C5.07508 12.5318 4.90787 12.4626 4.78459 12.3393C4.6613 12.216 4.59204 12.0488 4.59204 11.8745C4.59204 11.7001 4.6613 11.5329 4.78459 11.4096L8.69529 7.50001L4.78568 3.5893C4.72464 3.52826 4.67621 3.45579 4.64318 3.37603C4.61014 3.29627 4.59313 3.21079 4.59313 3.12446C4.59313 3.03813 4.61014 2.95265 4.64318 2.87289C4.67621 2.79313 4.72464 2.72066 4.78568 2.65962C4.84672 2.59857 4.91919 2.55015 4.99895 2.51711C5.07871 2.48408 5.16419 2.46707 5.25052 2.46707C5.33685 2.46707 5.42234 2.48408 5.50209 2.51711C5.58185 2.55015 5.65432 2.59857 5.71537 2.65962L10.0904 7.03462C10.1515 7.09566 10.1999 7.16816 10.233 7.24797C10.266 7.32777 10.2829 7.41332 10.2828 7.49969C10.2827 7.58606 10.2656 7.67156 10.2324 7.75129C10.1992 7.83102 10.1505 7.90341 10.0893 7.9643Z"
-              fill="#959595"
-            />
-          </svg>
-        </div> -->
+      <div class="back" @click="$router.back()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+        >
+          <path
+            d="M13.1633 15.5867C13.3394 15.7628 13.4384 16.0017 13.4384 16.2508C13.4384 16.4999 13.3394 16.7387 13.1633 16.9148C12.9872 17.091 12.7483 17.2899 12.4992 17.1899C12.2502 17.1899 12.0113 17.091 11.8352 16.9148L5.58519 10.6648C5.49779 10.5777 5.42844 10.4743 5.38112 10.3603C5.33381 10.2463 5.30945 10.1242 5.30945 10.0008C5.30945 9.87739 5.33381 9.75522 5.38112 9.64126C5.42844 9.52731 5.49779 9.42381 5.58519 9.33672L11.8352 3.08672C12.0113 2.9106 12.2502 2.81165 12.4992 2.81165C12.7483 2.81165 12.9872 2.9106 13.1633 3.08672C13.3394 3.26284 13.4384 3.50171 13.4384 3.75078C13.4384 3.99985 13.3394 4.23872 13.1633 4.41484L7.57816 10L13.1633 15.5867Z"
+            fill="white"
+            fill-opacity="0.8"
+            style="fill: white; fill-opacity: 0.8"
+          />
+        </svg>
+        {{ t("back") }}
       </div>
-
-      <!-- 轮播图 -->
-      <div class="carousel" v-if="HotMoviesdata.length">
-        <div @click="prev" v-if="!isFirst" class="prev">
-          <img src="@/assets/images/ArrowBg.png" alt="" />
-        </div>
-
-        <div class="carousel-wrapper">
-          <div
-            class="carousel-item"
-            v-for="(item, index) in visibleItems"
-            :key="index"
-            @mouseenter="hoverItem(index)"
-            @mouseleave="resetItems"
-            :class="{
-              active: activeIndex === index,
-              // moveDown: activeIndex !== null && activeIndex !== index,
-              moveLeft: activeIndex !== null && activeIndex > index,
-              moveRight: activeIndex !== null && activeIndex < index,
-            }"
-          >
+      <div class="container_head">
+        <div>Hot Movie</div>
+        <img src="@/assets/images/shop/img11.png" alt="" />
+      </div>
+      <div class="container_list">
+        <div
+          class="container_list_item"
+          v-for="(item, index) in HotMoviesdata"
+          :key="index"
+        >
+          <div class="hotImgBack">
             <div class="hotImg">
-              <img class="imageUrl" :src="item.imageUrl" alt="" />
-            </div>
-            <div class="hotText">
-              {{ item.title }}
-            </div>
-            <div
-              class="participate"
-              v-if="width < 824 || activeIndex === index"
-            >
-              {{ t("shop.shop7") }}
-            </div>
-            <div
-              class="circle"
-              :style="{
-                backgroundImage: `url(${item.imageUrl}) `,
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }"
-            >
-              <div class="circleImg" alt=""></div>
+              <div>
+                <img src="@/assets/images/shop/img3.png" alt="" />
+                <img src="@/assets/images/shop/img4.png" alt="" />
+              </div>
+              <img class="imageUrl" :src="item.imageUrl" alt="error" />
             </div>
           </div>
+          <div class="hotText">
+            {{ item.title }}
+          </div>
         </div>
-
-        <div @click="next" v-if="!isLast" class="next">
-          <img src="@/assets/images/ArrowBg1.png" alt="" />
-        </div>
-      </div>
-      <div
-        class="NoData"
-        style="
-          font-size: 30px;
-          text-align: center;
-          color: #e621ca;
-          margin-top: 60px;
-        "
-        v-else
-      >
-        {{ t("noData") }}
       </div>
     </div>
   </div>
@@ -171,245 +92,188 @@ const prev = () => {
 .home_view {
   background: rgb(0, 0, 0);
   width: 100%;
-  height: 100%;
+  flex: 1;
+  height: max-content;
+  max-width: 1440px;
+  margin: 0 auto;
 
   .container {
-    padding: 80px 84px 115px 80px;
-
     width: 100%;
+    padding: 40px 80px 10px 80px;
     overflow: hidden;
+    .back {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      font-family: Rubik;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 20px; /* 125% */
+      margin-bottom: 20px;
+    }
+    .container_head {
+      width: max-content;
+      position: relative;
+      color: #efcff6;
+      text-align: right;
+      font-family: Montserrat;
+      font-size: 32px;
+      font-style: normal;
+      font-weight: 800;
+      line-height: normal;
+      text-transform: uppercase;
+      margin: 16px 0 24px;
+      img {
+        width: 44px;
+        height: auto;
+        position: absolute;
+        right: -17px;
+        bottom: 0px;
+        z-index: 2;
+      }
+    }
+    .container_list {
+      height: max-content;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 64px;
+      .container_list_item {
+        min-width: 160px;
+        max-width: 160px;
+        cursor: pointer;
+        .hotImgBack {
+          margin-bottom: 16px;
+          flex-shrink: 0;
+          background: rgba(41, 41, 41, 0.75);
+          background-size: cover;
+          min-width: 160px;
+          max-width: 160px;
+          height: 230px;
+          flex-shrink: 0;
+          border-radius: 8.5px;
+          overflow: hidden;
+        }
+        .hotImg {
+          min-width: 160px;
+          max-width: 160px;
+          height: 230px;
+          flex-shrink: 0;
+          border-radius: 8.5px;
+          overflow: hidden;
+          background: url("@/assets/images/shop/img5.png") no-repeat;
+          background-size: cover;
+          div {
+            width: 100%;
+            height: 22px;
+            padding: 2px 6px 0px 8px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            img {
+              &:first-child {
+                width: 27px;
+                height: auto;
+              }
+              &:last-child {
+                width: 81px;
+                height: auto;
+              }
+            }
+          }
+          .imageUrl {
+            width: 232px;
+            height: 304px;
+            flex-shrink: 0;
+            border-radius: 1.207px 4.829px 4.829px 1.207px;
+            box-shadow: 1.207px 1.207px 0px 0px #151515,
+              3.621px 0px 3.44px 0px rgba(255, 255, 255, 0.51) inset;
+          }
+        }
+        .hotText {
+          max-width: 160px;
+          margin: auto;
+          color: #fff;
+          text-align: center;
+          font-family: Rubik;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: normal;
+          letter-spacing: 0.56px;
+          text-transform: uppercase;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2; /* 限制最多两行 */
+          -webkit-box-orient: vertical;
+          text-overflow: ellipsis;
+        }
+      }
+    }
   }
-}
-.next,
-.prev {
-  position: absolute;
-  z-index: 8;
-  width: 100px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  top: 0px;
-  img {
-    width: 100%;
-    // height: 100%;
-  }
-}
-.next {
-  right: 0;
-}
-.prev {
-  left: 0;
-}
-.HotmovieTitle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 23.8px;
-  .title {
-    color: #fff;
-    font-family: Rubik;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    letter-spacing: 0.64px;
-    text-transform: uppercase;
-  }
-  .all,
-  .more {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #959595;
-    font-family: Rubik;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    letter-spacing: 0.56px;
-    text-transform: uppercase;
-  }
-}
-.carousel {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-  // background: #fff;
-  .carousel-wrapper {
-    // clip-path: inset(0 20px 0 0);
-    display: flex;
-    // align-items: center;
-    gap: 44px;
-    width: 100%;
-    // overflow: hidden;
-  }
-  .carousel-item {
-    width: 225px;
-    position: relative;
-    transition: transform 300ms ease-in-out; /* 添加平滑过渡 */
-    flex-shrink: 0;
-    // transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* 添加弹性回弹 */
-  }
-}
-.hotImg {
-  position: relative;
-  margin-bottom: 15px;
-  flex-shrink: 0;
-  z-index: 2;
-  background: url("@/assets/images/hotBG.png") no-repeat;
-  background-size: contain;
-  width: 225.733px;
-  height: 323.51px;
-  flex-shrink: 0;
-  border-radius: 12.071px;
-  transition: transform 300ms ease-in-out; /* 添加平滑过渡 */
-  .imageUrl {
-    position: absolute;
-    top: 30.78px;
-    left: 2px;
-    width: 218.49px;
-    height: 286.089px;
-    flex-shrink: 0;
-    border-radius: 1.207px 4.829px 4.829px 1.207px;
-    box-shadow: 1.207px 1.207px 0px 0px #151515,
-      3.621px 0px 3.44px 0px rgba(255, 255, 255, 0.51) inset;
-  }
-}
-.hotText {
-  position: relative;
-  z-index: 4;
-  color: #fff;
-  text-align: center;
-  font-family: Rubik;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  letter-spacing: 0.56px;
-  text-transform: uppercase;
-  transition: transform 0.6s cubic-bezier(0.34, 1.26, 0.4, 1);
-}
-.participate {
-  width: 150px;
-  top: 44%;
-  left: 37.5px;
-  transform: translate(-50%, -50%);
-  z-index: 6;
-  position: absolute;
-  display: flex;
-  padding: 8px 10px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
-  border-radius: 10px;
-  background: rgba(27, 27, 27, 0.6);
-  backdrop-filter: blur(5px);
-  color: #f9f9f9;
-
-  font-family: Rubik;
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 18px; /* 157.143% */
-  letter-spacing: 0.07px;
-}
-/* 圆形背景 */
-.circle {
-  z-index: 1;
-  width: 200px;
-  height: 200px;
-  background-size: cover;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%) rotate(25deg);
-  transition: transform 500ms ease-in-out; /* 鼠标悬浮时的平滑过渡 */
-
-  .circleImg {
-    width: 69px;
-    height: 69px;
-    background: url("@/assets/images/Subtract.png") no-repeat;
-    background-size: contain;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-}
-
-/* 文字的移动效果 */
-.textMove {
-  transform: translateY(200vh); /* 向上弹 */
-  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* 其他元素向下平移 200px */
-.moveDown {
-  transform: translateY(200vh);
-}
-.moveLeft {
-  transform: translateX(-35%);
-}
-
-.moveRight {
-  transform: translateX(35%);
-}
-
-/* 悬停的元素保持在原位 */
-.active {
-  transform: translateY(0);
-  // transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* 鼠标悬浮时，图片和圆形一起动画 */
-.carousel-item:hover .circle {
-  transform: translate(-50%, -60%) translateX(34px) rotate(75deg);
-}
-
-.carousel-item:hover .hotImg {
-  transform: translateX(-64px) rotate(-12deg);
 }
 @media (max-width: 824px) {
   .home_view {
+    max-width: 100% !important;
+
     .container {
-      padding: 15px;
-      .carousel-wrapper {
-        .carousel-item {
-          .circle {
-            display: none;
-            transform: none;
-            top: 0;
-            left: 0;
+      padding: 24px 20px !important;
+      .back {
+        margin-bottom: 16px !important;
+      }
+      .container_list {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 24px 16px !important;
+        .container_list_item {
+          min-width: 100% !important;
+          max-width: 100% !important;
+          .hotImgBack {
+            margin-bottom: 8px !important;
+            flex-shrink: 0;
+            background: rgba(41, 41, 41, 0.75);
+            background-size: cover;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            height: 152px !important;
+            flex-shrink: 0;
+            border-radius: 5.5px !important;
+            overflow: hidden;
           }
-          .participate {
-            transform: none;
+          .hotImg {
+            min-width: 100% !important;
+            max-width: 100% !important;
+            height: 150px !important;
+            border-radius: 5.5px !important;
+            div {
+              min-width: 100% !important;
+              max-width: 100% !important;
+              height: 13px !important;
+              padding: 2px 4px 0px 5px !important;
+              img {
+                &:first-child {
+                  width: 18px !important;
+                }
+                &:last-child {
+                  width: 54px !important;
+                }
+              }
+            }
+            .imageUrl {
+              width: calc(100% - 4px) !important;
+              height: 135px !important;
+            }
           }
-        }
-        .carousel-item:hover {
-          transform: none;
-        }
-
-        .carousel-item:hover .hotImg {
-          transform: none;
-        }
-        .carousel-item:hover .participate {
-          z-index: 6;
-          // transform: translate(-100%, -50%);
-        }
-        .moveLeft {
-          transform: none;
-        }
-
-        .moveRight {
-          transform: none !important;
+          .hotText {
+            max-width: 100% !important;
+            text-align: left !important;
+            font-size: 12px !important;
+            font-weight: 400 !important;
+          }
         }
       }
     }

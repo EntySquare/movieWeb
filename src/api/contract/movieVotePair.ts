@@ -75,6 +75,10 @@ export function useMovieVotePairContract(contractAddress: string) {
     return await readContract.referralContract();
   };
 
+  const getBaseInfo = async () => {
+    return await readContract.getBaseInfo();
+  };
+
   const getStartBlock = async () => {
     return await readContract.startBlock();
   };
@@ -190,6 +194,7 @@ export function useMovieVotePairContract(contractAddress: string) {
     getVotes1,
     getVotesMap0,
     getVotesMap1,
+    getBaseInfo,
 
     // 写入方法
     addFreeTickets,
