@@ -545,33 +545,73 @@
         <div @click="shareVisible = false">CLose</div>
       </div>
     </div>
+    <!-- 绑定推荐关系 -->
+    <div
+      v-if="bindingVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div class="bind_content" @click.stop="">
+        <div>BIND</div>
+        <div>
+          Are you sure to bind the following referral as a referral
+          relationship?
+        </div>
+        <div></div>
+        <div>
+          {{ routeAddress }}
+        </div>
+        <el-button
+          type="primary"
+          class="bind_btn"
+          :loading="bindLoading"
+          @click="bindPut"
+          >Confirm</el-button
+        >
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useUsdtTokenContract } from "@/api/contract/usdtToken";
 import { useMovieVoteFactoryContract } from "@/api/contract/movieVoteFactory";
 import { useMovieVotePairContract } from "@/api/contract/movieVotePair";
+import { useReferralContract } from "@/api/contract/referral";
 import { getImage } from "@/api/vote";
 import { ElNotification, ElMessage } from "element-plus";
 import useWalletStore from "@/store/modules/wallet";
 import Web3 from "web3";
 import Decimal from "decimal.js";
+import router from "@/router";
 
 const loading = ref(false);
 const web3 = new Web3(window.ethereum);
 const walletStore = useWalletStore();
 const route = useRoute();
 const usdtTokenContract = useUsdtTokenContract();
+const referralContract = useReferralContract();
 const movieVoteFactoryContract = useMovieVoteFactoryContract();
 const pair = route.query.pair || "";
 const voteDifferenceVisible = ref(false);
 const voteVisible = ref(false);
 const shareVisible = ref(false);
+const bindingVisible = ref(false);
 const voteDifferenceType = ref("");
 const voteTicketLoading = ref(false);
+const bindLoading = ref(false);
 const detailData = ref({
   contractAddress: "",
   character0: "",
@@ -593,13 +633,53 @@ const userFreeTickets = ref(0);
 const balanceAmount = ref(0);
 const roterLink = ref("");
 const viewportWidth = ref(0);
+const routeAddress = ref("");
+watch(
+  () => walletStore.walletAddress,
+  async (newVal, oldVal) => {
+    if (
+      newVal != "" &&
+      walletStore.walletAddress != "" &&
+      route.query.address != "" &&
+      route.query.address != null &&
+      route.query.address != undefined
+    ) {
+      await walletStore.getReferralAddress(route.query.address);
+      if (
+        walletStore.referralAddress ===
+        "0x0000000000000000000000000000000000000000"
+      ) {
+        bindingVisible.value = true;
+      }
+    }
+    if (newVal === "" || walletStore.walletAddress === "") {
+      walletStore.clearReferralAddress();
+      bindingVisible.value = false;
+    }
+  }
+);
 
 onMounted(async () => {
   viewportWidth.value = window.innerWidth;
   window.addEventListener("resize", () => {
     viewportWidth.value = window.innerWidth;
   });
+  routeAddress.value = route.query.address || "";
   loading.value = true;
+  if (
+    walletStore.walletAddress != "" &&
+    routeAddress.value != "" &&
+    routeAddress.value != null &&
+    routeAddress.value != undefined
+  ) {
+    walletStore.getReferralAddress(routeAddress.value);
+    if (
+      walletStore.referralAddress ===
+      "0x0000000000000000000000000000000000000000"
+    ) {
+      bindingVisible.value = true;
+    }
+  }
   await getDetailState();
   setInterval(() => {
     if (Number(detailData.value.countdown) === 0) {
@@ -617,6 +697,28 @@ onMounted(async () => {
   }, 1000);
   await getDetail();
 });
+
+const bindPut = async () => {
+  try {
+    bindLoading.value = true;
+    await referralContract.setReferrer(routeAddress.value);
+    walletStore.setReferralAddress(routeAddress.value);
+    ElMessage({
+      showClose: true,
+      message: "Bind Success",
+      type: "success",
+    });
+    bindingVisible.value = false;
+  } catch (error) {
+    ElMessage({
+      showClose: true,
+      message: error.reason || "Bind Error",
+      type: "error",
+    });
+  } finally {
+    bindLoading.value = false;
+  }
+};
 
 const getDetailState = async () => {
   try {
@@ -662,8 +764,13 @@ const getDetail = async () => {
         : (votes0Proportion * 100).toFixed(0);
     detailData.value.votes1 = votes1;
     detailData.value.votes1Proportion =
-      Number(votes0) === Number(votes1) ? 50 : 100 - votes0Proportion;
-    await getDetail();
+      Number(votes0) === Number(votes1)
+        ? 50
+        : 100 - detailData.value.votes0Proportion;
+
+    setTimeout(async () => {
+      await getDetail();
+    }, 3000);
   } catch (error) {
     ElMessage({
       showClose: true,
@@ -716,9 +823,11 @@ const showVoteDifference = async (type) => {
       return;
     }
     const movieVotePairContract = useMovieVotePairContract(pair);
+
     const data = await movieVotePairContract.getUserFreeTickets(
       walletStore.walletAddress
     );
+
     userFreeTickets.value = Number(data) || 0;
     const balance = await usdtTokenContract.getBalanceOf(
       walletStore.walletAddress
@@ -744,6 +853,11 @@ const usdtAuthorizationAmount = async () => {
       walletStore.walletAddress,
       pair
     );
+    console.log(
+      "formatBalanceBigInt18(voteUsdtAmount.value)",
+      formatBalanceBigInt18(voteUsdtAmount.value)
+    );
+
     //没有授权额度去授权
     if (BigInt(amount) < BigInt(formatBalanceBigInt18(voteUsdtAmount.value))) {
       await usdtTokenContract.approve(
@@ -860,7 +974,7 @@ const formatBalance18 = (balance, fixedNum) => {
       parsedBalance = parsedBalance.replace("-", "");
     }
 
-    let etherValue = new Decimal(parsedBalance).dividedBy(1e18);
+    let etherValue = new Decimal(parsedBalance).dividedBy(1e6);
     let result;
 
     // 保留 fixedNum 位小数（默认 6 位）
@@ -894,12 +1008,12 @@ const formatBalanceBigInt18 = (balance) => {
     typeof balance === "string" ? balance : balance.toString();
   // 拆分整数部分和小数部分
   const [integerPart, decimalPart = ""] = parsedBalance.split(".");
-  // 计算整数部分的 10^6 倍
-  const intResult = integerPart + "0".repeat(6);
-  // 计算小数部分的贡献（最多保留 6 位小数）
-  const decimalProcessed = (decimalPart + "0".repeat(6)).slice(0, 6);
+  // 计算整数部分的 10^18 倍
+  const intResult = integerPart + "0".repeat(18);
+  // 计算小数部分的贡献（最多保留 18 位小数）
+  const decimalProcessed = (decimalPart + "0".repeat(18)).slice(0, 18);
   // 结果拼接
-  const finalResult = intResult.slice(0, -6) + decimalProcessed;
+  const finalResult = intResult.slice(0, -18) + decimalProcessed;
   return finalResult.replace(/^0+/, "") || "0"; // 去掉前导 0
 };
 </script>
@@ -1687,6 +1801,91 @@ const formatBalanceBigInt18 = (balance) => {
   .vncr_vote_btn_blue {
     background: #2a2ef1;
   }
+  .bind_btn {
+    margin-top: 20px;
+    color: #d339c4;
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-transform: uppercase;
+    background-color: rgba(255, 255, 255, 1);
+    border: none;
+  }
+  .bind_content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    border: 1px solid #c166b8;
+    background: #1a0014;
+    box-shadow: 0px 1px 6px 0px rgba(255, 120, 219, 0.54) inset,
+      0px 0px 40px 0px rgba(211, 57, 196, 0.28) inset;
+    padding: 40px 27px;
+    & > div {
+      &:first-child {
+        color: #d339c4;
+        font-family: Montserrat;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 150%; /* 36px */
+        text-transform: uppercase;
+      }
+      &:nth-child(2) {
+        max-width: 240px;
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.8);
+        font-family: Montserrat;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 150%; /* 21px */
+      }
+      &:nth-child(3) {
+        width: 266px;
+        height: 1px;
+        background-color: rgba(222, 158, 215, 0.2);
+        margin: 32px 0;
+      }
+      &:nth-child(4) {
+        width: 240px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #fff;
+        font-family: Montserrat;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 150%; /* 21px */
+        word-break: break-all;
+        white-space: normal;
+        overflow-wrap: break-word;
+      }
+      &:last-child {
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 1);
+        border-radius: 8px;
+        color: #d339c4;
+        text-align: center;
+        font-family: Montserrat;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-top: 32px;
+      }
+    }
+  }
   .share_content {
     display: flex;
     flex-direction: column;
@@ -1754,11 +1953,10 @@ const formatBalanceBigInt18 = (balance) => {
         font-style: normal;
         font-weight: 500;
         line-height: 150%; /* 18px */
-        margin: 8px 0 32px;
+        margin-top: 8px;
       }
       &:last-child {
-        width: 79px;
-        height: 33px;
+        padding: 8px 16px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1773,6 +1971,7 @@ const formatBalanceBigInt18 = (balance) => {
         line-height: normal;
         text-transform: uppercase;
         cursor: pointer;
+        margin-top: 32px;
       }
     }
   }
@@ -2282,6 +2481,91 @@ const formatBalanceBigInt18 = (balance) => {
     .vncr_vote_btn_blue {
       background: #2a2ef1;
     }
+    .bind_btn {
+      margin-top: 20px;
+      color: #d339c4;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      text-transform: uppercase;
+      background-color: rgba(255, 255, 255, 1);
+      border: none;
+    }
+    .bind_content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      border: 1px solid #c166b8;
+      background: #1a0014;
+      box-shadow: 0px 1px 6px 0px rgba(255, 120, 219, 0.54) inset,
+        0px 0px 40px 0px rgba(211, 57, 196, 0.28) inset;
+      padding: 40px 27px;
+      & > div {
+        &:first-child {
+          color: #d339c4;
+          font-family: Montserrat;
+          font-size: 24px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 150%; /* 36px */
+          text-transform: uppercase;
+        }
+        &:nth-child(2) {
+          max-width: 240px;
+          margin-top: 4px;
+          color: rgba(255, 255, 255, 0.8);
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%; /* 21px */
+        }
+        &:nth-child(3) {
+          width: 266px;
+          height: 1px;
+          background-color: rgba(222, 158, 215, 0.2);
+          margin: 32px 0;
+        }
+        &:nth-child(4) {
+          width: 240px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #fff;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%; /* 21px */
+          word-break: break-all;
+          white-space: normal;
+          overflow-wrap: break-word;
+        }
+        &:last-child {
+          padding: 8px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(255, 255, 255, 1);
+          border-radius: 8px;
+          color: #d339c4;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: normal;
+          text-transform: uppercase;
+          cursor: pointer;
+          margin-top: 32px;
+        }
+      }
+    }
     .share_content {
       display: flex;
       flex-direction: column;
@@ -2349,11 +2633,10 @@ const formatBalanceBigInt18 = (balance) => {
           font-style: normal;
           font-weight: 500;
           line-height: 150%; /* 18px */
-          margin: 8px 0 32px;
+          margin-top: 8px;
         }
         &:last-child {
-          width: 79px;
-          height: 33px;
+          padding: 8px 16px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -2368,6 +2651,7 @@ const formatBalanceBigInt18 = (balance) => {
           line-height: normal;
           text-transform: uppercase;
           cursor: pointer;
+          margin-top: 32px;
         }
       }
     }

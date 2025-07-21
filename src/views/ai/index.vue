@@ -143,7 +143,8 @@
         <div
           class="blue_line"
           :style="{
-            width: 'calc(' + blueWidth + '% + 12px)',
+            width:
+              'calc(' + reversedVoteList[index]?.votes1Proportion + '% + 12px)',
           }"
         ></div>
       </div>
@@ -219,7 +220,7 @@ const getAllPair = async () => {
           votes1Proportion:
             Number(baseInfo[2]) === Number(baseInfo[3])
               ? 50
-              : 100 - votes0Proportion,
+              : 100 - (votes0Proportion * 100).toFixed(0),
           remainingTime: formatBlockToTimeString(
             baseInfo[6],
             baseInfo[7],
