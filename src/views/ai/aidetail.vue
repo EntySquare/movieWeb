@@ -735,7 +735,10 @@ const getDetailState = async () => {
     detailData.value.character0HeadImage = imageList.data?.json?.image_url_2;
     detailData.value.character1HeadImage = imageList.data?.json?.image_url_3;
     detailData.value.character1 = baseInfo[1];
-    detailData.value.countdown = (Number(baseInfo[7]) - Number(blockNum)) * 3;
+    detailData.value.countdown =
+      (Number(baseInfo[7]) - Number(blockNum)) * 3 > 0
+        ? (Number(baseInfo[7]) - Number(blockNum)) * 3
+        : 0;
     detailData.value.remainingTime = formatBlockToTimeString(
       detailData.value.countdown
     );
@@ -791,6 +794,14 @@ const formatBlockToTimeString = (time) => {
 };
 
 const showShareVisible = async () => {
+  if (Number(detailData.value.countdown) === 0) {
+    ElMessage({
+      showClose: true,
+      message: "Voting has ended",
+      type: "error",
+    });
+    return;
+  }
   try {
     if (walletStore.walletAddress === "") {
       ElNotification({
@@ -807,6 +818,14 @@ const showShareVisible = async () => {
   } catch (error) {}
 };
 const showVoteDifference = async (type) => {
+  if (Number(detailData.value.countdown) === 0) {
+    ElMessage({
+      showClose: true,
+      message: "Voting has ended",
+      type: "error",
+    });
+    return;
+  }
   voteDifferenceType.value = type;
   voteAmount.value = "0";
   voteUsdtAmount.value = "0";
@@ -873,6 +892,14 @@ const usdtAuthorizationAmount = async () => {
 };
 
 const voteTicket = async (type) => {
+  if (Number(detailData.value.countdown) === 0) {
+    ElMessage({
+      showClose: true,
+      message: "Voting has ended",
+      type: "error",
+    });
+    return;
+  }
   if (Number(voteAmount.value) > Number(userFreeTickets.value)) {
     ElMessage({
       showClose: true,

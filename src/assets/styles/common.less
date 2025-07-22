@@ -60,6 +60,12 @@ a {
 i {
   font-style: normal; // 防止字体图标变成斜体
 }
+img {
+  user-drag: none; /* Safari, older WebKit */
+  -webkit-user-drag: none; /* Chrome, Safari */
+  user-select: none; /* 防止文字选中，也增强体验 */
+  pointer-events: auto; /* 保留点击事件 */
+}
 
 input[type="text"],
 input[type="search"],
@@ -73,6 +79,22 @@ input[type="checkbox"] {
   &::placeholder {
     color: #ccc;
   }
+}
+/* Chrome, Safari, Edge */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input:focus {
+  outline: none; /* 去掉蓝色高亮边框 */
+  box-shadow: none; /* 去掉阴影 */
+  border-color: transparent; /* 可选：隐藏边框颜色 */
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 img {
