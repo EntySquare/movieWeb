@@ -2,10 +2,10 @@ import { BrowserProvider, Contract } from "ethers";
 import abiData from "@/abis.json";
 
 // 合约地址和 ABI
-const contractAddress = abiData.myNFT.address;
-const abi = abiData.myNFT.abi;
+const contractAddress = abiData.movieNFT.address;
+const abi = abiData.movieNFT.abi;
 
-export function useMyNFTContract() {
+export function useMovieNFTContract() {
   if (!window.ethereum) {
     throw new Error("Please install MetaMask.");
   }

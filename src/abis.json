@@ -1574,8 +1574,8 @@
       }
     ]
   },
-  "myNFT": {
-    "address": "0x3a8A4bC6ae5229fde8Cd101F7394c6Ae140051fc",
+  "movieNFT": {
+    "address": "0x96e70440c6422ED2344B9E1AE33208D91E19F5Ee",
     "abi": [
       {
         "inputs": [
@@ -1889,7 +1889,7 @@
           },
           {
             "indexed": false,
-            "internalType": "enum MyNFT.RedeemStatus",
+            "internalType": "enum MovieNFT.RedeemStatus",
             "name": "newStatus",
             "type": "uint8"
           }
@@ -2060,7 +2060,7 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum MyNFT.RedeemStatus",
+            "internalType": "enum MovieNFT.RedeemStatus",
             "name": "status",
             "type": "uint8"
           }
@@ -2299,12 +2299,12 @@
                 "type": "uint256"
               },
               {
-                "internalType": "enum MyNFT.RedeemStatus",
+                "internalType": "enum MovieNFT.RedeemStatus",
                 "name": "status",
                 "type": "uint8"
               }
             ],
-            "internalType": "struct MyNFT.RedeemRecord",
+            "internalType": "struct MovieNFT.RedeemRecord",
             "name": "",
             "type": "tuple"
           }
@@ -2446,7 +2446,7 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum MyNFT.RedeemStatus",
+            "internalType": "enum MovieNFT.RedeemStatus",
             "name": "status",
             "type": "uint8"
           }
@@ -2595,54 +2595,8 @@
     ]
   },
   "NFTMarketplace": {
-    "address": "0xB0dBda2E4eF2f04cBE672B8AA6295783a64D255d",
+    "address": "0x3c32F4bEba88cDD859296dfA0f2a630d5F9249d4",
     "abi": [
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxTotalPrice",
-            "type": "uint256"
-          }
-        ],
-        "name": "buyNFT",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          }
-        ],
-        "name": "listNFT",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
       {
         "inputs": [
           {
@@ -2762,24 +2716,21 @@
         "inputs": [
           {
             "internalType": "uint256",
-            "name": "_permille",
+            "name": "tokenId",
             "type": "uint256"
-          }
-        ],
-        "name": "setSlippagePermille",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
+          },
           {
             "internalType": "uint256",
-            "name": "listingId",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxTotalPrice",
             "type": "uint256"
           }
         ],
-        "name": "unlistNFT",
+        "name": "buyNFT",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -2957,6 +2908,29 @@
         "inputs": [
           {
             "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          }
+        ],
+        "name": "listNFT",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
             "name": "",
             "type": "uint256"
           }
@@ -3113,6 +3087,19 @@
           }
         ],
         "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "listingId",
+            "type": "uint256"
+          }
+        ],
+        "name": "unlistNFT",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
       },
       {

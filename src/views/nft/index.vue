@@ -8,11 +8,25 @@
             style="width: 204px"
             placeholder="Search collection"
           />
-          <div class="chs_btn">
+          <div class="chs_btn" @click="searchNft">
             <img src="@/assets/images/nft/img1.png" alt="" />
           </div>
         </div>
         <div class="container_head_imgs">
+          <div class="chi_item">
+            <img
+              src="@/assets/images/nft/img3.png"
+              alt=""
+              @click="
+                async () => {
+                  searchName = '';
+                  nftList = [];
+                  defaultNftId = 1;
+                  await getNftList();
+                }
+              "
+            />
+          </div>
           <div class="chi_item" @click="defaultIndex = 0">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -47,14 +61,14 @@
       <div class="container_content" v-if="defaultIndex === 0">
         <div
           class="container_content_item"
-          v-for="(item, index) in 20"
+          v-for="(item, index) in searchNftList"
           :key="index"
           @mouseenter="checkIndex = index"
           @mouseleave="checkIndex = -1"
         >
           <div class="cci_img">
-            <img src="@/assets/images/nft/test.png" alt="" />
-            <div>1</div>
+            <img :src="item[4] || ''" alt="" />
+            <div>{{ item[2] }}</div>
           </div>
           <div
             class="cci_btn"
@@ -63,7 +77,7 @@
           >
             Buy
           </div>
-          <div class="cci_price" v-else>999 USDT</div>
+          <div class="cci_price" v-else>{{ item[5] || "-" }} USDT</div>
         </div>
       </div>
       <div class="container_content_list" v-if="defaultIndex === 1">
@@ -73,19 +87,22 @@
           <div>Price</div>
         </div>
         <div
-          v-for="(item, index) in 20"
+          v-for="(item, index) in searchNftList"
           :key="index"
           class="ccl_item"
           @click="showTransactionVisible(item)"
         >
           <div class="ccl_item_img">
-            <img src="@/assets/images/nft/test.png" alt="" />
-            <div>AO BING</div>
+            <img :src="item[4] || ''" alt="" />
+            <div>{{ item[1] || "" }}</div>
           </div>
-          <div class="ccl_item_rarity"><div>1</div></div>
+          <div class="ccl_item_rarity">
+            <div>{{ item[2] || "" }}</div>
+          </div>
           <div class="ccl_item_price">
             <div>
-              999 USDT <img src="@/assets/images/nft/img2.svg" alt="" />
+              {{ item[5] || "-" }} USDT
+              <img src="@/assets/images/nft/img2.svg" alt="" />
             </div>
           </div>
         </div>
@@ -107,12 +124,16 @@
       "
       @click="transactionVisible = false"
     >
-      <div class="transaction_content" @click.stop="">
+      <div class="transaction_content" @click.stop="" v-loading="detailLoading">
         <div class="transaction_content_head">
-          <div class="tch_name">AO BING</div>
+          <div class="tch_name">{{ detailData[1] }}</div>
           <div class="tch_imgs">
-            <img src="@/assets/images/nft/img3.png" alt="" />
-            <img src="@/assets/images/nft/img4.png" alt="" />
+            <img
+              src="@/assets/images/nft/img3.png"
+              alt=""
+              @click="getNftDetail(detailData[0])"
+            />
+            <!-- <img src="@/assets/images/nft/img4.png" alt="" /> -->
             <img
               src="@/assets/images/nft/img5.png"
               alt=""
@@ -122,12 +143,14 @@
         </div>
         <div class="transaction_content_section">
           <div class="tcs_img">
-            <img src="@/assets/images/nft/test.png" alt="" />
+            <img :src="detailData[4]" alt="" />
           </div>
           <div class="tcs_transaction">
             <div class="tcst_head">
               <div class="tcst_head_title">best Price</div>
-              <div class="tcst_head_price">999 <span>USDT</span></div>
+              <div class="tcst_head_price">
+                {{ detailData[5] || "-" }} <span>USDT</span>
+              </div>
               <div class="tcst_head_amount_title">Amount</div>
               <div class="tcst_head_input_price">
                 <input
@@ -159,8 +182,20 @@
                 />
               </div>
               <div class="tcst_head_btn">
-                <div @click="buyNft">Buy</div>
-                <div @click="sellNft">Make Offer</div>
+                <el-button
+                  type="primary"
+                  @click="buyNft"
+                  :loading="buyLoading"
+                  class="tcst_head_btn1"
+                  >Buy</el-button
+                >
+                <el-button
+                  type="primary"
+                  @click="sellNft"
+                  :loading="sellLoading"
+                  class="tcst_head_btn1"
+                  >Make Offer</el-button
+                >
               </div>
             </div>
             <div class="tcst_detail">
@@ -170,11 +205,11 @@
               </div>
               <div class="tcst_detail_item">
                 <div>Token ID</div>
-                <div>4025962</div>
+                <div>{{ detailData[0] }}</div>
               </div>
               <div class="tcst_detail_item">
                 <div>Token Standard</div>
-                <div>ERC-721</div>
+                <div>BEP-1155</div>
               </div>
               <div class="tcst_detail_item">
                 <div>Royalty</div>
@@ -182,7 +217,7 @@
               </div>
               <div class="tcst_detail_item">
                 <div>Rarity</div>
-                <div>1</div>
+                <div>{{ detailData[2] }}</div>
               </div>
             </div>
           </div>
@@ -196,10 +231,18 @@
 import { displayNFTForSale } from "@/api/nft";
 import router from "@/router";
 import { ElNotification, ElMessage } from "element-plus";
-import { onMounted, ref } from "vue";
+import { onMounted, Ref, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import useWalletStore from "@/store/modules/wallet";
+import { useMovieNFTContract } from "@/api/contract/movieNFT";
+import { useNftMarketplaceContract } from "@/api/contract/NftMarketplace";
+import { formatBalance18, formatBalanceBigInt18 } from "@/utils/web3";
+import { useUsdtTokenContract } from "@/api/contract/usdtToken";
+import abiData from "@/abis.json";
 
+const usdtTokenContract = useUsdtTokenContract();
+const movieNFTContract = useMovieNFTContract();
+const nftMarketplaceContract = useNftMarketplaceContract();
 const { t, locale } = useI18n();
 const walletStore = useWalletStore();
 const loading = ref(false);
@@ -207,12 +250,103 @@ const searchName = ref("");
 const defaultIndex = ref(0);
 const checkIndex = ref(-1);
 const transactionVisible = ref(false);
+const buyLoading = ref(false);
+const sellLoading = ref(false);
+const detailLoading = ref(false);
 const transactionPrice = ref("");
 const transactionAmount = ref(1);
+const defaultNftId = ref(1);
+const nftList = ref([] as any);
+const searchNftList = ref([] as any);
+const detailData = ref([] as any);
 
-onMounted(() => {});
+onMounted(async () => {
+  defaultNftId.value = 1;
+  await getNftList();
+});
 
-const buyNft = () => {
+const searchNft = async () => {
+  if (searchName.value === "") {
+    searchNftList.value = nftList.value;
+    return;
+  }
+  searchNftList.value = nftList.value.filter((item: any[]) =>
+    item[1].toLowerCase().includes(searchName.value.toLowerCase())
+  );
+};
+
+const getNftList = async () => {
+  try {
+    loading.value = true;
+    let price = null;
+    try {
+      price = await nftMarketplaceContract.getLowestPrice(defaultNftId.value);
+    } catch (priceErr) {
+      price = null;
+    }
+    const res = await movieNFTContract.tokenMetadata(defaultNftId.value);
+    if (res[0] != "" && res.length === 4) {
+      nftList.value.push([
+        defaultNftId.value,
+        res[0],
+        res[1],
+        res[2],
+        await getNFTImage(res[3]),
+        formatBalance18(price) || "",
+      ]);
+      searchNftList.value = nftList.value;
+      defaultNftId.value += 1;
+      await getNftList();
+    } else {
+      defaultNftId.value -= 1;
+    }
+  } catch (err) {
+    console.error("err", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const getNftDetail = async (tokenId: any) => {
+  try {
+    detailLoading.value = true;
+    let price = null;
+    try {
+      price = await nftMarketplaceContract.getLowestPrice(tokenId);
+    } catch (priceErr) {
+      price = null;
+    }
+    const res = await movieNFTContract.tokenMetadata(tokenId);
+    if (res[0] != "" && res.length === 4) {
+      detailData.value = [
+        tokenId,
+        res[0],
+        res[1],
+        res[2],
+        await getNFTImage(res[3]),
+        formatBalance18(price) || "",
+      ];
+    }
+  } catch (err) {
+    console.error("err", err);
+  } finally {
+    detailLoading.value = false;
+  }
+};
+
+const getNFTImage = async (jsonUrl: any) => {
+  try {
+    const res = await fetch(jsonUrl);
+    if (!res.ok) throw new Error("请求失败");
+    const json = await res.json();
+    return json.image;
+  } catch (err) {
+    console.error("获取 NFT 数据失败:", err);
+    return null;
+  }
+};
+
+const buyNft = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
       showClose: true,
@@ -237,9 +371,43 @@ const buyNft = () => {
     });
     return;
   }
+  try {
+    buyLoading.value = true;
+    await approveUsdt();
+    await nftMarketplaceContract.buyNFT(
+      detailData.value[0],
+      Number(transactionAmount.value),
+      formatBalanceBigInt18(
+        (
+          Math.floor(
+            Number(transactionAmount.value) *
+              Number(transactionPrice.value) *
+              100
+          ) / 100
+        ).toFixed(2)
+      )
+    );
+    transactionPrice.value = "";
+    ElMessage({
+      showClose: true,
+      message: "Buy Success",
+      type: "success",
+    });
+    await getNftDetail(detailData.value[0]);
+  } catch (error: any) {
+    console.log("error", error);
+
+    // ElMessage({
+    //   showClose: true,
+    //   message: error.reason || "",
+    //   type: "error",
+    // });
+  } finally {
+    buyLoading.value = false;
+  }
 };
 
-const sellNft = () => {
+const sellNft = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
       showClose: true,
@@ -264,12 +432,103 @@ const sellNft = () => {
     });
     return;
   }
+  try {
+    sellLoading.value = true;
+    await approveNFTMarketplace();
+    await nftMarketplaceContract.listNFT(
+      detailData.value[0],
+      Number(transactionAmount.value),
+      formatBalanceBigInt18(Number(transactionPrice.value))
+    );
+    transactionPrice.value = "";
+    ElMessage({
+      showClose: true,
+      message: "Success",
+      type: "success",
+    });
+    await getNftDetail(detailData.value[0]);
+  } catch (error: any) {
+    console.log("error", error);
+
+    // ElMessage({
+    //   showClose: true,
+    //   message: error.reason || "",
+    //   type: "error",
+    // });
+  } finally {
+    sellLoading.value = false;
+  }
 };
 
-const showTransactionVisible = (item: any) => {
+const showTransactionVisible = async (item: any) => {
   transactionPrice.value = "";
   transactionAmount.value = 1;
   transactionVisible.value = true;
+  await getNftDetail(item[0]);
+};
+
+//查询usdt的授权额度
+const approveUsdt = async () => {
+  try {
+    const amount = await usdtTokenContract.getAllowance(
+      walletStore.walletAddress || "",
+      abiData.NFTMarketplace.address
+    );
+
+    //没有授权额度去授权
+    if (
+      BigInt(amount) <
+      BigInt(
+        formatBalanceBigInt18(
+          (
+            Math.floor(
+              Number(transactionAmount.value) *
+                Number(transactionPrice.value) *
+                100
+            ) / 100
+          ).toFixed(2)
+        )
+      )
+    ) {
+      await usdtTokenContract.approve(
+        abiData.NFTMarketplace.address,
+        formatBalanceBigInt18(
+          (
+            Math.floor(
+              Number(transactionAmount.value) *
+                Number(transactionPrice.value) *
+                100
+            ) / 100
+          ).toFixed(2)
+        )
+      );
+      await approveUsdt();
+    }
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+//查询NFTMarketplace的授权
+const approveNFTMarketplace = async () => {
+  try {
+    const isApproved = await movieNFTContract.isApprovedForAll(
+      walletStore.walletAddress || "",
+      abiData.NFTMarketplace.address
+    );
+
+    //没有授权去授权
+    if (!isApproved) {
+      await movieNFTContract.setApprovalForAll(
+        abiData.NFTMarketplace.address,
+        true
+      );
+      await approveNFTMarketplace();
+    }
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
 };
 </script>
 
@@ -316,7 +575,15 @@ const showTransactionVisible = (item: any) => {
         .chi_item {
           width: 24px;
           height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           svg {
+            cursor: pointer;
+          }
+          img {
+            width: 20px;
+            height: 20px;
             cursor: pointer;
           }
         }
@@ -645,7 +912,7 @@ const showTransactionVisible = (item: any) => {
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            div {
+            .tcst_head_btn1 {
               flex: 1;
               display: flex;
               height: 35px;
@@ -655,6 +922,7 @@ const showTransactionVisible = (item: any) => {
               border-radius: 32px;
               background: #d339c4;
               cursor: pointer;
+              border: none;
             }
           }
         }
