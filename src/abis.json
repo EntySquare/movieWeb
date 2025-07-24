@@ -1575,7 +1575,7 @@
     ]
   },
   "movieNFT": {
-    "address": "0x96e70440c6422ED2344B9E1AE33208D91E19F5Ee",
+    "address": "0x092f1Fb8A7062A031f7FEdEBeA09D92d41f1A589",
     "abi": [
       {
         "inputs": [
@@ -1601,6 +1601,11 @@
             "internalType": "uint256[]",
             "name": "requiredTokenIds",
             "type": "uint256[]"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
           },
           {
             "internalType": "string",
@@ -2334,6 +2339,11 @@
           },
           {
             "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
             "name": "reward",
             "type": "string"
           },
@@ -2484,6 +2494,11 @@
           },
           {
             "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
             "name": "reward",
             "type": "string"
           },
@@ -2595,7 +2610,7 @@
     ]
   },
   "NFTMarketplace": {
-    "address": "0x3c32F4bEba88cDD859296dfA0f2a630d5F9249d4",
+    "address": "0x84D960ef1871461A37d522457320a67B54Bf3443",
     "abi": [
       {
         "inputs": [

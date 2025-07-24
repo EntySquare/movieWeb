@@ -596,6 +596,11 @@ import useWalletStore from "@/store/modules/wallet";
 import Web3 from "web3";
 import Decimal from "decimal.js";
 import router from "@/router";
+import {
+  formatBalance18,
+  formatBalanceBigInt18,
+  addressReduce,
+} from "@/utils/web3";
 
 const loading = ref(false);
 const web3 = new Web3(window.ethereum);
@@ -872,10 +877,6 @@ const usdtAuthorizationAmount = async () => {
       walletStore.walletAddress,
       pair
     );
-    console.log(
-      "formatBalanceBigInt18(voteUsdtAmount.value)",
-      formatBalanceBigInt18(voteUsdtAmount.value)
-    );
 
     //没有授权额度去授权
     if (BigInt(amount) < BigInt(formatBalanceBigInt18(voteUsdtAmount.value))) {
@@ -986,62 +987,6 @@ const copyTextToClipboard = (text) => {
   }
 
   document.body.removeChild(textarea);
-};
-
-const formatBalance18 = (balance, fixedNum) => {
-  try {
-    if (!balance || balance === "0" || balance === 0) {
-      return "0.00";
-    }
-
-    let parsedBalance =
-      typeof balance === "string" ? balance : balance.toString();
-    const isNegative = parsedBalance.includes("-");
-    if (isNegative) {
-      parsedBalance = parsedBalance.replace("-", "");
-    }
-
-    let etherValue = new Decimal(parsedBalance).dividedBy(1e6);
-    let result;
-
-    // 保留 fixedNum 位小数（默认 6 位）
-    fixedNum = fixedNum ?? 2;
-    const precision = new Decimal(10).pow(fixedNum);
-    result = etherValue
-      .times(precision)
-      .floor()
-      .div(precision)
-      .toFixed(fixedNum);
-
-    // 检查小数部分是否全为 0
-    const [intPart, decimalPart] = result.split(".");
-    const allZeroDecimal = decimalPart.split("").every((c) => c === "0");
-
-    const finalResult = allZeroDecimal ? `${intPart}.00` : result;
-
-    return isNegative ? `-${finalResult}` : finalResult;
-  } catch (error) {
-    console.log("error", error);
-  }
-};
-const formatBalanceBigInt18 = (balance) => {
-  if (balance == null || balance.toString() == null) {
-    return 0;
-  }
-  if (balance === "") {
-    return 0;
-  }
-  const parsedBalance =
-    typeof balance === "string" ? balance : balance.toString();
-  // 拆分整数部分和小数部分
-  const [integerPart, decimalPart = ""] = parsedBalance.split(".");
-  // 计算整数部分的 10^18 倍
-  const intResult = integerPart + "0".repeat(18);
-  // 计算小数部分的贡献（最多保留 18 位小数）
-  const decimalProcessed = (decimalPart + "0".repeat(18)).slice(0, 18);
-  // 结果拼接
-  const finalResult = intResult.slice(0, -18) + decimalProcessed;
-  return finalResult.replace(/^0+/, "") || "0"; // 去掉前导 0
 };
 </script>
 

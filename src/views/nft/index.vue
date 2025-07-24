@@ -151,7 +151,7 @@
               <div class="tcst_head_price">
                 {{ detailData[5] || "-" }} <span>USDT</span>
               </div>
-              <div class="tcst_head_amount_title">Amount</div>
+              <div class="tcst_head_amount_title">Price</div>
               <div class="tcst_head_input_price">
                 <input
                   type="number"
@@ -159,6 +159,7 @@
                   v-model="transactionPrice"
                 />
               </div>
+              <div class="tcst_head_amount_title">Amount</div>
               <div class="tcst_head_input_amount">
                 <img
                   src="@/assets/images/nft/img6.png"
@@ -601,7 +602,7 @@ const approveNFTMarketplace = async () => {
         border-radius: 8px;
         cursor: pointer;
         .cci_img {
-          width: 154px;
+          width: 100%;
           height: 154px;
           position: relative;
           img {

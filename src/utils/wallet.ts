@@ -158,5 +158,5 @@ export const logoutWallet = () => {
         title: "Exited the wallet ",
         duration: 1000,
     });
-
+    window.location.reload()
 };

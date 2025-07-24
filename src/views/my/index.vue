@@ -1,76 +1,496 @@
 <script setup lang="ts" name="HomeView">
 import router from "@/router";
 import useWalletStore from "@/store/modules/wallet";
-import { ElNotification } from "element-plus";
-import { computed, onMounted, ref } from "vue";
-import { connectWallet, formatData1 } from "@/utils/wallet";
-import { showAllMyActivity } from "@/api/my";
-import { OrderInfo } from "@/api/type";
+import { ElNotification, ElMessage } from "element-plus";
+import { computed, onMounted, ref, watch } from "vue";
+import { connectWallet, formatData1, logoutWallet } from "@/utils/wallet";
 import { useI18n } from "vue-i18n";
+import {
+  formatBalance18,
+  formatBalanceBigInt18,
+  addressReduce,
+} from "@/utils/web3";
+import { useUsdtTokenContract } from "@/api/contract/usdtToken";
+import { useMovieNFTContract } from "@/api/contract/movieNFT";
+import { useNftMarketplaceContract } from "@/api/contract/NftMarketplace";
+import abiData from "@/abis.json";
 
+const usdtTokenContract = useUsdtTokenContract();
+const movieNFTContract = useMovieNFTContract();
+const nftMarketplaceContract = useNftMarketplaceContract();
 const walletStore = useWalletStore();
 const { t, locale } = useI18n();
 const navIndex = ref(0);
-
-// 复制数据到剪贴板
-const copyToClipboard = async (data: string) => {
-  try {
-    await navigator.clipboard.writeText(data);
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      title: "Copy successfully",
-      duration: 1000,
-    });
-  } catch (err) {
-    console.error("复制失败:", err);
-  }
-};
+const defaultIndex = ref(0);
+const checkIndex = ref(-1);
+const myNftList = ref([] as any);
+const myMarketNftList = ref([] as any);
+const defaultNftId = ref(1);
+const detailLoading = ref(false);
+const transactionPrice = ref("");
+const transactionAmount = ref(1);
+const detailData = ref([] as any);
+const transactionVisible = ref(false);
+const sellLoading = ref(false);
+const cancelLoading = ref(false);
 const loading = ref(false);
+const haveMore = ref(false);
+const pageSize = ref(1);
+const limit = ref(10);
+const orderId = ref(-1);
+const myBalanceAmount = ref("0");
+const defaultIllustratedId = ref(1);
+const illustratedList = ref([] as any);
 
-const ActivityList = ref<OrderInfo[]>([]);
-const getActivityList = async () => {
-  loading.value = true;
-
-  try {
-    const res = await showAllMyActivity();
-    if (res.data.code === 0) {
-      ActivityList.value = res.data.json;
-    } else {
-      ElNotification({
-        showClose: false,
-        customClass: "message-logout",
-        title:
-          locale.value === "zh"
-            ? res.data.json.message_zh
-            : res.data.json.message,
-        duration: 2000,
-      });
+watch(
+  () => walletStore.walletAddress,
+  async (newVal, oldVal) => {
+    if (newVal != "" && walletStore.walletAddress != "") {
+      await getMyBalance(walletStore.walletAddress);
+      pageSize.value = 1;
+      myNftList.value = [];
+      defaultNftId.value = 1;
+      getNftList();
     }
-    loading.value = false;
-  } catch (error) {
-    loading.value = false;
-    ElNotification({
-      showClose: false,
-      customClass: "message-logout",
-      title: t("ElNoti.el35"),
-      duration: 2000,
-    });
   }
-};
+);
 
-const login = async () => {
-  loading.value = true;
-  await connectWallet();
-  loading.value = false;
-};
-
-onMounted(() => {
-  getActivityList();
+onMounted(async () => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  await getMyBalance(walletStore.walletAddress);
+  pageSize.value = 1;
+  myNftList.value = [];
+  defaultNftId.value = 1;
+  await getNftList();
 });
 
-const changeNavIndex = (index: any) => {
+const getMyBalance = async (address: any) => {
+  try {
+    const balance = await usdtTokenContract.getBalanceOf(address);
+    myBalanceAmount.value = formatBalance18(balance) || "0";
+  } catch (error) {}
+};
+
+const copyTextToClipboard = (text: any) => {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "absolute";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  let success = false;
+  try {
+    success = document.execCommand("copy");
+    if (success) {
+      ElMessage({
+        showClose: true,
+        message: "Copy Success",
+        type: "success",
+      });
+    } else {
+      console.warn("复制失败");
+    }
+  } catch (err) {
+    console.error("复制出错：", err);
+  }
+
+  document.body.removeChild(textarea);
+};
+
+const getNftList = async () => {
+  loading.value = true;
+  try {
+    let price = null;
+    try {
+      price = await nftMarketplaceContract.getLowestPrice(defaultNftId.value);
+    } catch (priceErr) {
+      price = null;
+    }
+    const res = await movieNFTContract.tokenMetadata(defaultNftId.value);
+    const resC = await movieNFTContract.balanceOf(
+      walletStore.walletAddress,
+      defaultNftId.value
+    );
+    if (res[0] != "" && res.length === 4) {
+      if (Number(resC) != 0) {
+        myNftList.value.push([
+          defaultNftId.value,
+          res[0],
+          res[1],
+          res[2],
+          await getNFTImage(res[3]),
+          formatBalance18(price) || "",
+          resC,
+        ]);
+      }
+      defaultNftId.value += 1;
+      haveMore.value = true;
+      const haveNextPage =
+        Math.floor((defaultNftId.value - 1) / limit.value) + 1;
+      if (haveNextPage != pageSize.value) {
+        pageSize.value = Math.floor((defaultNftId.value - 1) / limit.value) + 1;
+        return;
+      } else {
+        pageSize.value = Math.floor((defaultNftId.value - 1) / limit.value) + 1;
+        await getNftList();
+      }
+    } else {
+      haveMore.value = false;
+      defaultNftId.value -= 1;
+    }
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
+};
+const getMyMarketNftList = async () => {
+  loading.value = true;
+  try {
+    const idsList = await nftMarketplaceContract.getSellerListingIds(
+      walletStore.walletAddress
+    );
+    const res = await nftMarketplaceContract.getListingsBySeller(
+      walletStore.walletAddress,
+      (pageSize.value - 1) * limit.value,
+      limit.value
+    );
+
+    if (res.length != 0) {
+      const list = await Promise.all(
+        res.map(async (item: any, index: any) => {
+          const nftDetail = await movieNFTContract.tokenMetadata(item[1]);
+          if (item[4]) {
+            return {
+              id: Number(idsList[(pageSize.value - 1) * limit.value + index]),
+              seller: item[0],
+              tokenId: Number(item[1]),
+              price: formatBalance18(item[2]),
+              amount: Number(item[3]),
+              active: item[4],
+              image: await getNFTImage(nftDetail[3]),
+              rarity: nftDetail[1],
+              name: nftDetail[0],
+            };
+          }
+        })
+      );
+      myMarketNftList.value.push(...list);
+      if (res.length < limit.value) {
+        haveMore.value = false;
+      } else {
+        haveMore.value = true;
+      }
+    }
+    if (res.length === 0) {
+      haveMore.value = false;
+    }
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
+};
+
+//查询NFTMarketplace的授权
+const approveNFTMarketplace = async () => {
+  try {
+    const isApproved = await movieNFTContract.isApprovedForAll(
+      walletStore.walletAddress || "",
+      abiData.NFTMarketplace.address
+    );
+
+    //没有授权去授权
+    if (!isApproved) {
+      await movieNFTContract.setApprovalForAll(
+        abiData.NFTMarketplace.address,
+        true
+      );
+      await approveNFTMarketplace();
+    }
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+const sellNft = async () => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  if (transactionPrice.value === "" || Number(transactionPrice.value) <= 0) {
+    ElMessage({
+      showClose: true,
+      message: "Please Set Price",
+      type: "error",
+    });
+    return;
+  }
+  if (Number(transactionAmount.value) <= 0) {
+    ElMessage({
+      showClose: true,
+      message: "Please Set Amount",
+      type: "error",
+    });
+    return;
+  }
+  try {
+    sellLoading.value = true;
+    await approveNFTMarketplace();
+    await nftMarketplaceContract.listNFT(
+      detailData.value[0],
+      Number(transactionAmount.value),
+      formatBalanceBigInt18(Number(transactionPrice.value))
+    );
+    transactionPrice.value = "";
+    ElMessage({
+      showClose: true,
+      message: "Success",
+      type: "success",
+    });
+    await getNftDetail(detailData.value[0]);
+  } catch (error: any) {
+    console.log("error", error);
+    // ElMessage({
+    //   showClose: true,
+    //   message: error.reason || "",
+    //   type: "error",
+    // });
+  } finally {
+    sellLoading.value = false;
+  }
+};
+const cancelOrder = async (item: any) => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  try {
+    cancelLoading.value = true;
+    orderId.value = item.id;
+
+    await nftMarketplaceContract.unlistNFT(item.id);
+    ElMessage({
+      showClose: true,
+      message: "Operation successful",
+      type: "success",
+    });
+    pageSize.value = 1;
+    myMarketNftList.value = [];
+    defaultNftId.value = 1;
+    await getMyMarketNftList();
+  } catch (error: any) {
+    console.log("error", error);
+    // ElMessage({
+    //   showClose: true,
+    //   message: error.reason || "",
+    //   type: "error",
+    // });
+  } finally {
+    orderId.value = -1;
+    cancelLoading.value = false;
+  }
+};
+
+const getNftDetail = async (tokenId: any) => {
+  try {
+    detailLoading.value = true;
+    let price = null;
+    try {
+      price = await nftMarketplaceContract.getLowestPrice(tokenId);
+    } catch (priceErr) {
+      price = null;
+    }
+    const res = await movieNFTContract.tokenMetadata(tokenId);
+    if (res[0] != "" && res.length === 4) {
+      detailData.value = [
+        tokenId,
+        res[0],
+        res[1],
+        res[2],
+        await getNFTImage(res[3]),
+        formatBalance18(price) || "",
+      ];
+    }
+  } catch (err) {
+    console.error("err", err);
+  } finally {
+    detailLoading.value = false;
+  }
+};
+
+const showTransactionVisible = async (item: any) => {
+  transactionPrice.value = "";
+  transactionAmount.value = 1;
+  transactionVisible.value = true;
+  await getNftDetail(item[0]);
+};
+
+const changeNavIndex = async (index: any) => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  if (navIndex.value === index) return;
   navIndex.value = index;
+  if (navIndex.value === 0) {
+    pageSize.value = 1;
+    myNftList.value = [];
+    defaultNftId.value = 1;
+    await getNftList();
+  }
+  if (navIndex.value === 1) {
+    pageSize.value = 1;
+    myMarketNftList.value = [];
+    defaultNftId.value = 1;
+    await getMyMarketNftList();
+  }
+  if (navIndex.value === 2) {
+    defaultIllustratedId.value = 1;
+    illustratedList.value = [];
+    await getIllustratedList();
+  }
+};
+
+const getNFTImage = async (jsonUrl: any) => {
+  try {
+    const res = await fetch(jsonUrl);
+    if (!res.ok) throw new Error("请求失败");
+    const json = await res.json();
+    return json.image;
+  } catch (err) {
+    console.error("获取 NFT 数据失败:", err);
+    return null;
+  }
+};
+
+const reloadList = async () => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  pageSize.value = 1;
+  myNftList.value = [];
+  defaultNftId.value = 1;
+  await getNftList();
+};
+const reloadOrderList = async () => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  pageSize.value = 1;
+  myMarketNftList.value = [];
+  defaultNftId.value = 1;
+  await getMyMarketNftList();
+};
+const changeType = async (type: any) => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  defaultIndex.value = type;
+  pageSize.value = 1;
+  myNftList.value = [];
+  defaultNftId.value = 1;
+  await getNftList();
+};
+const changeOrderType = async (type: any) => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  defaultIndex.value = type;
+  pageSize.value = 1;
+  myMarketNftList.value = [];
+  defaultNftId.value = 1;
+  await getMyMarketNftList();
+};
+const getIllustratedList = async () => {
+  try {
+    loading.value = true;
+    const res = await movieNFTContract.getRedeemScheme(
+      defaultIllustratedId.value
+    );
+
+    console.log("res", res);
+    if (res[0] != "" && res.length === 5) {
+      if (res[4]) {
+        const idsList = illustratedIds(res[1]);
+        const amountList = await Promise.all(
+          idsList.map(async (item: any, index: any) => {
+            const resA = await movieNFTContract.balanceOf(
+              walletStore.walletAddress,
+              item
+            );
+            return Number(resA);
+          })
+        );
+        illustratedList.value.push([
+          ...res,
+          amountList.reduce((acc: any, curr: any) => acc + curr, 0),
+        ]);
+      }
+      defaultIllustratedId.value += 1;
+      await getIllustratedList();
+    }
+  } catch (err) {
+    console.error("err", err);
+  } finally {
+    loading.value = false;
+  }
+};
+const illustratedimages = (tokenIds: any) => {
+  if (!tokenIds?.length) return [];
+  if (!myNftList.value?.length) return [];
+  const list = myNftList.value
+    .filter((item: any) => tokenIds.includes(BigInt(item[0])))
+    .map((items: any) => items[4]);
+  return list;
+};
+const illustratedIds = (tokenIds: any) => {
+  if (!tokenIds?.length) return [];
+  if (!myNftList.value?.length) return [];
+  const list = myNftList.value
+    .filter((item: any) => tokenIds.includes(BigInt(item[0])))
+    .map((items: any) => items[0]);
+  return list;
 };
 </script>
 <template>
@@ -78,22 +498,34 @@ const changeNavIndex = (index: any) => {
     <div class="container" v-loading="loading">
       <div class="container_head">
         <div class="container_head_avatar">M</div>
-        <div class="container_head_address">
-          <div>0x7hu...69i8</div>
-          <img src="@/assets/images/my/img2.png" alt="" />
+        <div class="container_head_address" v-if="useWalletStore().isWallet">
+          <div>{{ addressReduce(walletStore.walletAddress) }}</div>
+          <img
+            src="@/assets/images/my/img2.png"
+            alt=""
+            @click="copyTextToClipboard(walletStore.walletAddress)"
+          />
         </div>
       </div>
+
       <div class="container_content">
         <div class="container_content_nav">
           <div class="ccn_head">
             <div class="ccn_head_address">
               <div class="ccnh_address_title">Wallet balance</div>
               <div class="ccnh_address_text">
-                <div>0x7hu...69i8</div>
-                <img src="@/assets/images/my/img2.png" alt="" />
+                <div>{{ addressReduce(walletStore.walletAddress) }}</div>
+                <img
+                  src="@/assets/images/my/img2.png"
+                  alt=""
+                  @click="copyTextToClipboard(walletStore.walletAddress)"
+                  v-if="useWalletStore().isWallet"
+                />
               </div>
             </div>
-            <div class="ccn_head_balance">876,786 USDT</div>
+            <div class="ccn_head_balance">
+              {{ useWalletStore().isWallet ? myBalanceAmount : "-" }} USDT
+            </div>
           </div>
           <div class="ccn_list">
             <div class="ccn_list_item" @click="changeNavIndex(0)">
@@ -197,12 +629,391 @@ const changeNavIndex = (index: any) => {
             </div>
           </div>
           <div style="flex-grow: 1"></div>
-          <div class="ccn_logout">
+          <div class="ccn_logout" @click="logoutWallet">
             <img src="@/assets/images/my/img4.png" alt="" />
             <div>Log Out</div>
           </div>
         </div>
-        <div class="container_content_list"></div>
+        <div class="container_content_list">
+          <div class="ccl_container" v-if="navIndex === 0">
+            <div class="ccl_container_head">
+              <div class="ccl_container_head_search">
+                <img src="@/assets/images/my/img5.png" alt="" />
+              </div>
+              <div class="ccl_container_head_imgs">
+                <div class="chi_item">
+                  <img
+                    src="@/assets/images/nft/img3.png"
+                    alt=""
+                    @click="reloadList"
+                  />
+                </div>
+                <div class="chi_item" @click="changeType(0)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M3.00098 3C2.4487 3 2.00098 3.44772 2.00098 4V8H7.50098V3H3.00098ZM9.50098 3V8H14.501V3H9.50098ZM16.501 3V8H22.001V4C22.001 3.44772 21.5533 3 21.001 3H16.501ZM22.001 10H16.501V14H22.001V10ZM22.001 16H16.501V21H21.001C21.5533 21 22.001 20.5523 22.001 20V16ZM14.501 21V16H9.50098V21H14.501ZM7.50098 21V16H2.00098V20C2.00098 20.5523 2.4487 21 3.00098 21H7.50098ZM2.00098 14H7.50098V10H2.00098V14ZM9.50098 10H14.501V14H9.50098V10Z"
+                      :fill="defaultIndex === 0 ? '#D339C4' : 'white'"
+                      fill-opacity="0.5"
+                    />
+                  </svg>
+                </div>
+                <div class="chi_item" @click="changeType(1)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M8 4H21V6H8V4ZM3 3.5H6V6.5H3V3.5ZM3 10.5H6V13.5H3V10.5ZM3 17.5H6V20.5H3V17.5ZM8 11H21V13H8V11ZM8 18H21V20H8V18Z"
+                      :fill="defaultIndex === 1 ? '#D339C4' : 'white'"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="ccl_container_content" v-if="defaultIndex === 0">
+              <div
+                class="ccl_container_content_item"
+                v-for="(item, index) in myNftList"
+                :key="index"
+                @mouseenter="checkIndex = index"
+                @mouseleave="checkIndex = -1"
+              >
+                <div class="cci_img">
+                  <img :src="item[4] || ''" alt="" />
+                  <div>{{ item[2] }}</div>
+                </div>
+                <div
+                  class="cci_btn"
+                  v-if="checkIndex === index"
+                  @click="showTransactionVisible(item)"
+                >
+                  Make Offer
+                </div>
+                <div class="cci_price" v-else>
+                  <div>{{ item[5] || "-" }} USDT</div>
+                  <div>X {{ item[6] }}</div>
+                </div>
+              </div>
+              <div class="ccl_container_content_item" v-if="haveMore">
+                <div class="have_more" @click="getNftList">More</div>
+              </div>
+            </div>
+            <div class="ccl_container_content_list" v-if="defaultIndex === 1">
+              <div class="ccl_head">
+                <div>Item</div>
+                <div>Rarity</div>
+                <div>Amount</div>
+                <div>Price</div>
+              </div>
+              <div
+                v-for="(item, index) in myNftList"
+                :key="index"
+                class="ccl_item"
+                @click="showTransactionVisible(item)"
+              >
+                <div class="ccl_item_img">
+                  <img :src="item[4] || ''" alt="" />
+                  <div>{{ item[1] || "" }}</div>
+                </div>
+                <div class="ccl_item_rarity">
+                  <div>{{ item[2] || "" }}</div>
+                </div>
+                <div class="ccl_item_amount">{{ item[6] || "" }}</div>
+                <div class="ccl_item_price">
+                  <div>
+                    {{ item[5] || "-" }} USDT
+                    <img src="@/assets/images/nft/img2.svg" alt="" />
+                  </div>
+                </div>
+              </div>
+              <div class="get_more" @click="getNftList" v-if="haveMore">
+                More
+              </div>
+            </div>
+          </div>
+          <div class="ccl_container" v-if="navIndex === 1">
+            <div class="ccl_container_head">
+              <div class="ccl_container_head_search">
+                <img src="@/assets/images/my/img5.png" alt="" />
+              </div>
+              <div class="ccl_container_head_imgs">
+                <div class="chi_item">
+                  <img
+                    src="@/assets/images/nft/img3.png"
+                    alt=""
+                    @click="reloadOrderList"
+                  />
+                </div>
+                <div class="chi_item" @click="changeOrderType(0)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M3.00098 3C2.4487 3 2.00098 3.44772 2.00098 4V8H7.50098V3H3.00098ZM9.50098 3V8H14.501V3H9.50098ZM16.501 3V8H22.001V4C22.001 3.44772 21.5533 3 21.001 3H16.501ZM22.001 10H16.501V14H22.001V10ZM22.001 16H16.501V21H21.001C21.5533 21 22.001 20.5523 22.001 20V16ZM14.501 21V16H9.50098V21H14.501ZM7.50098 21V16H2.00098V20C2.00098 20.5523 2.4487 21 3.00098 21H7.50098ZM2.00098 14H7.50098V10H2.00098V14ZM9.50098 10H14.501V14H9.50098V10Z"
+                      :fill="defaultIndex === 0 ? '#D339C4' : 'white'"
+                      fill-opacity="0.5"
+                    />
+                  </svg>
+                </div>
+                <div class="chi_item" @click="changeOrderType(1)">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M8 4H21V6H8V4ZM3 3.5H6V6.5H3V3.5ZM3 10.5H6V13.5H3V10.5ZM3 17.5H6V20.5H3V17.5ZM8 11H21V13H8V11ZM8 18H21V20H8V18Z"
+                      :fill="defaultIndex === 1 ? '#D339C4' : 'white'"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="ccl_container_content" v-if="defaultIndex === 0">
+              <div
+                class="ccl_container_content_item"
+                v-for="(item, index) in myMarketNftList"
+                :key="index"
+                @mouseenter="checkIndex = index"
+                @mouseleave="checkIndex = -1"
+              >
+                <div class="cci_img">
+                  <img :src="item.image || ''" alt="" />
+                  <div>{{ item.rarity }}</div>
+                </div>
+                <el-button
+                  type="primary"
+                  class="cci_btn"
+                  v-if="checkIndex === index || orderId === item.id"
+                  :loading="cancelLoading && orderId === item.id"
+                  @click="cancelOrder(item)"
+                  >Cancel</el-button
+                >
+                <div class="cci_price" v-else>
+                  <div>{{ item.price || "-" }} USDT</div>
+                  <div>X {{ item.amount }}</div>
+                </div>
+              </div>
+              <div class="ccl_container_content_item" v-if="haveMore">
+                <div
+                  class="have_more"
+                  @click="
+                    async () => {
+                      pageSize += 1;
+                      await getMyMarketNftList();
+                    }
+                  "
+                >
+                  More
+                </div>
+              </div>
+            </div>
+            <div class="ccl_container_content_list" v-if="defaultIndex === 1">
+              <div class="ccl_head">
+                <div>Item</div>
+                <div>Rarity</div>
+                <div>Amount</div>
+                <div>Price</div>
+                <div>Operate</div>
+              </div>
+              <div
+                v-for="(item, index) in myMarketNftList"
+                :key="index"
+                class="ccl_item"
+              >
+                <div class="ccl_item_img">
+                  <img :src="item.image || ''" alt="" />
+                  <div>{{ item.name || "" }}</div>
+                </div>
+                <div class="ccl_item_rarity">
+                  <div>{{ item.rarity || "" }}</div>
+                </div>
+                <div class="ccl_item_amount">{{ item.amount || "" }}</div>
+                <div class="ccl_item_price">
+                  <div>
+                    {{ item.price || "-" }} USDT
+                    <img src="@/assets/images/nft/img2.svg" alt="" />
+                  </div>
+                </div>
+                <el-button
+                  type="primary"
+                  class="ccl_item_cancel"
+                  :loading="cancelLoading && orderId === item.id"
+                  @click="cancelOrder(item)"
+                  >Cancel</el-button
+                >
+              </div>
+              <div
+                class="get_more"
+                @click="
+                  async () => {
+                    pageSize += 1;
+                    await getMyMarketNftList();
+                  }
+                "
+                v-if="haveMore"
+              >
+                More
+              </div>
+            </div>
+          </div>
+          <div class="illustrated_handbook" v-if="navIndex === 2">
+            <div class="illustrated_handbook_head">
+              <img src="@/assets/images/my/img6.png" alt="" />
+            </div>
+            <div
+              class="illustrated_handbook_item"
+              v-for="(item, index) in illustratedList"
+              :key="index"
+            >
+              <div class="ihi_head">
+                <div class="ihi_head_title">{{ item[2] }}</div>
+                <div class="ihi_head_tip">
+                  <div>
+                    {{ item[5] }}
+                    / {{ item[1]?.length || 0 }}
+                  </div>
+                  <img src="@/assets/images/my/img7.png" alt="" />
+                </div>
+              </div>
+              <div class="ihi_card">
+                <div class="ihi_card_list">
+                  <div
+                    class="ihi_card_item"
+                    v-for="(items, index) in illustratedimages(item[1])"
+                  >
+                    <img :src="items" alt="" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="transactionVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+      @click="transactionVisible = false"
+    >
+      <div class="transaction_content" @click.stop="" v-loading="detailLoading">
+        <div class="transaction_content_head">
+          <div class="tch_name">{{ detailData[1] }}</div>
+          <div class="tch_imgs">
+            <img
+              src="@/assets/images/nft/img3.png"
+              alt=""
+              @click="getNftDetail(detailData[0])"
+            />
+            <!-- <img src="@/assets/images/nft/img4.png" alt="" /> -->
+            <img
+              src="@/assets/images/nft/img5.png"
+              alt=""
+              @click="transactionVisible = false"
+            />
+          </div>
+        </div>
+        <div class="transaction_content_section">
+          <div class="tcs_img">
+            <img :src="detailData[4]" alt="" />
+          </div>
+          <div class="tcs_transaction">
+            <div class="tcst_head">
+              <div class="tcst_head_title">best Price</div>
+              <div class="tcst_head_price">
+                {{ detailData[5] || "-" }} <span>USDT</span>
+              </div>
+              <div class="tcst_head_amount_title">Price</div>
+              <div class="tcst_head_input_price">
+                <input
+                  type="number"
+                  placeholder="Set Price"
+                  v-model="transactionPrice"
+                />
+              </div>
+              <div class="tcst_head_amount_title">Amount</div>
+              <div class="tcst_head_input_amount">
+                <img
+                  src="@/assets/images/nft/img6.png"
+                  alt=""
+                  @click="
+                    () => {
+                      if (transactionAmount <= 1) return;
+                      transactionAmount -= 1;
+                    }
+                  "
+                />
+                <input
+                  type="number"
+                  placeholder="Set Amount"
+                  v-model="transactionAmount"
+                />
+                <img
+                  src="@/assets/images/nft/img7.png"
+                  alt=""
+                  @click="transactionAmount += 1"
+                />
+              </div>
+              <div class="tcst_head_btn">
+                <el-button
+                  type="primary"
+                  @click="sellNft"
+                  :loading="sellLoading"
+                  class="tcst_head_btn1"
+                  >Make Offer</el-button
+                >
+              </div>
+            </div>
+            <div class="tcst_detail">
+              <div class="tcst_detail_head">
+                <div>Detail</div>
+                <img src="@/assets/images/nft/img8.png" alt="" />
+              </div>
+              <div class="tcst_detail_item">
+                <div>Token ID</div>
+                <div>{{ detailData[0] }}</div>
+              </div>
+              <div class="tcst_detail_item">
+                <div>Token Standard</div>
+                <div>BEP-1155</div>
+              </div>
+              <div class="tcst_detail_item">
+                <div>Royalty</div>
+                <div>10%</div>
+              </div>
+              <div class="tcst_detail_item">
+                <div>Rarity</div>
+                <div>{{ detailData[2] }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -374,6 +1185,585 @@ const changeNavIndex = (index: any) => {
       .container_content_list {
         flex: 1;
         height: 100%;
+        overflow-y: auto;
+        .ccl_container_head {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px 0;
+          .ccl_container_head_search {
+            img {
+              width: 92px;
+              height: 52px;
+            }
+          }
+          .ccl_container_head_imgs {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            .chi_item {
+              width: 24px;
+              height: 24px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              svg {
+                cursor: pointer;
+              }
+              img {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+              }
+            }
+          }
+        }
+        .ccl_container_content {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 24px;
+          .ccl_container_content_item {
+            width: 154px;
+            background-color: rgba(20, 20, 20, 1);
+            border: 1px solid rgba(41, 41, 41, 1);
+            border-radius: 8px;
+            cursor: pointer;
+            .cci_img {
+              width: 100%;
+              height: 154px;
+              position: relative;
+              img {
+                width: 100%;
+                height: 100%;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+              }
+              div {
+                width: 43px;
+                height: 24px;
+                border-radius: 2px;
+                background: #1e1e1e;
+                color: #fff;
+                /* Text sm/Medium */
+                font-family: Inter;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 20px; /* 142.857% */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                right: 12px;
+                bottom: 12px;
+              }
+            }
+            .cci_btn {
+              width: 138px;
+              height: 32px;
+              margin: 11px 8px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border-radius: 49px;
+              background: #d339c4;
+              color: #fff;
+              font-family: Roboto;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
+              cursor: pointer;
+              border: none;
+            }
+            .cci_price {
+              padding: 16px 8px;
+              color: #fff;
+              font-family: Roboto;
+              font-size: 16px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              justify-content: space-between;
+            }
+            .have_more {
+              width: 100%;
+              height: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+            }
+          }
+        }
+        .ccl_container_content_list {
+          .ccl_head {
+            width: 100%;
+            border-bottom: 1px solid rgba(41, 41, 41, 1);
+            display: flex;
+            align-items: center;
+            div {
+              padding: 12px 0px;
+              box-sizing: border-box;
+              color: rgba(255, 255, 255, 0.5);
+              /* Text xs/Medium */
+              font-family: Inter;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: 18px; /* 150% */
+              &:first-child {
+                min-width: 163px;
+                max-width: 163px;
+              }
+              &:nth-child(2) {
+                min-width: 120px;
+                max-width: 120px;
+              }
+              &:nth-child(3) {
+                min-width: 120px;
+                max-width: 120px;
+              }
+              &:nth-child(4) {
+                flex: 1;
+              }
+            }
+          }
+          .ccl_item {
+            width: 100%;
+            height: 72px;
+            border-bottom: 1px solid rgba(41, 41, 41, 1);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            .ccl_item_img {
+              min-width: 163px;
+              max-width: 163px;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              img {
+                width: 40px;
+                height: 40px;
+                border-radius: 20px;
+              }
+              div {
+                color: #fff;
+                /* Text sm/Medium */
+                font-family: Inter;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 20px; /* 142.857% */
+              }
+            }
+            .ccl_item_rarity {
+              min-width: 120px;
+              max-width: 120px;
+              div {
+                width: 43px;
+                height: 24px;
+                border-radius: 2px;
+                background: #1e1e1e;
+                color: #fff;
+                /* Text sm/Medium */
+                font-family: Inter;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 20px; /* 142.857% */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+            }
+            .ccl_item_amount {
+              min-width: 120px;
+              max-width: 120px;
+              color: #fff;
+              /* Text sm/Medium */
+              font-family: Inter;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: 20px; /* 142.857% */
+            }
+            .ccl_item_price {
+              flex: 1;
+              div {
+                width: max-content;
+                display: flex;
+                padding: 2px 4px;
+                align-items: center;
+                gap: 4px;
+                border-radius: 2px;
+                background: #340d30;
+                color: #fff;
+                /* Text sm/Medium */
+                font-family: Inter;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 20px; /* 142.857% */
+                img {
+                  width: 16px;
+                  height: 16px;
+                }
+              }
+            }
+            .ccl_item_cancel {
+              width: 110px;
+              height: 32px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border-radius: 49px;
+              background: #d339c4;
+              color: #fff;
+              font-family: Roboto;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
+              cursor: pointer;
+              border: none;
+            }
+          }
+          .get_more {
+            padding: 20px 0;
+            color: #ffffff47;
+            /* Text sm/Medium */
+            font-family: Inter;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 20px; /* 142.857% */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+        .illustrated_handbook {
+          flex: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          .illustrated_handbook_head {
+            img {
+              width: 427px;
+              height: auto;
+            }
+          }
+          .illustrated_handbook_item {
+            width: 100%;
+            padding: 20px 24px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+            border-radius: 15px;
+            border: 1px solid rgba(80, 32, 75, 0.5);
+            background: rgba(211, 57, 196, 0.11);
+            box-shadow: 0 1px 6px 0 rgba(255, 120, 219, 0.15) inset,
+              0 0 10px 0 rgba(211, 57, 196, 0.15) inset;
+            backdrop-filter: blur(7.498020648956299px);
+            cursor: pointer;
+            &:hover {
+              background: rgba(211, 57, 196, 0.11);
+              box-shadow: 0 1px 6px 0 rgba(255, 120, 219, 0.25) inset,
+                0 0 10px 0 rgba(211, 57, 196, 0.25) inset;
+              backdrop-filter: blur(7.498020648956299px);
+            }
+            .ihi_head {
+              width: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              .ihi_head_title {
+                color: #efcff6;
+                text-align: right;
+                font-family: Montserrat;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 800;
+                line-height: normal;
+                text-transform: uppercase;
+              }
+              .ihi_head_tip {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                div {
+                  color: #fff;
+                  text-align: center;
+                  font-family: Montserrat;
+                  font-size: 14px;
+                  font-style: normal;
+                  font-weight: 600;
+                  line-height: normal;
+                }
+                img {
+                  width: 32px;
+                  height: 32px;
+                }
+              }
+            }
+            .ihi_card {
+              width: 100%;
+              height: 186px;
+              overflow: hidden;
+              .ihi_card_list {
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 16px;
+                .ihi_card_item {
+                  min-width: 171px;
+                  max-width: 171px;
+                  height: 186px;
+                  border-radius: 10px;
+                  img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 10px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .transaction_content {
+    display: flex;
+    padding: 24px 32px 32px 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    border: 1px solid #565656;
+    background: #191919;
+    .transaction_content_head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .tch_name {
+        color: #d339c4;
+        text-align: right;
+        font-family: Montserrat;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+        text-transform: uppercase;
+      }
+      .tch_imgs {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        img {
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+        }
+      }
+    }
+    .transaction_content_section {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      .tcs_img {
+        width: 356px;
+        height: 356px;
+        border-radius: 8px;
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 8px;
+        }
+      }
+      .tcs_transaction {
+        width: 356px;
+        .tcst_head {
+          display: flex;
+          padding: 12px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+          align-self: stretch;
+          border-radius: 8px;
+          background: #242024;
+          .tcst_head_title {
+            color: #fff;
+            font-family: Rubik;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+            letter-spacing: 0.64px;
+            text-transform: uppercase;
+            padding-bottom: 8px;
+          }
+          .tcst_head_price {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-family: Rubik;
+            font-size: 24px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            letter-spacing: 0.96px;
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            span {
+              display: inline-block;
+              color: var(--H2, #d1d5db);
+              font-family: "PingFang SC";
+              font-size: 16px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: 22px; /* 137.5% */
+            }
+          }
+          .tcst_head_amount_title {
+            color: rgba(255, 255, 255, 0.5);
+            font-family: "PingFang SC";
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 24px; /* 150% */
+          }
+          .tcst_head_input_price {
+            width: 100%;
+            padding-bottom: 8px;
+            input {
+              width: 100%;
+              display: flex;
+              padding: 12px 16px;
+              flex-direction: column;
+              justify-content: center;
+              align-items: flex-start;
+              gap: 10px;
+              align-self: stretch;
+              border-radius: 12px;
+              background: #121212;
+              border: none !important;
+              box-shadow: none !important;
+              color: white;
+            }
+          }
+          .tcst_head_input_amount {
+            width: 100%;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            input {
+              flex: 1;
+              height: 34px;
+              display: flex;
+              padding: 0px 16px;
+              text-align: center;
+              flex-direction: column;
+              justify-content: center;
+              align-items: flex-start;
+              gap: 10px;
+              align-self: stretch;
+              background: #121212;
+              border: none !important;
+              box-shadow: none !important;
+              color: white;
+            }
+            img {
+              width: 34px;
+              height: 34px;
+              cursor: pointer;
+            }
+          }
+          .tcst_head_btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            .tcst_head_btn1 {
+              flex: 1;
+              display: flex;
+              height: 35px;
+              justify-content: center;
+              align-items: center;
+              align-self: stretch;
+              border-radius: 32px;
+              background: #d339c4;
+              cursor: pointer;
+              border: none;
+            }
+          }
+        }
+        .tcst_detail {
+          margin-top: 24px;
+          display: flex;
+          padding: 12px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+          align-self: stretch;
+          border-radius: 8px;
+          background: #242024;
+          .tcst_detail_head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            font-family: Rubik;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+            letter-spacing: 0.64px;
+            text-transform: uppercase;
+            img {
+              width: 16px;
+              height: 16px;
+            }
+          }
+          .tcst_detail_item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            div {
+              &:first-child {
+                color: #d1d5db;
+                font-family: "PingFang SC";
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 22px; /* 183.333% */
+              }
+              &:last-child {
+                color: #d1d5db;
+                text-align: right;
+                font-family: "PingFang SC";
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 22px; /* 183.333% */
+              }
+            }
+          }
+        }
       }
     }
   }
