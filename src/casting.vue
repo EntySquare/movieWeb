@@ -99,7 +99,7 @@ const castingPut = async () => {
       message: "Casting Success",
       type: "success",
     });
-    window.open("http://localhost:8080/nft", "_blank");
+    window.open("https://movieai.me/nft", "_blank");
   } catch (error: any) {
     ElMessage({
       showClose: true,
