@@ -24,23 +24,29 @@ const navIndex = ref(0);
 const defaultIndex = ref(0);
 const checkIndex = ref(-1);
 const myNftList = ref([] as any);
+const nftList = ref([] as any);
 const myMarketNftList = ref([] as any);
 const defaultNftId = ref(1);
 const detailLoading = ref(false);
 const transactionPrice = ref("");
 const transactionAmount = ref(1);
+const maxTransactionAmount = ref(1);
 const detailData = ref([] as any);
 const transactionVisible = ref(false);
 const sellLoading = ref(false);
+const buyLoading = ref(false);
 const cancelLoading = ref(false);
 const loading = ref(false);
 const haveMore = ref(false);
+const showillustratedDetailVisible = ref(false);
+const detailTransactionVisible = ref(false);
 const pageSize = ref(1);
 const limit = ref(10);
 const orderId = ref(-1);
 const myBalanceAmount = ref("0");
 const defaultIllustratedId = ref(1);
 const illustratedList = ref([] as any);
+const detailNftList = ref([] as any);
 
 watch(
   () => walletStore.walletAddress,
@@ -66,6 +72,7 @@ onMounted(async () => {
   }
   await getMyBalance(walletStore.walletAddress);
   pageSize.value = 1;
+  nftList.value = [];
   myNftList.value = [];
   defaultNftId.value = 1;
   await getNftList();
@@ -121,6 +128,13 @@ const getNftList = async () => {
       defaultNftId.value
     );
     if (res[0] != "" && res.length === 4) {
+      nftList.value.push([
+        defaultNftId.value,
+        res[0],
+        res[1],
+        res[2],
+        await getNFTImage(res[3]),
+      ]);
       if (Number(resC) != 0) {
         myNftList.value.push([
           defaultNftId.value,
@@ -198,6 +212,48 @@ const getMyMarketNftList = async () => {
     loading.value = false;
   }
 };
+//查询usdt的授权额度
+const approveUsdt = async () => {
+  try {
+    const amount = await usdtTokenContract.getAllowance(
+      walletStore.walletAddress || "",
+      abiData.NFTMarketplace.address
+    );
+
+    //没有授权额度去授权
+    if (
+      BigInt(amount) <
+      BigInt(
+        formatBalanceBigInt18(
+          (
+            Math.floor(
+              Number(transactionAmount.value) *
+                Number(transactionPrice.value) *
+                100
+            ) / 100
+          ).toFixed(2)
+        )
+      )
+    ) {
+      await usdtTokenContract.approve(
+        abiData.NFTMarketplace.address,
+        formatBalanceBigInt18(
+          (
+            Math.floor(
+              Number(transactionAmount.value) *
+                Number(transactionPrice.value) *
+                100
+            ) / 100
+          ).toFixed(2)
+        )
+      );
+      await approveUsdt();
+    }
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
 
 //查询NFTMarketplace的授权
 const approveNFTMarketplace = async () => {
@@ -220,7 +276,66 @@ const approveNFTMarketplace = async () => {
     throw error;
   }
 };
+const buyNft = async () => {
+  if (walletStore.walletAddress === "") {
+    ElMessage({
+      showClose: true,
+      message: "请先连接钱包",
+      type: "error",
+    });
+    return;
+  }
+  if (transactionPrice.value === "" || Number(transactionPrice.value) <= 0) {
+    ElMessage({
+      showClose: true,
+      message: "Please Set Price",
+      type: "error",
+    });
+    return;
+  }
+  if (Number(transactionAmount.value) <= 0) {
+    ElMessage({
+      showClose: true,
+      message: "Please Set Amount",
+      type: "error",
+    });
+    return;
+  }
+  try {
+    buyLoading.value = true;
+    await approveUsdt();
+    await nftMarketplaceContract.buyNFT(
+      detailData.value[0],
+      Number(transactionAmount.value),
+      formatBalanceBigInt18(
+        (
+          Math.floor(
+            Number(transactionAmount.value) *
+              Number(transactionPrice.value) *
+              100
+          ) / 100
+        ).toFixed(2)
+      )
+    );
+    transactionPrice.value = "";
+    ElMessage({
+      showClose: true,
+      message: "Buy Success",
+      type: "success",
+    });
+    await getNftDetail(detailData.value[0]);
+  } catch (error: any) {
+    console.log("error", error);
 
+    // ElMessage({
+    //   showClose: true,
+    //   message: error.reason || "",
+    //   type: "error",
+    // });
+  } finally {
+    buyLoading.value = false;
+  }
+};
 const sellNft = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -260,7 +375,12 @@ const sellNft = async () => {
       message: "Success",
       type: "success",
     });
-    await getNftDetail(detailData.value[0]);
+    transactionVisible.value = false;
+    pageSize.value = 1;
+    nftList.value = [];
+    myNftList.value = [];
+    defaultNftId.value = 1;
+    await getNftList();
   } catch (error: any) {
     console.log("error", error);
     // ElMessage({
@@ -337,7 +457,8 @@ const getNftDetail = async (tokenId: any) => {
 
 const showTransactionVisible = async (item: any) => {
   transactionPrice.value = "";
-  transactionAmount.value = 1;
+  transactionAmount.value = Number(item[6]);
+  maxTransactionAmount.value = Number(item[6]);
   transactionVisible.value = true;
   await getNftDetail(item[0]);
 };
@@ -366,6 +487,7 @@ const changeNavIndex = async (index: any) => {
     await getMyMarketNftList();
   }
   if (navIndex.value === 2) {
+    showillustratedDetailVisible.value = false;
     defaultIllustratedId.value = 1;
     illustratedList.value = [];
     await getIllustratedList();
@@ -448,24 +570,60 @@ const getIllustratedList = async () => {
     const res = await movieNFTContract.getRedeemScheme(
       defaultIllustratedId.value
     );
-
-    console.log("res", res);
     if (res[0] != "" && res.length === 5) {
       if (res[4]) {
+        if (!nftList.value?.length) return;
+        // imageList 获取去重之后的图鉴图片
+        const imageList = nftList.value
+          .filter((item: any) => res[1].includes(BigInt(item[0])))
+          .map((items: any) => items[4]);
         const idsList = illustratedIds(res[1]);
+
+        // amountList 每一个图鉴每一个tokenId 持有的数量
         const amountList = await Promise.all(
           idsList.map(async (item: any, index: any) => {
             const resA = await movieNFTContract.balanceOf(
               walletStore.walletAddress,
               item
             );
-            return Number(resA);
+            return {
+              id: item,
+              holdAmount: Number(resA),
+              image: imageList[index],
+            };
           })
         );
-        illustratedList.value.push([
-          ...res,
-          amountList.reduce((acc: any, curr: any) => acc + curr, 0),
-        ]);
+        // holdAmountList 算出每个tokenId需要多少张，持有多少张
+        const holdAmountList = Object.values(
+          res[1].reduce((acc: any, id: any) => {
+            if (!acc[id]) {
+              acc[id] = {
+                id,
+                needAmount: 1,
+                holdAmount: amountList.find((i: any) => i.id === Number(id))
+                  .holdAmount,
+                image: amountList.find((i: any) => i.id === Number(id)).image,
+                collected: false,
+              };
+            } else {
+              acc[id].needAmount += 1;
+            }
+            acc[id].collected =
+              Number(acc[id].holdAmount) >= Number(acc[id].needAmount);
+            return acc;
+          }, {})
+        );
+
+        // 算出这个图鉴的收集进度
+        const total = holdAmountList.reduce((sum: any, item: any) => {
+          return (
+            sum +
+            (item.holdAmount > item.needAmount
+              ? item.needAmount
+              : item.holdAmount)
+          );
+        }, 0);
+        illustratedList.value.push([...res, holdAmountList, total]);
       }
       defaultIllustratedId.value += 1;
       await getIllustratedList();
@@ -476,21 +634,36 @@ const getIllustratedList = async () => {
     loading.value = false;
   }
 };
-const illustratedimages = (tokenIds: any) => {
-  if (!tokenIds?.length) return [];
-  if (!myNftList.value?.length) return [];
-  const list = myNftList.value
-    .filter((item: any) => tokenIds.includes(BigInt(item[0])))
-    .map((items: any) => items[4]);
-  return list;
-};
 const illustratedIds = (tokenIds: any) => {
   if (!tokenIds?.length) return [];
-  if (!myNftList.value?.length) return [];
-  const list = myNftList.value
+  if (!nftList.value?.length) return [];
+  const list = nftList.value
     .filter((item: any) => tokenIds.includes(BigInt(item[0])))
     .map((items: any) => items[0]);
   return list;
+};
+const showillustratedHandbookDetail = async (list: any) => {
+  detailNftList.value = await Promise.all(
+    list.map(async (item: any, index: any) => {
+      let price = null;
+      try {
+        price = await nftMarketplaceContract.getLowestPrice(Number(item.id));
+      } catch (priceErr) {
+        price = null;
+      }
+      return {
+        ...item,
+        price: formatBalance18(price) || "",
+      };
+    })
+  );
+  showillustratedDetailVisible.value = true;
+};
+const showDetailTransactionVisible = async (item: any) => {
+  detailTransactionVisible.value = true;
+  transactionPrice.value = "";
+  transactionAmount.value = 1;
+  await getNftDetail(Number(item.id));
 };
 </script>
 <template>
@@ -873,31 +1046,108 @@ const illustratedIds = (tokenIds: any) => {
             </div>
           </div>
           <div class="illustrated_handbook" v-if="navIndex === 2">
-            <div class="illustrated_handbook_head">
+            <div
+              class="illustrated_handbook_head"
+              v-if="!showillustratedDetailVisible"
+            >
               <img src="@/assets/images/my/img6.png" alt="" />
             </div>
             <div
-              class="illustrated_handbook_item"
-              v-for="(item, index) in illustratedList"
-              :key="index"
+              v-if="!showillustratedDetailVisible"
+              style="
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+              "
             >
-              <div class="ihi_head">
-                <div class="ihi_head_title">{{ item[2] }}</div>
-                <div class="ihi_head_tip">
-                  <div>
-                    {{ item[5] }}
-                    / {{ item[1]?.length || 0 }}
+              <div
+                class="illustrated_handbook_item"
+                v-for="(item, index) in illustratedList"
+                :key="index"
+                @click="showillustratedHandbookDetail(item[5])"
+              >
+                <div class="ihi_head">
+                  <div class="ihi_head_title">{{ item[2] }}</div>
+                  <div class="ihi_head_tip">
+                    <div>
+                      {{ item[6] || 0 }}
+                      / {{ item[1]?.length || 0 }}
+                    </div>
+                    <img src="@/assets/images/my/img7.png" alt="" />
                   </div>
-                  <img src="@/assets/images/my/img7.png" alt="" />
+                </div>
+                <div class="ihi_card">
+                  <div class="ihi_card_list">
+                    <div
+                      class="ihi_card_item"
+                      v-for="(cItem, cIndex) in item[5]"
+                    >
+                      <img
+                        :src="cItem.image"
+                        alt=""
+                        :style="
+                          item[5][cIndex].collected
+                            ? ''
+                            : 'filter: grayscale(100%)'
+                        "
+                      />
+                    </div>
+                    <div v-if="item[5]?.length > 4" class="ihi_card_more">
+                      More
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="ihi_card">
-                <div class="ihi_card_list">
+            </div>
+            <div
+              class="illustrated_handbook_detail"
+              v-if="showillustratedDetailVisible"
+            >
+              <div class="back" @click="showillustratedDetailVisible = false">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    d="M13.1633 15.5867C13.3394 15.7628 13.4384 16.0017 13.4384 16.2508C13.4384 16.4999 13.3394 16.7387 13.1633 16.9148C12.9872 17.091 12.7483 17.2899 12.4992 17.1899C12.2502 17.1899 12.0113 17.091 11.8352 16.9148L5.58519 10.6648C5.49779 10.5777 5.42844 10.4743 5.38112 10.3603C5.33381 10.2463 5.30945 10.1242 5.30945 10.0008C5.30945 9.87739 5.33381 9.75522 5.38112 9.64126C5.42844 9.52731 5.49779 9.42381 5.58519 9.33672L11.8352 3.08672C12.0113 2.9106 12.2502 2.81165 12.4992 2.81165C12.7483 2.81165 12.9872 2.9106 13.1633 3.08672C13.3394 3.26284 13.4384 3.50171 13.4384 3.75078C13.4384 3.99985 13.3394 4.23872 13.1633 4.41484L7.57816 10L13.1633 15.5867Z"
+                    fill="white"
+                    fill-opacity="0.8"
+                    style="fill: white; fill-opacity: 0.8"
+                  />
+                </svg>
+                {{ t("back") }}
+              </div>
+              <div class="detail_container_content">
+                <div
+                  class="container_content_item"
+                  v-for="(item, index) in detailNftList"
+                  :key="index"
+                  @mouseenter="checkIndex = index"
+                  @mouseleave="checkIndex = -1"
+                  :class="item.collected ? 'active' : ''"
+                >
+                  <div class="cci_img">
+                    <img
+                      :src="item.image || ''"
+                      alt=""
+                      :style="item.collected ? '' : 'filter: grayscale(100%)'"
+                    />
+                    <div>{{ item.id }}</div>
+                  </div>
                   <div
-                    class="ihi_card_item"
-                    v-for="(items, index) in illustratedimages(item[1])"
+                    class="cci_btn"
+                    v-if="checkIndex === index && !item.collected"
+                    @click="showDetailTransactionVisible(item)"
                   >
-                    <img :src="items" alt="" />
+                    Collect Now
+                  </div>
+                  <div class="cci_price" v-else>
+                    <div>{{ item.price || "-" }} USDT</div>
+                    <div>{{ item.holdAmount }} / {{ item.needAmount }}</div>
                   </div>
                 </div>
               </div>
@@ -977,7 +1227,13 @@ const illustratedIds = (tokenIds: any) => {
                 <img
                   src="@/assets/images/nft/img7.png"
                   alt=""
-                  @click="transactionAmount += 1"
+                  @click="
+                    () => {
+                      if (transactionAmount >= Number(maxTransactionAmount))
+                        return;
+                      transactionAmount += 1;
+                    }
+                  "
                 />
               </div>
               <div class="tcst_head_btn">
@@ -987,6 +1243,116 @@ const illustratedIds = (tokenIds: any) => {
                   :loading="sellLoading"
                   class="tcst_head_btn1"
                   >Make Offer</el-button
+                >
+              </div>
+            </div>
+            <div class="tcst_detail">
+              <div class="tcst_detail_head">
+                <div>Detail</div>
+                <img src="@/assets/images/nft/img8.png" alt="" />
+              </div>
+              <div class="tcst_detail_item">
+                <div>Token ID</div>
+                <div>{{ detailData[0] }}</div>
+              </div>
+              <div class="tcst_detail_item">
+                <div>Token Standard</div>
+                <div>BEP-1155</div>
+              </div>
+              <div class="tcst_detail_item">
+                <div>Royalty</div>
+                <div>10%</div>
+              </div>
+              <div class="tcst_detail_item">
+                <div>Rarity</div>
+                <div>{{ detailData[2] }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="detailTransactionVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+      @click="detailTransactionVisible = false"
+    >
+      <div class="transaction_content" @click.stop="" v-loading="detailLoading">
+        <div class="transaction_content_head">
+          <div class="tch_name">{{ detailData[1] }}</div>
+          <div class="tch_imgs">
+            <img
+              src="@/assets/images/nft/img3.png"
+              alt=""
+              @click="getNftDetail(detailData[0])"
+            />
+            <!-- <img src="@/assets/images/nft/img4.png" alt="" /> -->
+            <img
+              src="@/assets/images/nft/img5.png"
+              alt=""
+              @click="detailTransactionVisible = false"
+            />
+          </div>
+        </div>
+        <div class="transaction_content_section">
+          <div class="tcs_img">
+            <img :src="detailData[4]" alt="" />
+          </div>
+          <div class="tcs_transaction">
+            <div class="tcst_head">
+              <div class="tcst_head_title">best Price</div>
+              <div class="tcst_head_price">
+                {{ detailData[5] || "-" }} <span>USDT</span>
+              </div>
+              <div class="tcst_head_amount_title">Price</div>
+              <div class="tcst_head_input_price">
+                <input
+                  type="number"
+                  placeholder="Set Price"
+                  v-model="transactionPrice"
+                />
+              </div>
+              <div class="tcst_head_amount_title">Amount</div>
+              <div class="tcst_head_input_amount">
+                <img
+                  src="@/assets/images/nft/img6.png"
+                  alt=""
+                  @click="
+                    () => {
+                      if (transactionAmount <= 1) return;
+                      transactionAmount -= 1;
+                    }
+                  "
+                />
+                <input
+                  type="number"
+                  placeholder="Set Amount"
+                  v-model="transactionAmount"
+                />
+                <img
+                  src="@/assets/images/nft/img7.png"
+                  alt=""
+                  @click="transactionAmount += 1"
+                />
+              </div>
+              <div class="tcst_head_btn">
+                <el-button
+                  type="primary"
+                  @click="buyNft"
+                  :loading="buyLoading"
+                  class="tcst_head_btn1"
+                  >Buy</el-button
                 >
               </div>
             </div>
@@ -1085,7 +1451,7 @@ const illustratedIds = (tokenIds: any) => {
       gap: 40px;
       .container_content_nav {
         width: 273px;
-        height: 100%;
+        height: 696px;
         display: flex;
         flex-direction: column;
         .ccn_head {
@@ -1184,7 +1550,7 @@ const illustratedIds = (tokenIds: any) => {
       }
       .container_content_list {
         flex: 1;
-        height: 100%;
+        height: 696px;
         overflow-y: auto;
         .ccl_container_head {
           width: 100%;
@@ -1449,11 +1815,13 @@ const illustratedIds = (tokenIds: any) => {
           }
         }
         .illustrated_handbook {
+          height: 696px;
           flex: 1;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           gap: 18px;
+          position: relative;
           .illustrated_handbook_head {
             img {
               width: 427px;
@@ -1518,6 +1886,7 @@ const illustratedIds = (tokenIds: any) => {
               width: 100%;
               height: 186px;
               overflow: hidden;
+              position: relative;
               .ihi_card_list {
                 display: flex;
                 flex-wrap: nowrap;
@@ -1533,6 +1902,127 @@ const illustratedIds = (tokenIds: any) => {
                     border-radius: 10px;
                   }
                 }
+                .ihi_card_more {
+                  min-width: 171px;
+                  max-width: 171px;
+                  height: 186px;
+                  border-radius: 10px;
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  background-color: rgba(0, 0, 0, 0.64);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #fff;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 500;
+                  line-height: normal;
+                }
+              }
+            }
+          }
+          .illustrated_handbook_detail {
+            width: 100%;
+            height: 100px;
+            background-color: rgba(0, 0, 0, 1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            .back {
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              color: rgba(255, 255, 255, 0.8);
+              text-align: center;
+              font-family: Rubik;
+              font-size: 16px;
+              font-style: normal;
+              font-weight: 700;
+              line-height: 20px; /* 125% */
+              margin-bottom: 16px;
+            }
+            .detail_container_content {
+              width: 100%;
+              display: flex;
+              flex-wrap: wrap;
+              gap: 18px 24px;
+              .container_content_item {
+                width: 222px;
+                background-color: rgba(20, 20, 20, 1);
+                border: 1px solid rgba(41, 41, 41, 1);
+                border-radius: 8px;
+                cursor: pointer;
+                .cci_img {
+                  width: 206px;
+                  height: 206px;
+                  position: relative;
+                  margin: 8px;
+                  img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 8px;
+                  }
+                  div {
+                    width: 43px;
+                    height: 24px;
+                    border-radius: 2px;
+                    background: #1e1e1e;
+                    color: #fff;
+                    /* Text sm/Medium */
+                    font-family: Inter;
+                    font-size: 14px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 20px; /* 142.857% */
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: absolute;
+                    right: 12px;
+                    bottom: 12px;
+                  }
+                }
+                .cci_btn {
+                  width: calc(100% - 16px);
+                  height: 32px;
+                  margin: 18px 8px 11px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  border-radius: 9px;
+                  background: #d339c4;
+                  color: #fff;
+                  font-family: Roboto;
+                  font-size: 14px;
+                  font-style: normal;
+                  font-weight: 500;
+                  line-height: normal;
+                  cursor: pointer;
+                }
+                .cci_price {
+                  padding: 16px 8px;
+                  color: #fff;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 500;
+                  line-height: normal;
+                  display: flex;
+                  flex-wrap: wrap;
+                  align-items: center;
+                  justify-content: space-between;
+                }
+              }
+              .active {
+                border: 1px solid #c166b8;
+                background: rgba(211, 57, 196, 0.11);
+                box-shadow: 0 1px 6px 0 rgba(255, 120, 219, 0.25) inset,
+                  0 0 10px 0 rgba(211, 57, 196, 0.25) inset;
+                backdrop-filter: blur(7.498020648956299px);
               }
             }
           }

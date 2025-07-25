@@ -383,14 +383,14 @@ const toggleSelection = (item: any) => {
         >
           {{ t("nav.ai") }}
         </router-link>
-        <router-link
+        <!-- <router-link
           to="/collection"
           class="navLink"
           v-if="windowWidth > 824"
           :class="{ active: isActive('/collection') }"
         >
           {{ t("nav.collection") }}
-        </router-link>
+        </router-link> -->
 
         <div class="LAUNCHBtn" @click="login" v-if="!useWalletStore().isWallet">
           {{ t("nav.connect") }}
@@ -468,9 +468,9 @@ const toggleSelection = (item: any) => {
         <div @click="TO('/shop')" class="text">{{ t("nav.shop") }}</div>
         <div @click="TO('/nft')" class="text">{{ t("nav.nft") }}</div>
         <div @click="TO('/ai')" class="text">{{ t("nav.ai") }}</div>
-        <div @click="TO('/collection')" class="text">
+        <!-- <div @click="TO('/collection')" class="text">
           {{ t("nav.collection") }}
-        </div>
+        </div> -->
 
         <div class="iconLink">
           <div class="iconLinkItem">

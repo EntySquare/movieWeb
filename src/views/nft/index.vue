@@ -398,11 +398,11 @@ const buyNft = async () => {
   } catch (error: any) {
     console.log("error", error);
 
-    // ElMessage({
-    //   showClose: true,
-    //   message: error.reason || "",
-    //   type: "error",
-    // });
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
   } finally {
     buyLoading.value = false;
   }

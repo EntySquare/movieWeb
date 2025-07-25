@@ -278,11 +278,11 @@
             Stake
             {{
               voteDifferenceType === "red"
-                ? detailData.votes0 - detailData.votes1 > 0
-                  ? detailData.votes0 - detailData.votes1
+                ? Number(detailData.votes0) - Number(detailData.votes1) > 0
+                  ? Number(detailData.votes0) - Number(detailData.votes1)
                   : 0
-                : detailData.votes1 - detailData.votes0 > 0
-                ? detailData.votes1 - detailData.votes0
+                : Number(detailData.votes1) - Number(detailData.votes0) > 0
+                ? Number(detailData.votes1) - Number(detailData.votes0)
                 : 0
             }}
             votes for enhanced yield
@@ -580,6 +580,73 @@
         >
       </div>
     </div>
+    <!-- 投票结果 -->
+    <div
+      v-if="voteResultVisible"
+      style="
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div class="vote_result_content">
+        <img src="@/assets/images/ai/img19.png" alt="" />
+        <div class="vrc_title">VicTORY</div>
+        <div
+          class="vrc_title_name"
+          v-if="
+            Number(detailData.votes0Proportion) ===
+            Number(detailData.votes0Proportion)
+          "
+        >
+          Draw
+        </div>
+        <div class="vrc_title_name" v-else>
+          {{
+            Number(detailData.votes0Proportion) >
+            Number(detailData.votes0Proportion)
+              ? detailData.character0
+              : detailData.character1
+          }}
+        </div>
+        <div class="vrc_statistics">
+          <div class="vrc_statistics_red">
+            <div class="vrcsr_amount">{{ Number(detailData.votes0) || 0 }}</div>
+            <div
+              class="vrcsr_statistics"
+              :style="`height:${
+                (Number(detailData.votes0) /
+                  (Number(detailData.votes0) + Number(detailData.votes1) ||
+                    1)) *
+                151
+              }px`"
+            ></div>
+            <div class="vrcsr_footer">{{ detailData.character0 }}</div>
+          </div>
+          <div class="vrc_statistics_blue">
+            <div class="vrcsr_amount">{{ Number(detailData.votes1) || 0 }}</div>
+            <div
+              class="vrcsr_statistics"
+              :style="`height:${
+                (Number(detailData.votes1) /
+                  (Number(detailData.votes0) + Number(detailData.votes1) ||
+                    1)) *
+                151
+              }px`"
+            ></div>
+            <div class="vrcsr_footer">{{ detailData.character1 }}</div>
+          </div>
+        </div>
+        <div class="vrc_close" @click="voteResultVisible = false">CLose</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -611,6 +678,7 @@ const referralContract = useReferralContract();
 const movieVoteFactoryContract = useMovieVoteFactoryContract();
 const pair = route.query.pair || "";
 const voteDifferenceVisible = ref(false);
+const voteResultVisible = ref(false);
 const voteVisible = ref(false);
 const shareVisible = ref(false);
 const bindingVisible = ref(false);
@@ -775,7 +843,9 @@ const getDetail = async () => {
       Number(votes0) === Number(votes1)
         ? 50
         : 100 - detailData.value.votes0Proportion;
-
+    if (Number(detailData.value.countdown) === 0) {
+      voteResultVisible.value = true;
+    }
     setTimeout(async () => {
       await getDetail();
     }, 3000);
@@ -1856,6 +1926,157 @@ const copyTextToClipboard = (text) => {
         cursor: pointer;
         margin-top: 32px;
       }
+    }
+  }
+  .vote_result_content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    border: 1px solid #c166b8;
+    background: #1a0014;
+    box-shadow: 0px 1px 6px 0px rgba(255, 120, 219, 0.54) inset,
+      0px 0px 40px 0px rgba(211, 57, 196, 0.28) inset;
+    padding: 40px;
+    position: relative;
+    img {
+      width: 240px;
+      min-height: 240px;
+      max-height: 240px;
+      position: absolute;
+      top: -184px;
+      left: 84px;
+    }
+    .vrc_title {
+      min-width: 329px;
+      max-width: 329px;
+      color: #fff;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 48px;
+      font-style: normal;
+      font-weight: 900;
+      line-height: 150%; /* 72px */
+      text-transform: uppercase;
+    }
+    .vrc_title_name {
+      color: #fff;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 150%; /* 36px */
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .vrc_statistics {
+      width: 329px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+      .vrc_statistics_red {
+        width: calc(100% / 3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        .vrcsr_amount {
+          color: #fff;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: 100%; /* 14px */
+          text-transform: uppercase;
+          margin-bottom: 12px;
+        }
+        .vrcsr_statistics {
+          width: 34px;
+          height: 151px;
+          gap: 12px;
+          flex-shrink: 0;
+          background: #ff3503;
+          box-shadow: 0 0 11.293px 0 #d33939;
+        }
+        .vrcsr_footer {
+          width: 100%;
+          height: 30px;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          color: #ff3503;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 150%; /* 21px */
+          text-transform: uppercase;
+          border-top: 1px solid #3f1e16;
+        }
+      }
+      .vrc_statistics_blue {
+        width: calc(100% / 3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        .vrcsr_amount {
+          color: #fff;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: 100%; /* 14px */
+          text-transform: uppercase;
+          margin-bottom: 12px;
+        }
+        .vrcsr_statistics {
+          width: 34px;
+          height: 151px;
+          gap: 12px;
+          flex-shrink: 0;
+          background: #2a2ef1;
+          box-shadow: 0 0 11.293px 0 #2a2ef1;
+        }
+        .vrcsr_footer {
+          width: 100%;
+          height: 30px;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          color: #2a2ef1;
+          text-align: center;
+          font-family: Montserrat;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: 150%; /* 21px */
+          text-transform: uppercase;
+          border-top: 1px solid #3f1e16;
+        }
+      }
+    }
+    .vrc_close {
+      display: flex;
+      padding: 8px 14px 8px 16px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      background: #fff;
+      color: #d33939;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+      text-transform: uppercase;
+      cursor: pointer;
     }
   }
   .share_content {

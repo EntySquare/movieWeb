@@ -8,7 +8,7 @@ import layout from "@/views/layout/index.vue";
 let router = createRouter({
   // 设置路由模式
   history: createWebHistory(),
-  
+
   // 设置路由对象
   routes: [
     {
@@ -68,10 +68,13 @@ let router = createRouter({
           path: "/my/Activities",
           component: () => import("@/views/my/Activities.vue"),
         },
-       
+        // {
+        //   path: "/collection",
+        //   component: () => import("@/views/collection/index.vue"),
+        // },
         {
-          path: "/collection",
-          component: () => import("@/views/collection/index.vue"),
+          path: "/casting",
+          component: () => import("@/casting.vue"),
         },
       ],
     },
