@@ -704,6 +704,7 @@ const exchangePut = async () => {
   }
   try {
     exchangeLoading.value = true;
+    await approveNFTMarketplace();
     await movieNFTContract.redeem(
       illustratedList.value[illustratedIndex.value][7]
     );

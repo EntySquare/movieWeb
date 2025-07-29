@@ -603,7 +603,7 @@
           class="vrc_title_name"
           v-if="
             Number(detailData.votes0Proportion) ===
-            Number(detailData.votes0Proportion)
+            Number(detailData.votes1Proportion)
           "
         >
           Draw
@@ -611,7 +611,7 @@
         <div class="vrc_title_name" v-else>
           {{
             Number(detailData.votes0Proportion) >
-            Number(detailData.votes0Proportion)
+            Number(detailData.votes1Proportion)
               ? detailData.character0
               : detailData.character1
           }}
