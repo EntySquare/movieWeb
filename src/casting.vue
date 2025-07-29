@@ -70,7 +70,6 @@ const linkWallet = async () => {
       const accounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
-      console.log("accounts[0]", accounts[0]);
 
       localStorage.setItem("wallet_address", accounts[0]);
       walletAddress.value = accounts[0] || "";

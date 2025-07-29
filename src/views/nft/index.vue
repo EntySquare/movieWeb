@@ -1,6 +1,13 @@
 <template>
   <div class="home_view">
     <div class="container" v-loading="loading">
+      <div style="width: 100%; border-bottom: 1px solid #292929">
+        <img
+          src="@/assets/images/nft/img9.png"
+          alt=""
+          class="container_head_img"
+        />
+      </div>
       <div class="container_head">
         <div class="container_head_search">
           <el-input
@@ -542,6 +549,11 @@ const approveNFTMarketplace = async () => {
   .container {
     height: 100%;
     padding: 0px 80px;
+    .container_head_img {
+      width: 214px;
+      height: auto;
+      padding: 48px 0 16px;
+    }
     .container_head {
       width: 100%;
       display: flex;

@@ -36,6 +36,7 @@ const transactionVisible = ref(false);
 const sellLoading = ref(false);
 const buyLoading = ref(false);
 const cancelLoading = ref(false);
+const exchangeLoading = ref(false);
 const loading = ref(false);
 const haveMore = ref(false);
 const showillustratedDetailVisible = ref(false);
@@ -47,6 +48,9 @@ const myBalanceAmount = ref("0");
 const defaultIllustratedId = ref(1);
 const illustratedList = ref([] as any);
 const detailNftList = ref([] as any);
+const collectRewards = ref("");
+const illustratedIndex = ref(-1);
+const canCollectRewards = ref(false);
 
 watch(
   () => walletStore.walletAddress,
@@ -77,14 +81,14 @@ onMounted(async () => {
   defaultNftId.value = 1;
   await getNftList();
 });
-
+// 获取我的余额
 const getMyBalance = async (address: any) => {
   try {
     const balance = await usdtTokenContract.getBalanceOf(address);
     myBalanceAmount.value = formatBalance18(balance) || "0";
   } catch (error) {}
 };
-
+// 复制文案
 const copyTextToClipboard = (text: any) => {
   const textarea = document.createElement("textarea");
   textarea.value = text;
@@ -112,7 +116,7 @@ const copyTextToClipboard = (text: any) => {
 
   document.body.removeChild(textarea);
 };
-
+// 获取所有NFT列表
 const getNftList = async () => {
   loading.value = true;
   try {
@@ -166,6 +170,7 @@ const getNftList = async () => {
     loading.value = false;
   }
 };
+// 获取挂单列表
 const getMyMarketNftList = async () => {
   loading.value = true;
   try {
@@ -197,6 +202,7 @@ const getMyMarketNftList = async () => {
           }
         })
       );
+
       myMarketNftList.value.push(...list);
       if (res.length < limit.value) {
         haveMore.value = false;
@@ -254,7 +260,6 @@ const approveUsdt = async () => {
     throw error;
   }
 };
-
 //查询NFTMarketplace的授权
 const approveNFTMarketplace = async () => {
   try {
@@ -276,6 +281,7 @@ const approveNFTMarketplace = async () => {
     throw error;
   }
 };
+// 购买NFT
 const buyNft = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -317,25 +323,29 @@ const buyNft = async () => {
         ).toFixed(2)
       )
     );
+    detailTransactionVisible.value = false;
     transactionPrice.value = "";
     ElMessage({
       showClose: true,
       message: "Buy Success",
       type: "success",
     });
-    await getNftDetail(detailData.value[0]);
+    defaultIllustratedId.value = 1;
+    illustratedList.value = [];
+    await getIllustratedList();
+    await showillustratedHandbookDetail(illustratedIndex.value);
   } catch (error: any) {
     console.log("error", error);
-
-    // ElMessage({
-    //   showClose: true,
-    //   message: error.reason || "",
-    //   type: "error",
-    // });
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
   } finally {
     buyLoading.value = false;
   }
 };
+// 售卖NFT
 const sellNft = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -392,6 +402,7 @@ const sellNft = async () => {
     sellLoading.value = false;
   }
 };
+// 取消挂单
 const cancelOrder = async (item: any) => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -427,7 +438,7 @@ const cancelOrder = async (item: any) => {
     cancelLoading.value = false;
   }
 };
-
+// 获取购买/售卖NFT的弹窗数据
 const getNftDetail = async (tokenId: any) => {
   try {
     detailLoading.value = true;
@@ -454,7 +465,7 @@ const getNftDetail = async (tokenId: any) => {
     detailLoading.value = false;
   }
 };
-
+// 呼出售卖NFT弹窗
 const showTransactionVisible = async (item: any) => {
   transactionPrice.value = "";
   transactionAmount.value = Number(item[6]);
@@ -462,7 +473,7 @@ const showTransactionVisible = async (item: any) => {
   transactionVisible.value = true;
   await getNftDetail(item[0]);
 };
-
+// 切换个人中心菜单
 const changeNavIndex = async (index: any) => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -493,7 +504,7 @@ const changeNavIndex = async (index: any) => {
     await getIllustratedList();
   }
 };
-
+// 获取NFT图片
 const getNFTImage = async (jsonUrl: any) => {
   try {
     const res = await fetch(jsonUrl);
@@ -505,7 +516,7 @@ const getNFTImage = async (jsonUrl: any) => {
     return null;
   }
 };
-
+// 刷新NFT持有列表
 const reloadList = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -520,6 +531,7 @@ const reloadList = async () => {
   defaultNftId.value = 1;
   await getNftList();
 };
+// 刷新NFT挂单列表
 const reloadOrderList = async () => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -534,6 +546,7 @@ const reloadOrderList = async () => {
   defaultNftId.value = 1;
   await getMyMarketNftList();
 };
+// 切换NFT持有展示样式
 const changeType = async (type: any) => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -549,6 +562,7 @@ const changeType = async (type: any) => {
   defaultNftId.value = 1;
   await getNftList();
 };
+// 切换NFT挂单展示样式
 const changeOrderType = async (type: any) => {
   if (walletStore.walletAddress === "") {
     ElMessage({
@@ -564,6 +578,7 @@ const changeOrderType = async (type: any) => {
   defaultNftId.value = 1;
   await getMyMarketNftList();
 };
+// 获取图鉴列表
 const getIllustratedList = async () => {
   try {
     loading.value = true;
@@ -578,7 +593,6 @@ const getIllustratedList = async () => {
           .filter((item: any) => res[1].includes(BigInt(item[0])))
           .map((items: any) => items[4]);
         const idsList = illustratedIds(res[1]);
-
         // amountList 每一个图鉴每一个tokenId 持有的数量
         const amountList = await Promise.all(
           idsList.map(async (item: any, index: any) => {
@@ -623,7 +637,12 @@ const getIllustratedList = async () => {
               : item.holdAmount)
           );
         }, 0);
-        illustratedList.value.push([...res, holdAmountList, total]);
+        illustratedList.value.push([
+          ...res,
+          holdAmountList,
+          total,
+          defaultIllustratedId.value,
+        ]);
       }
       defaultIllustratedId.value += 1;
       await getIllustratedList();
@@ -634,6 +653,7 @@ const getIllustratedList = async () => {
     loading.value = false;
   }
 };
+// 获取图鉴所需的tokenId列表去重之后的tokenId数组
 const illustratedIds = (tokenIds: any) => {
   if (!tokenIds?.length) return [];
   if (!nftList.value?.length) return [];
@@ -642,9 +662,15 @@ const illustratedIds = (tokenIds: any) => {
     .map((items: any) => items[0]);
   return list;
 };
-const showillustratedHandbookDetail = async (list: any) => {
+// 呼出图鉴详情
+const showillustratedHandbookDetail = async (index: any) => {
+  illustratedIndex.value = index;
+  collectRewards.value = illustratedList.value[index][3] || "";
+  canCollectRewards.value =
+    Number(illustratedList.value[index][6]) >=
+    Number(illustratedList.value[index][1]?.length);
   detailNftList.value = await Promise.all(
-    list.map(async (item: any, index: any) => {
+    illustratedList.value[index][5].map(async (item: any, index: any) => {
       let price = null;
       try {
         price = await nftMarketplaceContract.getLowestPrice(Number(item.id));
@@ -659,11 +685,41 @@ const showillustratedHandbookDetail = async (list: any) => {
   );
   showillustratedDetailVisible.value = true;
 };
+// 从图鉴详情呼出购买弹窗
 const showDetailTransactionVisible = async (item: any) => {
   detailTransactionVisible.value = true;
   transactionPrice.value = "";
   transactionAmount.value = 1;
   await getNftDetail(Number(item.id));
+};
+// 在图鉴详情兑换奖品
+const exchangePut = async () => {
+  if (!canCollectRewards.value) {
+    ElMessage({
+      showClose: true,
+      message: "Please collect NFTs first",
+      type: "error",
+    });
+    return;
+  }
+  try {
+    exchangeLoading.value = true;
+    await movieNFTContract.redeem(
+      illustratedList.value[illustratedIndex.value][7]
+    );
+    ElMessage({
+      showClose: true,
+      message: "Submitted for review",
+      type: "success",
+    });
+    defaultIllustratedId.value = 1;
+    illustratedList.value = [];
+    await getIllustratedList();
+    await showillustratedHandbookDetail(illustratedIndex.value);
+  } catch (error) {
+  } finally {
+    exchangeLoading.value = false;
+  }
 };
 </script>
 <template>
@@ -1065,7 +1121,7 @@ const showDetailTransactionVisible = async (item: any) => {
                 class="illustrated_handbook_item"
                 v-for="(item, index) in illustratedList"
                 :key="index"
-                @click="showillustratedHandbookDetail(item[5])"
+                @click="showillustratedHandbookDetail(index)"
               >
                 <div class="ihi_head">
                   <div class="ihi_head_title">{{ item[2] }}</div>
@@ -1151,6 +1207,21 @@ const showDetailTransactionVisible = async (item: any) => {
                   </div>
                 </div>
               </div>
+              <div class="ihd_rewards">
+                Collect Rewards: {{ collectRewards }}
+              </div>
+              <el-button
+                type="primary"
+                class="ihd_rewards_btn"
+                :loading="exchangeLoading"
+                :style="
+                  canCollectRewards
+                    ? 'background: #d339c4;'
+                    : 'background:#141414;'
+                "
+                @click="exchangePut"
+                >Exchange Rewards</el-button
+              >
             </div>
           </div>
         </div>
@@ -1951,14 +2022,15 @@ const showDetailTransactionVisible = async (item: any) => {
               flex-wrap: wrap;
               gap: 18px 24px;
               .container_content_item {
-                width: 222px;
+                width: 220px;
                 background-color: rgba(20, 20, 20, 1);
                 border: 1px solid rgba(41, 41, 41, 1);
                 border-radius: 8px;
                 cursor: pointer;
+                box-sizing: border-box;
                 .cci_img {
-                  width: 206px;
-                  height: 206px;
+                  width: 204px;
+                  height: 204px;
                   position: relative;
                   margin: 8px;
                   img {
@@ -2024,6 +2096,32 @@ const showDetailTransactionVisible = async (item: any) => {
                   0 0 10px 0 rgba(211, 57, 196, 0.25) inset;
                 backdrop-filter: blur(7.498020648956299px);
               }
+            }
+            .ihd_rewards {
+              padding: 40px 0;
+              color: #fff;
+              font-family: Roboto;
+              font-size: 16px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
+            }
+            .ihd_rewards_btn {
+              width: max-content;
+              margin: auto;
+              padding: 20px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border-radius: 32px;
+              color: #fff;
+              font-family: Roboto;
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
+              cursor: pointer;
+              border: none;
             }
           }
         }
@@ -2265,5 +2363,8 @@ const showDetailTransactionVisible = async (item: any) => {
 
 :deep(.el-loading-spinner .path) {
   stroke: #e621ca;
+}
+:deep(.el-button, .el-button.is-round) {
+  padding: none;
 }
 </style>
