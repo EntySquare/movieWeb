@@ -777,39 +777,41 @@ onMounted(async () => {
       bindingVisible.value = true;
     }
   }
-  await getDetailState();
-  setInterval(async () => {
-    if (Number(detailData.value.countdown) === 0) {
-      for (let i = 1; i < 9999; i++) {
-        detailData.value.countdown = 0;
-        detailData.value.remainingTime = "Ended";
-        clearInterval(i);
+  try {
+    await getDetailState();
+    await getDetail();
+    setInterval(async () => {
+      if (Number(detailData.value.countdown) === 0) {
+        for (let i = 1; i < 9999; i++) {
+          detailData.value.countdown = 0;
+          detailData.value.remainingTime = "Ended";
+          clearInterval(i);
+        }
+        voteResultVisible.value = true;
+        expectVisible.value = false;
+        if (walletStore.walletAddress === "") {
+          detailData.value.userVotes0 = 0;
+          detailData.value.userVotes1 = 0;
+        } else {
+          const movieVotePairContract = useMovieVotePairContract(pair);
+          const userVotes0 = await movieVotePairContract.getVotesMap0(
+            walletStore.walletAddress
+          );
+          const userVotes1 = await movieVotePairContract.getVotesMap1(
+            walletStore.walletAddress
+          );
+          detailData.value.userVotes0 = Number(userVotes0) || 0;
+          detailData.value.userVotes1 = Number(userVotes1) || 0;
+        }
+        return;
       }
-      voteResultVisible.value = true;
-      expectVisible.value = false;
-      if (walletStore.walletAddress === "") {
-        detailData.value.userVotes0 = 0;
-        detailData.value.userVotes1 = 0;
-      } else {
-        const movieVotePairContract = useMovieVotePairContract(pair);
-        const userVotes0 = await movieVotePairContract.getVotesMap0(
-          walletStore.walletAddress
-        );
-        const userVotes1 = await movieVotePairContract.getVotesMap1(
-          walletStore.walletAddress
-        );
-        detailData.value.userVotes0 = Number(userVotes0) || 0;
-        detailData.value.userVotes1 = Number(userVotes1) || 0;
-      }
-      return;
-    }
-    voteResultVisible.value = false;
-    detailData.value.countdown -= 1;
-    detailData.value.remainingTime = formatTimestampToTimeString(
-      detailData.value.countdown
-    );
-  }, 1000);
-  await getDetail();
+      voteResultVisible.value = false;
+      detailData.value.countdown -= 1;
+      detailData.value.remainingTime = formatTimestampToTimeString(
+        detailData.value.countdown
+      );
+    }, 1000);
+  } catch (error) {}
 });
 
 const getExpect = async () => {
@@ -921,6 +923,7 @@ const getDetailState = async () => {
       message: error.reason || "",
       type: "error",
     });
+    throw new Error("获取数据错误");
   } finally {
     loading.value = false;
   }
@@ -965,12 +968,12 @@ const getDetail = async () => {
     }, 3000);
   } catch (error) {
     console.log("error", error);
-
     ElMessage({
       showClose: true,
       message: error.reason || "",
       type: "error",
     });
+    throw new Error("获取数据错误");
   } finally {
     loading.value = false;
   }
