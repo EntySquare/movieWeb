@@ -279,11 +279,11 @@
             {{
               voteDifferenceType === "red"
                 ? Number(detailData.votes0) - Number(detailData.votes1) > 0
-                  ? Number(detailData.votes0) - Number(detailData.votes1)
-                  : 0
+                  ? 0
+                  : Number(detailData.votes1) - Number(detailData.votes0)
                 : Number(detailData.votes1) - Number(detailData.votes0) > 0
-                ? Number(detailData.votes1) - Number(detailData.votes0)
-                : 0
+                ? 0
+                : Number(detailData.votes0) - Number(detailData.votes1)
             }}
             votes for enhanced yield
           </div>
@@ -291,7 +291,7 @@
             Keep voting to maintain the lead! Get 1 free vote daily, and earn
             bonus votes by inviting friends.
           </div>
-          <div @click="showVoteVisible">Vote More</div>
+          <div @click="showVoteVisible">VOTE MORE</div>
         </div>
         <div class="vote_dvc_blue">
           <img :src="detailData.character1Image || ''" alt="" />
@@ -595,8 +595,9 @@
         align-items: center;
         justify-content: center;
       "
+      @click="voteResultVisible = false"
     >
-      <div class="vote_result_content">
+      <div class="vote_result_content" @click.stop="">
         <img src="@/assets/images/ai/img19.png" alt="" />
         <div class="vrc_title">VicTORY</div>
         <div
@@ -644,7 +645,25 @@
             <div class="vrcsr_footer">{{ detailData.character1 }}</div>
           </div>
         </div>
-        <div class="vrc_close" @click="voteResultVisible = false">CLose</div>
+        <div class="vrc_div">参与红方票数：{{ detailData.userVotes0 }}</div>
+        <div class="vrc_div">参与蓝方票数：{{ detailData.userVotes1 }}</div>
+        <div class="vrc_div">预期收益：{{ detailData.expectAmount }} USDT</div>
+        <el-button
+          class="vrc_close"
+          :loading="expectLoading"
+          @click="getExpect"
+          v-if="!expectVisible"
+        >
+          Expected withdrawal
+        </el-button>
+        <el-button
+          class="vrc_close"
+          :loading="expectLoading"
+          @click="withdrawal"
+          v-else
+        >
+          Withdrawal
+        </el-button>
       </div>
     </div>
   </div>
@@ -680,11 +699,13 @@ const pair = route.query.pair || "";
 const voteDifferenceVisible = ref(false);
 const voteResultVisible = ref(false);
 const voteVisible = ref(false);
+const expectVisible = ref(false);
 const shareVisible = ref(false);
 const bindingVisible = ref(false);
 const voteDifferenceType = ref("");
 const voteTicketLoading = ref(false);
 const bindLoading = ref(false);
+const expectLoading = ref(false);
 const detailData = ref({
   contractAddress: "",
   character0: "",
@@ -693,11 +714,14 @@ const detailData = ref({
   character0HeadImage: "",
   character1HeadImage: "",
   votes0: "",
+  userVotes0: 0,
   votes0Proportion: 50,
   character1: "",
   votes1: "",
+  userVotes1: 0,
   votes1Proportion: 50,
   remainingTime: "",
+  expectAmount: 0,
   countdown: 0,
 });
 const voteAmount = ref("0");
@@ -754,22 +778,100 @@ onMounted(async () => {
     }
   }
   await getDetailState();
-  setInterval(() => {
+  setInterval(async () => {
     if (Number(detailData.value.countdown) === 0) {
       for (let i = 1; i < 9999; i++) {
         detailData.value.countdown = 0;
         detailData.value.remainingTime = "Ended";
         clearInterval(i);
       }
+      voteResultVisible.value = true;
+      expectVisible.value = false;
+      if (walletStore.walletAddress === "") {
+        detailData.value.userVotes0 = 0;
+        detailData.value.userVotes1 = 0;
+      } else {
+        const movieVotePairContract = useMovieVotePairContract(pair);
+        const userVotes0 = await movieVotePairContract.getVotesMap0(
+          walletStore.walletAddress
+        );
+        const userVotes1 = await movieVotePairContract.getVotesMap1(
+          walletStore.walletAddress
+        );
+        detailData.value.userVotes0 = Number(userVotes0) || 0;
+        detailData.value.userVotes1 = Number(userVotes1) || 0;
+      }
       return;
     }
+    voteResultVisible.value = false;
     detailData.value.countdown -= 1;
-    detailData.value.remainingTime = formatBlockToTimeString(
+    detailData.value.remainingTime = formatTimestampToTimeString(
       detailData.value.countdown
     );
   }, 1000);
   await getDetail();
 });
+
+const getExpect = async () => {
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "请先连接钱包",
+      duration: 1000,
+    });
+    return;
+  }
+  try {
+    expectLoading.value = true;
+    const movieVotePairContract = useMovieVotePairContract(pair);
+    const expectList = await movieVotePairContract.getExpectClaimReward(
+      walletStore.walletAddress
+    );
+    detailData.value.expectAmount = Number(expectList[1]) || 0;
+  } catch (error) {
+    detailData.value.expectAmount = 0;
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
+  } finally {
+    expectLoading.value = false;
+  }
+};
+
+const withdrawal = async () => {
+  if (walletStore.walletAddress === "") {
+    ElNotification({
+      showClose: false,
+      customClass: "message-logout",
+      title: "请先连接钱包",
+      duration: 1000,
+    });
+    return;
+  }
+  try {
+    expectLoading.value = true;
+    const movieVotePairContract = useMovieVotePairContract(pair);
+    await movieVotePairContract.claimReward();
+    ElMessage({
+      showClose: true,
+      message: "Withdrawal successful",
+      type: "success",
+    });
+    await getExpect();
+  } catch (error) {
+    detailData.value.expectAmount = 0;
+    ElMessage({
+      showClose: true,
+      message: error.reason || "",
+      type: "error",
+    });
+  } finally {
+    expectLoading.value = false;
+  }
+};
 
 const bindPut = async () => {
   try {
@@ -795,7 +897,7 @@ const bindPut = async () => {
 
 const getDetailState = async () => {
   try {
-    const blockNum = await movieVoteFactoryContract.getBlockCount();
+    const countDown = Math.floor(new Date().getTime() / 1000);
     const movieVotePairContract = useMovieVotePairContract(pair);
     const baseInfo = await movieVotePairContract.getBaseInfo();
     const imageList = await getImage({
@@ -809,10 +911,8 @@ const getDetailState = async () => {
     detailData.value.character1HeadImage = imageList.data?.json?.image_url_3;
     detailData.value.character1 = baseInfo[1];
     detailData.value.countdown =
-      (Number(baseInfo[7]) - Number(blockNum)) * 3 > 0
-        ? (Number(baseInfo[7]) - Number(blockNum)) * 3
-        : 0;
-    detailData.value.remainingTime = formatBlockToTimeString(
+      Number(baseInfo[7]) - countDown > 0 ? Number(baseInfo[7]) - countDown : 0;
+    detailData.value.remainingTime = formatTimestampToTimeString(
       detailData.value.countdown
     );
   } catch (error) {
@@ -833,23 +933,39 @@ const getDetail = async () => {
     const votes1 = await movieVotePairContract.getVotes1();
     const votes0Proportion =
       Number(votes0) / (Number(votes0) + Number(votes1) || 1);
-    detailData.value.votes0 = votes0;
+    detailData.value.votes0 = Number(votes0);
     detailData.value.votes0Proportion =
       Number(votes0) === Number(votes1)
         ? 50
         : (votes0Proportion * 100).toFixed(0);
-    detailData.value.votes1 = votes1;
+    detailData.value.votes1 = Number(votes1);
     detailData.value.votes1Proportion =
       Number(votes0) === Number(votes1)
         ? 50
         : 100 - detailData.value.votes0Proportion;
     if (Number(detailData.value.countdown) === 0) {
       voteResultVisible.value = true;
+      expectVisible.value = false;
+      if (walletStore.walletAddress === "") {
+        detailData.value.userVotes0 = 0;
+        detailData.value.userVotes1 = 0;
+      } else {
+        const userVotes0 = await movieVotePairContract.getVotesMap0(
+          walletStore.walletAddress
+        );
+        const userVotes1 = await movieVotePairContract.getVotesMap1(
+          walletStore.walletAddress
+        );
+        detailData.value.userVotes0 = Number(userVotes0) || 0;
+        detailData.value.userVotes1 = Number(userVotes1) || 0;
+      }
     }
     setTimeout(async () => {
       await getDetail();
     }, 3000);
   } catch (error) {
+    console.log("error", error);
+
     ElMessage({
       showClose: true,
       message: error.reason || "",
@@ -860,7 +976,7 @@ const getDetail = async () => {
   }
 };
 
-const formatBlockToTimeString = (time) => {
+const formatTimestampToTimeString = (time) => {
   const day = Math.floor(time / 60 / 60 / 24);
   const hours = Math.floor((time / 60 / 60) % 24);
   const minute = Math.floor((time / 60) % 60);
@@ -927,7 +1043,7 @@ const showVoteDifference = async (type) => {
       walletStore.walletAddress
     );
     balanceAmount.value = formatBalance18(balance);
-    if (detailData.votes0 === detailData.votes1) {
+    if (Number(detailData.value.votes0) === Number(detailData.value.votes1)) {
       voteVisible.value = true;
     } else {
       voteDifferenceVisible.value = true;
@@ -1561,7 +1677,8 @@ const copyTextToClipboard = (text) => {
       max-width: 220px;
       height: 320px;
       position: relative;
-      right: -30px;
+      right: -40px;
+      transform: rotateY(35deg);
       img {
         width: 100%;
         height: 100%;
@@ -1661,7 +1778,8 @@ const copyTextToClipboard = (text) => {
       max-width: 220px;
       height: 320px;
       position: relative;
-      left: -30px;
+      left: -40px;
+      transform: rotateY(-35deg);
       img {
         width: 100%;
         height: 100%;
@@ -2060,6 +2178,20 @@ const copyTextToClipboard = (text) => {
           border-top: 1px solid #3f1e16;
         }
       }
+    }
+    .vrc_div {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      color: #fff;
+      text-align: center;
+      font-family: Montserrat;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 150%; /* 21px */
+      text-transform: uppercase;
+      padding-bottom: 15px;
     }
     .vrc_close {
       display: flex;

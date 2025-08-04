@@ -41,8 +41,8 @@ export function useMovieVoteFactoryContract() {
     return await readContract.getAllPairs();
   };
 
-  const getBlockCount = async () => {
-    return await readContract.getBlockCount();
+  const getBlockTimestamp = async () => {
+    return await readContract.getBlockTimestamp();
   };
 
   const isActivePair = async (pairAddress: any) => {
@@ -64,9 +64,9 @@ export function useMovieVoteFactoryContract() {
   const createPair = async (
     _character0: any,
     _character1: any,
-    _startBlock: any,
-    _endBlock: any,
-    _claimBlock: any,
+    _startTimestamp: any,
+    _endTimestamp: any,
+    _claimTimestamp: any,
     _referral: any,
     _pool0: any,
     _pool1: any
@@ -75,9 +75,9 @@ export function useMovieVoteFactoryContract() {
     const tx = await contract.createPair(
       _character0,
       _character1,
-      _startBlock,
-      _endBlock,
-      _claimBlock,
+      _startTimestamp,
+      _endTimestamp,
+      _claimTimestamp,
       _referral,
       _pool0,
       _pool1
@@ -91,15 +91,15 @@ export function useMovieVoteFactoryContract() {
     return await tx.wait();
   };
 
-  const setPairClaimBlock = async (_pair: any, _claimBlock: any) => {
+  const setPairClaimTimestamp = async (_pair: any, _claimTimestamp: any) => {
     const contract = await getWriteContract();
-    const tx = await contract.setPairClaimBlock(_pair, _claimBlock);
+    const tx = await contract.setPairClaimTimestamp(_pair, _claimTimestamp);
     return await tx.wait();
   };
 
-  const setPairDoubleBlock = async (_pair: any, _start: any, _end: any) => {
+  const setPairDoubleTimestamp = async (_pair: any, _start: any, _end: any) => {
     const contract = await getWriteContract();
-    const tx = await contract.setPairDoubleBlock(_pair, _start, _end);
+    const tx = await contract.setPairDoubleTimestamp(_pair, _start, _end);
     return await tx.wait();
   };
 
@@ -131,15 +131,15 @@ export function useMovieVoteFactoryContract() {
     allPairs,
     getActivePairs,
     getAllPairs,
-    getBlockCount,
+    getBlockTimestamp,
     isActivePair,
     manager,
     // 写方法
     addPairFreeTickets,
     createPair,
     setAdminBatch,
-    setPairClaimBlock,
-    setPairDoubleBlock,
+    setPairClaimTimestamp,
+    setPairDoubleTimestamp,
     setPairReferralContract,
     transferManager,
     withdrawPairAll,

@@ -149,7 +149,10 @@
         ></div>
       </div>
       <div class="count_down">
-        <div>{{ reversedVoteList[index]?.startBlock || "" }}</div>
+        <div>
+          {{ reversedVoteList[index]?.startTimestamp || "" }} ~
+          {{ reversedVoteList[index]?.endTimestamp || "" }}
+        </div>
         <div>{{ reversedVoteList[index]?.remainingTime || "" }}</div>
       </div>
     </div>
@@ -190,8 +193,6 @@ const getAllPair = async () => {
   try {
     const list = await movieVoteFactoryContract.allPairs();
     pairList.value = [...list] || [];
-    const blockNum = await movieVoteFactoryContract.getBlockCount();
-    const nowTime = new Date().getTime();
     voteList.value = await Promise.all(
       pairList.value.map(async (item) => {
         const movieVotePairContract = useMovieVotePairContract(item);
@@ -221,18 +222,9 @@ const getAllPair = async () => {
             Number(baseInfo[2]) === Number(baseInfo[3])
               ? 50
               : 100 - (votes0Proportion * 100).toFixed(0),
-          remainingTime: formatBlockToTimeString(
-            baseInfo[6],
-            baseInfo[7],
-            blockNum,
-            nowTime
-          ),
-          startBlock: formatBlockToTime(
-            baseInfo[6],
-            baseInfo[7],
-            blockNum,
-            nowTime
-          ),
+          remainingTime: formatTimeToCountdown(baseInfo[6], baseInfo[7]),
+          startTimestamp: formatTimestampToTimeString(baseInfo[6]),
+          endTimestamp: formatTimestampToTimeString(baseInfo[7]),
         };
       })
     );
@@ -252,30 +244,72 @@ const getAllPair = async () => {
 };
 
 const formatTime = (time) => {
-  const minuteTime = time / 1000;
-  const day = Math.floor(minuteTime / 60 / 60 / 24);
-  const hours = Math.floor((minuteTime / 60 / 60) % 24);
-  const minute = Math.floor((minuteTime / 60) % 60);
-  const second = Math.floor(minuteTime % 60);
+  const day = Math.floor(time / 60 / 60 / 24);
+  const hours = Math.floor((time / 60 / 60) % 24);
+  const minute = Math.floor((time / 60) % 60);
+  const second = Math.floor(time % 60);
   return day + "days " + hours + "h " + minute + "min " + second + "sec";
 };
-// 区块格式化成时间字符串
-const formatBlockToTimeString = (startBlock, endBlock, blockNum, nowTime) => {
-  if (Number(startBlock) > Number(blockNum)) {
+// 时间格式化成倒计时
+const formatTimeToCountdown = (startTimestamp, endTimestamp) => {
+  const nowTime = Math.floor(new Date().getTime() / 1000);
+  if (Number(startTimestamp) > Number(nowTime)) {
     return "Not yet started";
   } else {
-    if (Number(endBlock) >= Number(blockNum)) {
-      return formatTime((Number(endBlock) - Number(blockNum)) * 3 * 1000);
+    if (Number(endTimestamp) >= Number(nowTime)) {
+      return formatTime(Number(endTimestamp) - Number(nowTime));
     } else {
       return "Ended";
     }
   }
 };
-const formatBlockToTime = (startBlock, endBlock, blockNum, nowTime) => {
-  const startDifferenceBlockNum = Number(startBlock) - Number(blockNum);
-  const endDifferenceBlockNum = Number(endBlock) - Number(blockNum);
-  const startDate = new Date(nowTime + startDifferenceBlockNum * 3000);
-  const endDate = new Date(nowTime + endDifferenceBlockNum * 3000);
+const formatTimestampToTimeString = (time) => {
+  const timeString = new Date(Number(time) * 1000);
+  const year = timeString.getUTCFullYear();
+  const month =
+    timeString.getUTCMonth() + 1 < 10
+      ? "0" + (timeString.getUTCMonth() + 1)
+      : timeString.getUTCMonth() + 1;
+  const date =
+    timeString.getUTCDate() < 10
+      ? "0" + timeString.getUTCDate()
+      : timeString.getUTCDate();
+  const hours =
+    timeString.getUTCHours() < 10
+      ? "0" + timeString.getUTCHours()
+      : timeString.getUTCHours();
+  const minutes =
+    timeString.getUTCMinutes() < 10
+      ? "0" + timeString.getUTCMinutes()
+      : timeString.getUTCMinutes();
+  const seconds =
+    timeString.getUTCSeconds() < 10
+      ? "0" + timeString.getUTCSeconds()
+      : timeString.getUTCSeconds();
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    date +
+    " " +
+    hours +
+    ":" +
+    minutes +
+    ":" +
+    seconds
+  );
+};
+const formatTimestampToTime = (
+  startTimestamp,
+  endTimestamp,
+  blockNum,
+  nowTime
+) => {
+  const startDifferenceTimestampNum = Number(startTimestamp) - Number(blockNum);
+  const endDifferenceTimestampNum = Number(endTimestamp) - Number(blockNum);
+  const startDate = new Date(nowTime + startDifferenceTimestampNum * 3000);
+  const endDate = new Date(nowTime + endDifferenceTimestampNum * 3000);
   return (
     startDate.getFullYear() +
     "-" +

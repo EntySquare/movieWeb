@@ -27,20 +27,20 @@ export function useMovieVotePairContract(contractAddress: string) {
     return await readContract.character1();
   };
 
-  const getClaimBlock = async () => {
-    return await readContract.claimBlock();
+  const getClaimTimestamp = async () => {
+    return await readContract.claimTimestamp();
   };
 
-  const getDoubleEndBlock = async () => {
-    return await readContract.doubleEndBlock();
+  const getDoubleEndTimestamp = async () => {
+    return await readContract.doubleEndTimestamp();
   };
 
-  const getDoubleStartBlock = async () => {
-    return await readContract.doubleStartBlock();
+  const getDoubleStartTimestamp = async () => {
+    return await readContract.doubleStartTimestamp();
   };
 
-  const getEndBlock = async () => {
-    return await readContract.endBlock();
+  const getEndTimestamp = async () => {
+    return await readContract.endTimestamp();
   };
 
   const getExpectClaimReward = async (user: string) => {
@@ -79,8 +79,8 @@ export function useMovieVotePairContract(contractAddress: string) {
     return await readContract.getBaseInfo();
   };
 
-  const getStartBlock = async () => {
-    return await readContract.startBlock();
+  const getStartTimestamp = async () => {
+    return await readContract.startTimestamp();
   };
 
   const getUsdtContract = async () => {
@@ -132,15 +132,15 @@ export function useMovieVotePairContract(contractAddress: string) {
     return await tx.wait();
   };
 
-  const setClaimBlock = async (claimBlock: number) => {
+  const setClaimTimestamp = async (claimTimestamp: number) => {
     const contract = await getWriteContract();
-    const tx = await contract.setClaimBlock(claimBlock);
+    const tx = await contract.setClaimTimestamp(claimTimestamp);
     return await tx.wait();
   };
 
-  const setDoubleBlock = async (start: number, end: number) => {
+  const setDoubleTimestamp = async (start: number, end: number) => {
     const contract = await getWriteContract();
-    const tx = await contract.setDoubleBlock(start, end);
+    const tx = await contract.setDoubleTimestamp(start, end);
     return await tx.wait();
   };
 
@@ -172,10 +172,10 @@ export function useMovieVotePairContract(contractAddress: string) {
     // 读取方法
     getCharacter0,
     getCharacter1,
-    getClaimBlock,
-    getDoubleEndBlock,
-    getDoubleStartBlock,
-    getEndBlock,
+    getClaimTimestamp,
+    getDoubleEndTimestamp,
+    getDoubleStartTimestamp,
+    getEndTimestamp,
     getExpectClaimReward,
     getFactory,
     getUserFreeTickets,
@@ -184,7 +184,7 @@ export function useMovieVotePairContract(contractAddress: string) {
     hasClaimed,
     isVotingActive,
     getReferralContract,
-    getStartBlock,
+    getStartTimestamp,
     getUsdtContract,
     getUsdtPool0,
     getUsdtPool1,
@@ -199,8 +199,8 @@ export function useMovieVotePairContract(contractAddress: string) {
     // 写入方法
     addFreeTickets,
     claimReward,
-    setClaimBlock,
-    setDoubleBlock,
+    setClaimTimestamp,
+    setDoubleTimestamp,
     setReferralContract: setReferralContract,
     voteWithFreeTicket,
     voteWithUSDT,
