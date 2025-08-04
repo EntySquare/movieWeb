@@ -830,8 +830,10 @@ const getExpect = async () => {
     const expectList = await movieVotePairContract.getExpectClaimReward(
       walletStore.walletAddress
     );
-    detailData.value.expectAmount = Number(expectList[1]) || 0;
+    detailData.value.expectAmount = formatBalance18(Number(expectList[1])) || 0;
+    expectVisible.value = true;
   } catch (error) {
+    expectVisible.value = false;
     detailData.value.expectAmount = 0;
     ElMessage({
       showClose: true,
@@ -862,7 +864,7 @@ const withdrawal = async () => {
       message: "Withdrawal successful",
       type: "success",
     });
-    await getExpect();
+    detailData.value.expectAmount = 0;
   } catch (error) {
     detailData.value.expectAmount = 0;
     ElMessage({
