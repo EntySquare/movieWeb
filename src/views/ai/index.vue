@@ -1,5 +1,8 @@
 <template>
   <div class="ai_container" v-loading="loading">
+    <div class="ai_container_headimg">
+      <img src="@/assets/images/ai/img20.png" alt="" />
+    </div>
     <div
       class="container_head"
       v-for="(item, index) in reversedPairList"
@@ -39,121 +42,46 @@
         <div></div>
       </div>
       <div class="head_content">
-        <div class="red_avatar">
-          <img
-            :src="reversedVoteList[index]?.character0HeadImage || ''"
-            alt=""
-          />
-          <div class="red_avatar_name">
-            <div>RED</div>
-            <div>{{ reversedVoteList[index]?.character0 || "" }}</div>
-          </div>
-        </div>
-        <img
-          src="@/assets/images/ai/img4.png"
-          alt=""
-          class="head_content_img"
-        />
-        <div class="blue_avatar">
-          <div class="blue_avatar_name">
-            <div>BLUE</div>
-            <div>{{ reversedVoteList[index]?.character1 || "" }}</div>
+        <div class="head_content_left">
+          <div class="red_avatar">
+            <img
+              :src="reversedVoteList[index]?.character0HeadImage || ''"
+              alt=""
+            />
+            <div class="red_avatar_name">
+              <div>RED</div>
+              <div>{{ reversedVoteList[index]?.character0 || "" }}</div>
+            </div>
           </div>
           <img
-            :src="reversedVoteList[index]?.character1HeadImage || ''"
+            src="@/assets/images/ai/img21.png"
             alt=""
+            class="head_content_img"
           />
-        </div>
-      </div>
-      <div class="progress_container">
-        <div
-          class="red_line"
-          :style="{
-            width:
-              'calc(' + reversedVoteList[index]?.votes0Proportion + '% + 12px)',
-          }"
-        ></div>
-        <img
-          src="@/assets/images/ai/img6.png"
-          alt=""
-          class="progress_container_topline"
-        />
-        <div
-          class="progress red"
-          :style="{
-            width:
-              'calc(' + reversedVoteList[index]?.votes0Proportion + '% + 10px)',
-            clipPath:
-              'polygon(0 0, 100% 0, calc(100% - 20px) 100%, 100% 100%, 0 100%)',
-          }"
-        >
-          <div
-            class="red_white_line"
-            :style="{
-              clipPath:
-                'polygon(0 0, 100% 0, calc(100% - 15px) 100%, 100% 100%, 0 100%)',
-            }"
-          >
-            <div
-              class="rwl_content"
-              :style="{
-                clipPath:
-                  'polygon(0 0, 100% 0, calc(100% - 13px) 100%, 100% 100%, 0 100%)',
-              }"
-            ></div>
+          <div class="blue_avatar">
+            <div class="blue_avatar_name">
+              <div>BLUE</div>
+              <div>{{ reversedVoteList[index]?.character1 || "" }}</div>
+            </div>
+            <img
+              :src="reversedVoteList[index]?.character1HeadImage || ''"
+              alt=""
+            />
           </div>
         </div>
-        <img
-          src="@/assets/images/ai/img8.png"
-          alt=""
-          class="progress_bar_divider"
-          :style="{
-            left:
-              'calc(' + reversedVoteList[index]?.votes0Proportion + '% - 25px)',
-          }"
-        />
-        <div
-          class="progress blue"
-          :style="{
-            width:
-              'calc(' + reversedVoteList[index]?.votes1Proportion + '% + 10px)',
-            clipPath: 'polygon(10px 0, 100% 0, 100% 100%, 0 100%, 20px 0)',
-          }"
-        >
-          <div
-            class="blue_white_line"
-            :style="{
-              clipPath: 'polygon(15px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
-            }"
-          >
-            <div
-              class="bwl_content"
-              :style="{
-                clipPath:
-                  'polygon(13px 0, 100% 0, 100% 100%, 100% 100%, 0 100%)',
-              }"
-            ></div>
+        <div class="head_content_right">
+          <div class="vote_time">
+            <img src="@/assets/images/ai/img22.png" alt="" />
+            <div>
+              {{ reversedVoteList[index]?.startTimestamp || "" }} ~
+              {{ reversedVoteList[index]?.endTimestamp || "" }}
+            </div>
+          </div>
+          <div class="count_down">
+            <img src="@/assets/images/ai/img23.png" alt="" />
+            <div>{{ reversedVoteList[index]?.remainingTime || "" }}</div>
           </div>
         </div>
-        <img
-          src="@/assets/images/ai/img6.png"
-          alt=""
-          class="progress_container_bottomline"
-        />
-        <div
-          class="blue_line"
-          :style="{
-            width:
-              'calc(' + reversedVoteList[index]?.votes1Proportion + '% + 12px)',
-          }"
-        ></div>
-      </div>
-      <div class="count_down">
-        <div>
-          {{ reversedVoteList[index]?.startTimestamp || "" }} ~
-          {{ reversedVoteList[index]?.endTimestamp || "" }}
-        </div>
-        <div>{{ reversedVoteList[index]?.remainingTime || "" }}</div>
       </div>
     </div>
   </div>
@@ -163,7 +91,6 @@
 import { ref, onMounted, computed, onUnmounted } from "vue";
 import { useMovieVoteFactoryContract } from "@/api/contract/movieVoteFactory";
 import { useMovieVotePairContract } from "@/api/contract/movieVotePair";
-import { getImage } from "@/api/vote";
 import router from "@/router";
 import { ElMessage } from "element-plus";
 
@@ -197,9 +124,6 @@ const getAllPair = async () => {
       pairList.value.map(async (item) => {
         const movieVotePairContract = useMovieVotePairContract(item);
         const baseInfo = await movieVotePairContract.getBaseInfo();
-        const imageList = await getImage({
-          pair: item,
-        });
         const votes0Proportion =
           Number(baseInfo[2]) /
           (Number(baseInfo[2]) + Number(baseInfo[3]) || 1);
@@ -207,10 +131,10 @@ const getAllPair = async () => {
         return {
           contractAddress: item,
           character0: baseInfo[0],
-          character0Image: imageList.data?.json?.image_url_0,
-          character1Image: imageList.data?.json?.image_url_1,
-          character0HeadImage: imageList.data?.json?.image_url_2,
-          character1HeadImage: imageList.data?.json?.image_url_3,
+          character0Image: `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${item}_image0.png`,
+          character1Image: `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${item}_image1.png`,
+          character0HeadImage: `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${item}_image2.png`,
+          character1HeadImage: `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${item}_image3.png`,
           votes0: baseInfo[2],
           votes0Proportion:
             Number(baseInfo[2]) === Number(baseInfo[3])
@@ -300,75 +224,32 @@ const formatTimestampToTimeString = (time) => {
     seconds
   );
 };
-const formatTimestampToTime = (
-  startTimestamp,
-  endTimestamp,
-  blockNum,
-  nowTime
-) => {
-  const startDifferenceTimestampNum = Number(startTimestamp) - Number(blockNum);
-  const endDifferenceTimestampNum = Number(endTimestamp) - Number(blockNum);
-  const startDate = new Date(nowTime + startDifferenceTimestampNum * 3000);
-  const endDate = new Date(nowTime + endDifferenceTimestampNum * 3000);
-  return (
-    startDate.getFullYear() +
-    "-" +
-    (startDate.getMonth() + 1 < 10
-      ? "0" + (startDate.getMonth() + 1)
-      : startDate.getMonth() + 1) +
-    "-" +
-    (startDate.getDate() < 10
-      ? "0" + startDate.getDate()
-      : startDate.getDate()) +
-    " " +
-    (startDate.getHours() < 10
-      ? "0" + startDate.getHours()
-      : startDate.getHours()) +
-    ":" +
-    (startDate.getMinutes() < 10
-      ? "0" + startDate.getMinutes()
-      : startDate.getMinutes()) +
-    ":" +
-    (startDate.getSeconds() < 10
-      ? "0" + startDate.getSeconds()
-      : startDate.getSeconds()) +
-    " ~ " +
-    endDate.getFullYear() +
-    "-" +
-    (endDate.getMonth() + 1 < 10
-      ? "0" + (endDate.getMonth() + 1)
-      : endDate.getMonth() + 1) +
-    "-" +
-    (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()) +
-    " " +
-    (endDate.getHours() < 10 ? "0" + endDate.getHours() : endDate.getHours()) +
-    ":" +
-    (endDate.getMinutes() < 10
-      ? "0" + endDate.getMinutes()
-      : endDate.getMinutes()) +
-    ":" +
-    (endDate.getSeconds() < 10
-      ? "0" + endDate.getSeconds()
-      : endDate.getSeconds())
-  );
-};
 </script>
 
 <style scoped lang="less">
 .ai_container {
   flex: 1;
+  .ai_container_headimg {
+    width: 100%;
+    max-width: 1280px;
+    margin: auto;
+    padding-top: 32px;
+    img {
+      width: 173px;
+      height: auto;
+    }
+  }
   .container_head {
     width: 100%;
-    // height: 328px;
     max-width: 1280px;
     margin: auto;
     position: relative;
     z-index: 1;
-    margin-top: 20px;
+    margin-top: 40px;
     cursor: pointer;
     .red_back_img {
       width: 50%;
-      height: 250px;
+      height: 128px;
       position: absolute;
       top: 0;
       left: 0;
@@ -378,12 +259,18 @@ const formatTimestampToTime = (
       div {
         width: 100%;
         height: 100%;
-        background-color: #000000c7;
+        background: linear-gradient(
+          270deg,
+          rgba(0, 0, 0, 1) 0%,
+          rgba(0, 0, 0, 0.75) 64.22%,
+          rgba(0, 0, 0, 0.5) 100%
+        );
+        background-blend-mode: normal, color, normal;
       }
     }
     .blue_back_img {
       width: 50%;
-      height: 250px;
+      height: 128px;
       position: absolute;
       top: 0;
       right: 0;
@@ -393,235 +280,173 @@ const formatTimestampToTime = (
       div {
         width: 100%;
         height: 100%;
-        background-color: #000000c7;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 1) 0%,
+          rgba(0, 0, 0, 0.75) 64.22%,
+          rgba(0, 0, 0, 0.5) 100%
+        );
+        background-blend-mode: normal, color, normal;
       }
     }
     .head_content {
+      width: 100%;
+      height: 128px;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       position: relative;
-      .red_avatar {
+      .head_content_left {
+        width: 50%;
+        height: 128px;
+        padding: 0 40px;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
-        gap: 24px;
-        img {
-          width: 80px;
-          height: 80px;
-          border-radius: 24px;
-          border: 1px solid #ff3503;
+        justify-content: space-between;
+        .red_avatar {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          img {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            border: 1px solid #ff3503;
+          }
+          .red_avatar_name {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            div {
+              &:first-child {
+                font-family: "Douyin Sans";
+                font-size: 24px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: normal;
+                background: linear-gradient(
+                  180deg,
+                  rgba(255, 53, 3, 1) 0%,
+                  rgba(153, 65, 2, 1) 100%
+                );
+                -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+                -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+              }
+              &:last-child {
+                color: #fff;
+                -webkit-text-stroke-width: 1px;
+                -webkit-text-stroke-color: #200;
+                font-family: "Douyin Sans";
+                font-size: 24px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: normal;
+              }
+            }
+          }
         }
-        .red_avatar_name {
+        .head_content_img {
+          width: 45px;
+          height: auto;
+        }
+        .blue_avatar {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          img {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            border: 1px solid #3103ff;
+          }
+          .blue_avatar_name {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 6px;
+            div {
+              &:first-child {
+                font-family: "Douyin Sans";
+                font-size: 24px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: normal;
+                background: linear-gradient(
+                  180deg,
+                  rgba(49, 3, 255, 1) 0%,
+                  rgba(2, 125, 153, 1) 100%
+                );
+                -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
+                -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
+              }
+              &:last-child {
+                color: #fff;
+                -webkit-text-stroke-width: 1px;
+                -webkit-text-stroke-color: #200;
+                font-family: "Douyin Sans";
+                font-size: 24px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: normal;
+              }
+            }
+          }
+        }
+      }
+      .head_content_right {
+        width: 50%;
+        height: 128px;
+        padding: 0 40px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 29px;
+        .vote_time {
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          gap: 6px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 7px;
           div {
-            &:first-child {
-              font-family: "Douyin Sans";
-              font-size: 24px;
-              font-style: normal;
-              font-weight: 700;
-              line-height: normal;
-              background: linear-gradient(
-                180deg,
-                rgba(255, 53, 3, 1) 0%,
-                rgba(153, 65, 2, 1) 100%
-              );
-              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
-              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
-            }
-            &:last-child {
-              color: #fff;
-              -webkit-text-stroke-width: 1px;
-              -webkit-text-stroke-color: #200;
-              font-family: "Douyin Sans";
-              font-size: 24px;
-              font-style: normal;
-              font-weight: 700;
-              line-height: normal;
-            }
+            color: #fff;
+            text-align: center;
+            font-family: Montserrat;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+          }
+          img {
+            width: 20px;
+            height: 20px;
           }
         }
-      }
-      .head_content_img {
-        width: 150px;
-        height: auto;
-      }
-      .blue_avatar {
-        display: flex;
-        align-items: center;
-        gap: 24px;
-        img {
-          width: 80px;
-          height: 80px;
-          border-radius: 24px;
-          border: 1px solid #3103ff;
-        }
-        .blue_avatar_name {
+        .count_down {
+          min-width: 159px;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          align-items: flex-end;
-          gap: 6px;
+          align-items: center;
+          justify-content: space-between;
+          gap: 7px;
           div {
-            &:first-child {
-              font-family: "Douyin Sans";
-              font-size: 24px;
-              font-style: normal;
-              font-weight: 700;
-              line-height: normal;
-              background: linear-gradient(
-                180deg,
-                rgba(49, 3, 255, 1) 0%,
-                rgba(2, 125, 153, 1) 100%
-              );
-              -webkit-background-clip: text; /* 关键：让背景裁剪到文字 */
-              -webkit-text-fill-color: transparent; /* 关键：填充变透明，显示背景 */
-            }
-            &:last-child {
-              color: #fff;
-              -webkit-text-stroke-width: 1px;
-              -webkit-text-stroke-color: #200;
-              font-family: "Douyin Sans";
-              font-size: 24px;
-              font-style: normal;
-              font-weight: 700;
-              line-height: normal;
-            }
+            color: #fff;
+            text-align: center;
+            font-family: Montserrat;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+          }
+          img {
+            width: 20px;
+            height: 20px;
           }
         }
       }
-    }
-    .progress_container {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 1280px;
-      margin: auto;
-      height: 126px;
-      top: -10px;
-      .red_line {
-        height: 2px;
-        background: linear-gradient(
-          to left,
-          #ff3a3a 0.39%,
-          rgba(255, 58, 58, 0) 81.18%
-        );
-        position: absolute;
-        top: 32px;
-        left: 0;
-        z-index: 5;
-        transition: 1s;
-      }
-      .progress_container_topline {
-        width: 100%;
-        height: 2px;
-        position: absolute;
-        top: 37px;
-      }
-      .progress {
-        height: 48px;
-        position: absolute;
-        top: 39px;
-        transition: width 1s;
-        box-sizing: border-box;
-        .red_white_line {
-          width: calc(100% - 10px);
-          height: 36px;
-          background-color: rgba(255, 255, 255, 0.49);
-          padding-left: 2px;
-          display: flex;
-          justify-content: flex-start;
-          align-items: center;
-          box-sizing: border-box;
-          .rwl_content {
-            width: calc(100% - 4px);
-            height: 32px;
-            background: linear-gradient(to right, #3a0b0b 0%, #c86b7e 100%);
-          }
-        }
-        .blue_white_line {
-          width: calc(100% - 10px);
-          height: 36px;
-          background-color: rgba(255, 255, 255, 0.49);
-          padding-right: 2px;
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          box-sizing: border-box;
-          .bwl_content {
-            width: calc(100% - 4px);
-            height: 32px;
-            background: linear-gradient(to right, #4351b3 0%, #233b88 100%);
-          }
-        }
-      }
-
-      .red {
-        background: linear-gradient(to right, #861e1a 0%, #592857 100%);
-        left: 0;
-        z-index: 1;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        box-sizing: border-box;
-        padding-left: 6px;
-      }
-
-      .blue {
-        background: linear-gradient(to right, #37459b 0%, #4650b2 100%);
-        right: 0;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        box-sizing: border-box;
-        padding-right: 6px;
-      }
-      .progress_bar_divider {
-        width: 50px;
-        height: 126px;
-        position: absolute;
-        top: 0;
-        z-index: 10;
-        transition: 1s;
-      }
-      .progress_container_bottomline {
-        width: 100%;
-        height: 2px;
-        position: absolute;
-        bottom: 38px;
-      }
-      .blue_line {
-        height: 2px;
-        background: linear-gradient(
-          to left,
-          rgba(21, 54, 255, 0) 0.39%,
-          #1536ff 100%
-        );
-        position: absolute;
-        right: 0;
-        bottom: 32px;
-        z-index: 5;
-        transition: 1s;
-      }
-    }
-    .count_down {
-      color: #ff54f6;
-      text-align: center;
-      font-family: Montserrat;
-      font-size: 20px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: normal;
-      text-transform: capitalize;
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      top: -25px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
     }
   }
   .container_section {

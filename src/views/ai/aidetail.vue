@@ -676,7 +676,6 @@ import { useUsdtTokenContract } from "@/api/contract/usdtToken";
 import { useMovieVoteFactoryContract } from "@/api/contract/movieVoteFactory";
 import { useMovieVotePairContract } from "@/api/contract/movieVotePair";
 import { useReferralContract } from "@/api/contract/referral";
-import { getImage } from "@/api/vote";
 import { ElNotification, ElMessage } from "element-plus";
 import useWalletStore from "@/store/modules/wallet";
 import Web3 from "web3";
@@ -904,15 +903,12 @@ const getDetailState = async () => {
     const countDown = Math.floor(new Date().getTime() / 1000);
     const movieVotePairContract = useMovieVotePairContract(pair);
     const baseInfo = await movieVotePairContract.getBaseInfo();
-    const imageList = await getImage({
-      pair: pair,
-    });
     detailData.value.contractAddress = pair;
     detailData.value.character0 = baseInfo[0];
-    detailData.value.character0Image = imageList.data?.json?.image_url_0;
-    detailData.value.character1Image = imageList.data?.json?.image_url_1;
-    detailData.value.character0HeadImage = imageList.data?.json?.image_url_2;
-    detailData.value.character1HeadImage = imageList.data?.json?.image_url_3;
+    detailData.value.character0Image = `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${pair}_image0.png`;
+    detailData.value.character1Image = `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${pair}_image1.png`;
+    detailData.value.character0HeadImage = `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${pair}_image2.png`;
+    detailData.value.character1HeadImage = `https://movieai.oss-cn-hongkong.aliyuncs.com/png/movieai${pair}_image3.png`;
     detailData.value.character1 = baseInfo[1];
     detailData.value.countdown =
       Number(baseInfo[7]) - countDown > 0 ? Number(baseInfo[7]) - countDown : 0;
