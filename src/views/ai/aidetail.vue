@@ -22,7 +22,7 @@
           </div>
         </div>
         <img
-          src="@/assets/images/ai/img4.png"
+          src="@/assets/images/ai/img24.svg"
           alt=""
           class="head_content_img"
         />
@@ -1350,7 +1350,7 @@ const copyTextToClipboard = (text) => {
         .red_white_line {
           width: calc(100% - 10px);
           height: 36px;
-          background-color: rgba(255, 255, 255, 0.49);
+          background-color: #fd8080;
           padding-left: 2px;
           display: flex;
           justify-content: flex-start;
@@ -1359,13 +1359,13 @@ const copyTextToClipboard = (text) => {
           .rwl_content {
             width: calc(100% - 4px);
             height: 32px;
-            background: linear-gradient(to right, #3a0b0b 0%, #c86b7e 100%);
+            background: linear-gradient(to right, #3a0b0b 0%, #c2494f 100%);
           }
         }
         .blue_white_line {
           width: calc(100% - 10px);
           height: 36px;
-          background-color: rgba(255, 255, 255, 0.49);
+          background-color: #8189fe;
           padding-right: 2px;
           display: flex;
           justify-content: flex-end;
@@ -1374,13 +1374,13 @@ const copyTextToClipboard = (text) => {
           .bwl_content {
             width: calc(100% - 4px);
             height: 32px;
-            background: linear-gradient(to right, #4351b3 0%, #233b88 100%);
+            background: linear-gradient(90deg, #5861e5 0%, #181375 100%);
           }
         }
       }
 
       .red {
-        background: linear-gradient(to right, #861e1a 0%, #592857 100%);
+        background: linear-gradient(to right, #760c11 0%, #7f0852 100%);
         left: 0;
         z-index: 1;
         display: flex;
@@ -1391,7 +1391,7 @@ const copyTextToClipboard = (text) => {
       }
 
       .blue {
-        background: linear-gradient(to right, #37459b 0%, #4650b2 100%);
+        background: linear-gradient(to right, #2631a8 0%, #192ccf 100%);
         right: 0;
         display: flex;
         justify-content: flex-end;

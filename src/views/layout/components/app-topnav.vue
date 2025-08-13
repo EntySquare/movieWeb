@@ -289,6 +289,12 @@ const toggleSelection = (item: any) => {
     cartList.value = item;
   }
 };
+const navToPlatform = (link: any) => {
+  if (link === "") {
+    return;
+  }
+  window.open(link, "_blank");
+};
 </script>
 <template>
   <nav class="app-topnav">
@@ -299,19 +305,34 @@ const toggleSelection = (item: any) => {
         /></router-link>
         <div class="line"></div>
         <div class="appLogo" v-if="windowWidth > 824">
-          <div class="appLogoItem">
+          <div
+            class="appLogoItem"
+            @click="navToPlatform('https://x.com/MAI_MovieHQ')"
+          >
             <img src="@/assets/svgs/twi.svg" alt="" />
           </div>
-          <div class="appLogoItem">
+          <div
+            class="appLogoItem"
+            @click="navToPlatform('https://t.me/MovieAI_Info')"
+          >
             <img src="@/assets/svgs/telegram.svg" alt="" />
           </div>
-          <div class="appLogoItem">
+          <div
+            class="appLogoItem"
+            @click="navToPlatform('https://movieai.gitbook.io/movieai')"
+          >
             <img src="@/assets/svgs/gitBook.svg" alt="" />
           </div>
-          <div class="appLogoItem">
+          <div
+            class="appLogoItem"
+            @click="navToPlatform('https://discord.gg/Ka7JCYg8')"
+          >
             <img src="@/assets/svgs/discord.svg" alt="" />
           </div>
-          <div class="appLogoItem">
+          <div
+            class="appLogoItem"
+            @click="navToPlatform('https://medium.com/@movieai')"
+          >
             <img src="@/assets/svgs/medium.svg" alt="" />
           </div>
         </div>
@@ -679,6 +700,7 @@ const toggleSelection = (item: any) => {
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
     }
   }
 }
