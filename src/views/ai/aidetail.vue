@@ -244,7 +244,7 @@
                 voteDifferenceType === 'red'
               "
             >
-              NEZHA TAKES<br />THE LEAD!
+              {{ detailData.character0 || "" }} TAKES<br />THE LEAD!
             </div>
             <div
               class="red_text red_text_lead"
@@ -253,7 +253,7 @@
                 voteDifferenceType === 'red'
               "
             >
-              NEZHA IS<br />BEHIND!
+              {{ detailData.character0 || "" }} IS<br />BEHIND!
             </div>
             <div
               class="red_text red_text_backward"
@@ -262,7 +262,7 @@
                 voteDifferenceType === 'blue'
               "
             >
-              AO BING TAKES<br />THE LEAD!
+              {{ detailData.character1 || "" }} TAKES<br />THE LEAD!
             </div>
             <div
               class="red_text red_text_backward"
@@ -271,7 +271,7 @@
                 voteDifferenceType === 'blue'
               "
             >
-              AO BING IS<br />BEHIND!
+              {{ detailData.character1 || "" }} IS<br />BEHIND!
             </div>
           </div>
           <div class="">
