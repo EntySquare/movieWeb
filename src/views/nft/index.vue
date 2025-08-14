@@ -75,7 +75,7 @@
         >
           <div class="cci_img">
             <img :src="item[4] || ''" alt="" />
-            <div>{{ item[2] }}</div>
+            <div>{{ formatRarity(item[2]) }}</div>
           </div>
           <div
             class="cci_btn"
@@ -104,7 +104,7 @@
             <div>{{ item[1] || "" }}</div>
           </div>
           <div class="ccl_item_rarity">
-            <div>{{ item[2] || "" }}</div>
+            <div>{{ formatRarity(item[2]) || "" }}</div>
           </div>
           <div class="ccl_item_price">
             <div>
@@ -225,7 +225,7 @@
               </div>
               <div class="tcst_detail_item">
                 <div>Rarity</div>
-                <div>{{ detailData[2] }}</div>
+                <div>{{ formatRarity(detailData[2]) }}</div>
               </div>
             </div>
           </div>
@@ -536,6 +536,37 @@ const approveNFTMarketplace = async () => {
   } catch (error) {
     console.error("error", error);
     throw error;
+  }
+};
+const formatRarity = (rarity: any) => {
+  switch (Number(rarity)) {
+    case 1:
+      return "SP";
+      break;
+    case 2:
+      return "SC";
+      break;
+    case 3:
+      return "BP";
+      break;
+    case 4:
+      return "UR";
+      break;
+    case 5:
+      return "LR";
+      break;
+    case 6:
+      return "SSR";
+      break;
+    case 7:
+      return "QSR";
+      break;
+    case 8:
+      return "QDR";
+      break;
+    default:
+      return "";
+      break;
   }
 };
 </script>

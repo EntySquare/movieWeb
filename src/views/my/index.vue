@@ -722,6 +722,37 @@ const exchangePut = async () => {
     exchangeLoading.value = false;
   }
 };
+const formatRarity = (rarity: any) => {
+  switch (Number(rarity)) {
+    case 1:
+      return "SP";
+      break;
+    case 2:
+      return "SC";
+      break;
+    case 3:
+      return "BP";
+      break;
+    case 4:
+      return "UR";
+      break;
+    case 5:
+      return "LR";
+      break;
+    case 6:
+      return "SSR";
+      break;
+    case 7:
+      return "QSR";
+      break;
+    case 8:
+      return "QDR";
+      break;
+    default:
+      return "";
+      break;
+  }
+};
 </script>
 <template>
   <div class="home_view">
@@ -919,7 +950,7 @@ const exchangePut = async () => {
               >
                 <div class="cci_img">
                   <img :src="item[4] || ''" alt="" />
-                  <div>{{ item[2] }}</div>
+                  <div>{{ formatRarity(item[2]) }}</div>
                 </div>
                 <div
                   class="cci_btn"
@@ -955,7 +986,7 @@ const exchangePut = async () => {
                   <div>{{ item[1] || "" }}</div>
                 </div>
                 <div class="ccl_item_rarity">
-                  <div>{{ item[2] || "" }}</div>
+                  <div>{{ formatRarity(item[2]) || "" }}</div>
                 </div>
                 <div class="ccl_item_amount">{{ item[6] || "" }}</div>
                 <div class="ccl_item_price">
@@ -1024,7 +1055,7 @@ const exchangePut = async () => {
               >
                 <div class="cci_img">
                   <img :src="item.image || ''" alt="" />
-                  <div>{{ item.rarity }}</div>
+                  <div>{{ formatRarity(item.rarity) }}</div>
                 </div>
                 <el-button
                   type="primary"
@@ -1337,7 +1368,7 @@ const exchangePut = async () => {
               </div>
               <div class="tcst_detail_item">
                 <div>Rarity</div>
-                <div>{{ detailData[2] }}</div>
+                <div>{{ formatRarity(detailData[2]) }}</div>
               </div>
             </div>
           </div>
@@ -1447,7 +1478,7 @@ const exchangePut = async () => {
               </div>
               <div class="tcst_detail_item">
                 <div>Rarity</div>
-                <div>{{ detailData[2] }}</div>
+                <div>{{ formatRarity(detailData[2]) }}</div>
               </div>
             </div>
           </div>
