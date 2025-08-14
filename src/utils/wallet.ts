@@ -67,17 +67,17 @@ export const connectWallet = async () => {
         //获取网络ID
         const chain = await provider.value.request({ method: "eth_chainId" });
 
-        // if (chain !== walletStore.BSC_chain_id) {
-        //     // 切换BSC网络
-        //     try {
-        //         await provider.value.request({
-        //             method: "wallet_switchEthereumChain",
-        //             params: [{ chainId: walletStore.BSC_chain_id }],
-        //         });
-        //     } catch (switchError) {
-        //         return;
-        //     }
-        // }
+        if (chain !== walletStore.BSC_chain_id) {
+            // 切换BSC网络
+            try {
+                await provider.value.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: walletStore.BSC_chain_id }],
+                });
+            } catch (switchError) {
+                return;
+            }
+        }
 
         const accounts = await provider.value.request({
             method: "eth_requestAccounts",
