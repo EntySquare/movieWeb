@@ -1,6 +1,6 @@
 {
   "tsetU": {
-    "address": "0x0F1A098C11EC365FB65dCF5C6D968ae623c28139",
+    "address": "0x55d398326f99059fF775485246999027B3197955",
     "abi": [
       {
         "inputs": [
@@ -305,7 +305,7 @@
     ]
   },
   "referral": {
-    "address": "0xB2710b3d236CF626176B558C6a9536b6579c3A17",
+    "address": "0xF8355a4E772Abc2510743cA889b47aeD81D3457C",
     "abi": [
       {
         "anonymous": false,
@@ -467,7 +467,7 @@
     ]
   },
   "movieVoteFactory": {
-    "address": "0x03Ef48D4EfB075988Fe3E46C1e9B17d38780BAe9",
+    "address": "0x6769d61d4f2904da1777789FC3c89e9e1ff5202e",
     "abi": [
       {
         "inputs": [
@@ -1580,7 +1580,7 @@
     ]
   },
   "movieNFT": {
-    "address": "0x313658753c078e94a516EcEefD665f1d7ebDB9f2",
+    "address": "0x07C391923C0c37E55CEb640E952cE8aD5BfFA0db",
     "abi": [
       {
         "inputs": [
@@ -2634,7 +2634,7 @@
     ]
   },
   "NFTMarketplace": {
-    "address": "0x11D158AF508eCa9Ff4b91d04D68317d62bb8c7cd",
+    "address": "0x07A2638c0054442392D595Dc1413d9B9c180adad",
     "abi": [
       {
         "inputs": [
