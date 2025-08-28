@@ -118,7 +118,7 @@ onUnmounted(() => {
 
 const getAllPair = async () => {
   try {
-    const list = await movieVoteFactoryContract.allPairs();
+    const list = await movieVoteFactoryContract.getActivePairs();
     pairList.value = [...list] || [];
     voteList.value = await Promise.all(
       pairList.value.map(async (item) => {
