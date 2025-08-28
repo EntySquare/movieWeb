@@ -467,7 +467,7 @@
     ]
   },
   "movieVoteFactory": {
-    "address": "0x03Ef48D4EfB075988Fe3E46C1e9B17d38780BAe9",
+    "address": "0x5360baABE14d693495bCA3a5790C5c955DA52983",
     "abi": [
       {
         "inputs": [
